@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# notes and internal docs — README is the only markdown that ships
+*.md
+!README.md
+*.txt

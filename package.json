@@ -6,9 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run lint && npm run build",
+    "assets:hero": "node scripts/build-hero-assets.mjs",
+    "assets:images": "node scripts/build-image-assets.mjs"
   },
   "dependencies": {
+    "motion": "^12.43.0",
     "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4"

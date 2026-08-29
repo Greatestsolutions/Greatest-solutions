@@ -1,26 +1,440 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   GREATEST SOLUTIONS — design tokens
+
+   Every value is extracted from the Framer reference build, not invented.
+   Provenance is noted against REBUILD-SPEC.md sections.
+   Tailwind v4 is CSS-first: this @theme block IS the config.
+   ========================================================================== */
+
+@theme {
+  /* --- Colour (REBUILD-SPEC §2) -------------------------------------------
+     The reference declares a 40-entry token table, but most of it is unused
+     Framer default greyscale.  These are the values the site actually renders,
+     ranked by render frequency. */
+
+  --color-ink: #141414; /* primary text, display type      */
+  --color-body: #656565; /* paragraphs                      */
+  --color-muted: #a4a4a4; /* captions, secondary             */
+  --color-surface: #ffffff; /* cards, pills                    */
+  --color-background: #f9f8f6; /* page — warm off-white, NOT #fff */
+
+  /* Borders are drawn as translucent black, not as a grey.  The 0.04 hairline
+     is the single most-used decorative value in the whole reference build. */
+  --color-hairline: rgb(0 0 0 / 0.04);
+  --color-hairline-strong: rgb(0 0 0 / 0.08);
+
+  /* Scrims, in the four steps the reference actually uses. */
+  --color-scrim-06: rgb(0 0 0 / 0.06);
+  --color-scrim-12: rgb(0 0 0 / 0.12);
+  --color-scrim-20: rgb(0 0 0 / 0.2);
+  --color-scrim-25: rgb(0 0 0 / 0.25);
+
+  /* On-dark surfaces. */
+  --color-on-dark-surface: rgb(255 255 255 / 0.08);
+  --color-on-dark-border: rgb(255 255 255 / 0.1);
+
+  /* Brand.  Carried over verbatim from the navbar rebrand layer; these replace
+     Framer's #0099ff link default, which must not survive the port. */
+  --color-brand-forest: #0b3f20;
+  --color-brand-deep: #0c4b24;
+  --color-brand-green: #16713c;
+  --color-brand-emerald: #1d8944;
+  --color-brand-leaf: #3f8159;
+  --color-brand-ink: #22362a;
+
+  /* --- Type (REBUILD-SPEC §3) ---------------------------------------------
+     Fraunces for display, Inter for UI/body, Geist Mono for labels.
+     Wired to next/font in layout.tsx so nothing is hotlinked. */
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Fraunces is variable, and the reference does NOT render it at its defaults.
+     Every Fraunces run in the export computes to:
+
+         font-variation-settings: "SOFT" 100, "WONK" 1, "wght" 350
+         font-feature-settings:   "ss01"
+
+     Shipping the defaults instead made display type 3.4% wider — "Content
+     Marketing" measured 346.86px against the reference's 335.33px at 44px, which
+     is what pushed a phone service title onto a third line. Optical sizing stays
+     `auto` so opsz tracks the rendered size; the reference pins opsz per preset,
+     which is a Framer authoring artifact rather than a design decision.
+
+     Declared once here and referenced everywhere Fraunces is set, so the display
+     face cannot drift between the heading rule, the utility and the token. */
+  --display-variation: "SOFT" 100, "WONK" 1, "wght" 350;
+  --display-features: "ss01";
+  --font-display--font-variation-settings: var(--display-variation);
+  --font-display--font-feature-settings: var(--display-features);
+
+  /* The display scale.  72/64/56 are ONE style at three breakpoints in the
+     reference, not three styles — see the text-display utility below, which
+     folds them into a single fluid token.  These fixed steps remain for the
+     cases that genuinely need a fixed size. */
+  /* Line height on every Fraunces size in the reference is exactly
+     `font-size + 4px`. Auditing all 14 display sizes on the page found no
+     exception, so these ratios are that rule written out rather than rounded
+     guesses — the previous values were off by up to 0.32px at 72. */
+  --text-display-xl: 4.5rem; /* 72px → 76 */
+  --text-display-xl--line-height: 1.05556;
+  --text-display-lg: 4rem; /* 64px → 68 */
+  --text-display-lg--line-height: 1.0625;
+  --text-display-md: 3.5rem; /* 56px → 60 — the section heading, 10 uses */
+  --text-display-md--line-height: 1.07143;
+  --text-display-sm: 3rem; /* 48px → 52 */
+  --text-display-sm--line-height: 1.08333;
+  --text-heading-xl: 2.75rem; /* 44px → 48 */
+  --text-heading-xl--line-height: 1.09091;
+  --text-heading-lg: 2.5rem; /* 40px → 44 */
+  --text-heading-lg--line-height: 1.1;
+  --text-heading-md: 2rem; /* 32px → 36 — the card title, 26 uses */
+  --text-heading-md--line-height: 1.125;
+  --text-heading-sm: 1.5rem; /* 24px → 28 */
+  --text-heading-sm--line-height: 1.16667;
+
+  /* Tracking is bound to each size rather than inherited. `letter-spacing` in
+     `em` resolves against the element's OWN font-size and then inherits as the
+     resulting PIXEL value — so `-0.02em` on <body> reaches a 14px child as
+     -0.32px, not the -0.28px the ratio is supposed to mean. Measured against the
+     reference, service tags came out 0.04px per character too loose for exactly
+     this reason. Declaring it on the size token re-resolves it at the right
+     font-size, which is what "letter-spacing is a ratio" was always meant to do. */
+  --text-body-lg: 1rem; /* 16px → -0.32px */
+  --text-body-lg--line-height: 1.5;
+  --text-body-lg--letter-spacing: -0.02em;
+  --text-body-md: 0.875rem; /* 14px → -0.28px */
+  --text-body-md--line-height: 1.4286;
+  --text-body-md--letter-spacing: -0.02em;
+  --text-body-sm: 0.75rem; /* 12px → -0.24px */
+  --text-body-sm--line-height: 1.3333;
+  --text-body-sm--letter-spacing: -0.02em;
+
+  /* Letter spacing is a fixed em RATIO per family in the reference — every
+     pixel value in the export derives from these three numbers:
+         Fraunces   -0.04em   (72×-0.04 = -2.88 … 24×-0.04 = -0.96)
+         Inter      -0.02em   (16×-0.02 = -0.32 … 12×-0.02 = -0.24)
+         Geist Mono +0.03em   (12×+0.03 = +0.36)
+     Encoding the ratio keeps this correct at any size. */
+  --tracking-display: -0.04em;
+  --tracking-body: -0.02em;
+  --tracking-label: 0.03em;
+
+  /* --- Radius (REBUILD-SPEC §5) -------------------------------------------
+     Counts are from a full-page audit at 1440 (tools/probe.js, q-audit).
+     100px and 999px are the same shape — both mean "fully round" on a 28–48px
+     control — so `--radius-pill` covers all 79 of them. */
+  --radius-pill: 999px; /* pills + buttons, 79 uses */
+  --radius-card: 20px; /* inner thumbnails,  30 uses */
+  --radius-lg: 32px;
+  --radius-xl: 40px; /* desktop hero container   */
+  --radius-md: 24px; /* card outer / phone hero, 12 uses */
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  /* Pricing plan cards: top corners 24, bottom 48. Asymmetric on purpose. */
+  --radius-plan: 24px 24px 48px 48px;
+
+  /* --- Blur (REBUILD-SPEC §5) --------------------------------------------- */
+  --blur-glass: 10px; /* the glass standard, 55 uses */
+  --blur-soft: 4px;
+  --blur-subtle: 2px;
+
+  /* --- Layout (REBUILD-SPEC §6) ------------------------------------------- */
+  --container-content: 1560px;
+  --container-narrow: 860px;
+  --container-prose: 520px;
+
+  /* Page gutters, measured from the reference: 16px phone, 24px tablet, 64px
+     desktop. Tokens rather than literals inside Container, because the hero
+     bleeds full-width and still has to line its content up with every other
+     section — two call sites that must never drift apart. */
+  --gutter-phone: 16px;
+  --gutter-tablet: 24px;
+  --gutter-desktop: 64px;
+
+  /* --- Breakpoints (REBUILD-SPEC §8) --------------------------------------
+     The reference switches variants at 810px and 1200px. Tailwind's defaults
+     (sm 640 / md 768 / lg 1024 / xl 1280) match none of those, so building
+     against `lg:` silently diverges from the reference across 1024–1199px.
+     These named screens are additive — the defaults still exist — and make
+     every responsive utility in the codebase self-documenting. */
+  --breakpoint-tablet: 810px;
+  --breakpoint-desktop: 1200px;
+
+  /* --- Easing (REBUILD-SPEC §5) -------------------------------------------
+     The brand curve already in use in the rebrand layer. */
+  --ease-brand: cubic-bezier(0.22, 0.85, 0.25, 1);
+
+  /* The reference's state-change spring, transcribed from measurement rather
+     than approximated: the services scroll transition was sampled at frame rate
+     across one state flip (SERVICES-SECTION.md §4) and these are the normalised
+     samples. It overshoots by 1.5% at ~433ms and settles at ~800ms, which solves
+     to a damping ratio of 0.80 — the same curve as `spring.interaction` in
+     lib/motion.ts, expressed as CSS so no JavaScript is needed to run it.
+
+     Pair it with --duration-spring; the two are one measurement. */
+  --ease-spring: linear(
+    0,
+    0.128 8.5%,
+    0.288 12.5%,
+    0.455 16.5%,
+    0.607 20.9%,
+    0.733 24.9%,
+    0.83 29.1%,
+    0.901 33.3%,
+    0.95 37.5%,
+    0.982 41.5%,
+    1.001 45.8%,
+    1.011 49.9%,
+    1.015 54.1%,
+    1.013 62.3%,
+    1.009 70.6%,
+    1.004 79.1%,
+    1.002 87.4%,
+    1
+  );
+  --duration-spring: 800ms;
+
+  /* The reference's ENTRANCE spring, transcribed the same way: the testimonial
+     fan was sampled at 120ms intervals as it came into view (TESTIMONIALS-SECTION.md
+     §3) and these are the normalised samples of the outer cards' travel. It has
+     no overshoot at all and settles at ~1450ms, which is `spring.entrance` in
+     lib/motion.ts — 1.5s, bounce 0 — expressed as CSS.
+
+     Distinct from --ease-spring on purpose: ARCHITECTURE's "two motion languages"
+     note. Entrance is calm and never overshoots; interaction is tactile and does. */
+  --ease-entrance: linear(
+    0,
+    0.153 8.3%,
+    0.412 16.6%,
+    0.625 25%,
+    0.778 33.2%,
+    0.881 41.6%,
+    0.931 50%,
+    0.962 58.3%,
+    0.981 66.7%,
+    0.991 74.9%,
+    0.994 83.3%,
+    0.997 91.7%,
+    1
+  );
+  --duration-entrance: 1450ms;
+
+  /* The reference runs every non-spring transition on --ease-brand and uses
+     exactly four durations. Audited across the whole page; no others appear. */
+  --duration-quick: 320ms; /* colour changes — 6 uses, incl. nav links */
+  --duration-medium: 400ms; /* the CTA's box-shadow + filter pair */
+  --duration-slow: 600ms; /* project thumbnail transform + filter  */
+
+  /* --- Page texture (3.1B) -------------------------------------------------
+     A 100x100 JPEG tiled at 50px across the whole document. Opaque, and it is
+     what actually paints the page surface: flat areas measure 246,246,244 in
+     the reference against the 249,248,246 of --color-background alone. Served
+     from /texture rather than framerusercontent.com, and NOT re-encoded — it is
+     1.25 KB already and a round trip through another encoder would shift the
+     colour it exists to produce. */
+  --texture-grain: url("/texture/grain.jpg");
+  --texture-grain-size: 50px;
+
+  /* --- Marquee ------------------------------------------------------------
+     A CSS animation, not JS: it runs on the compositor, costs no main-thread
+     work, and keeps running while React is busy. The track is duplicated in the
+     component, so translating exactly -50% of the pair lands on a seamless
+     repeat. Per-instance speed comes from --marquee-duration. */
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* --- Elevation (REBUILD-SPEC §5) ----------------------------------------
+     Inside @theme so Tailwind generates real utilities — `shadow-hairline`,
+     `shadow-card` — rather than leaving these as variables unreachable without
+     an arbitrary-value escape hatch. */
+  /* Primary action, measured off the reference CTA. The inset white highlight
+     on top plus four stacked drop shadows are what give it depth; a single
+     shadow reads flat next to it. */
+  /* The one gradient on the whole page. Tokenised now that a second consumer
+     exists (Button) besides the navbar CTA. */
+  --gradient-cta: linear-gradient(140deg, #219b4e 0%, #16713c 46%, #0c4b24 100%);
+
+  --shadow-cta:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.18), 0 1px 1px 0 rgb(6 38 19 / 0.16),
+    0 2px 4px 0 rgb(6 38 19 / 0.16), 0 6px 14px -2px rgb(11 63 32 / 0.3),
+    0 16px 30px -8px rgb(11 63 32 / 0.34);
+  /* Hover deepens the two outer layers. The reference transitions box-shadow and
+     filter together over 0.4s; the exact hover values could not be captured, so
+     these are a restrained extrapolation of the same ramp. */
+  /* Corrected to the reference's measured hover shadow in Task 3.4b — the first
+     pass was close but approximate on two of the five layers: the inset was 0.22
+     against 0.24, and the far drop 0 22px 40px -8px / 0.38 against -10px / 0.4. */
+  --shadow-cta-hover:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.24), 0 1px 1px 0 rgb(6 38 19 / 0.16),
+    0 3px 6px 0 rgb(6 38 19 / 0.18), 0 10px 20px -2px rgb(11 63 32 / 0.34),
+    0 22px 40px -10px rgb(11 63 32 / 0.4);
+
+  /* The reference's floating-pill elevation: a hairline ring plus three drop
+     layers. Measured off the service tags, where five instances per card make a
+     token clearly worth having rather than an arbitrary value repeated. Distinct
+     from --shadow-card, which is a single soft layer for large surfaces. */
+  --shadow-pill:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.08),
+    0 4px 6px 0 rgb(0 0 0 / 0.04), 0 24px 40px -16px rgb(0 0 0 / 0.08);
+
+  /* The reference builds elevation as one family: the same hairline ring plus
+     two close layers, with only the final drop changing. Counts from the
+     full-page audit. */
+  /* 9 + 6 uses — cards that sit further off the page than a pill. */
+  --shadow-float:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.08),
+    0 4px 6px 0 rgb(0 0 0 / 0.04), 0 40px 40px -24px rgb(0 0 0 / 0.08);
+  /* 6 uses — the same shape as --shadow-float with the two dark layers at 0.06
+     instead of 0.08. Carries the blog cards, which sit on the page rather than
+     above it. */
+  --shadow-float-soft:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.06),
+    0 4px 6px 0 rgb(0 0 0 / 0.04), 0 40px 40px -24px rgb(0 0 0 / 0.06);
+  /* 6 uses — no far drop at all, for controls resting on the surface. */
+  --shadow-flat:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.06),
+    0 3px 4px 0 rgb(0 0 0 / 0.04);
+  /* 4 uses — the same idea inverted for dark surfaces, where a hairline ring
+     would be invisible and the drop has to carry the separation. */
+  --shadow-on-dark:
+    0 1px 1px 0 rgb(0 0 0 / 0.12), 0 1.5px 3px 0 rgb(0 0 0 / 0.2),
+    0 4px 8px 0 rgb(0 0 0 / 0.2), 0 12px 24px -6px rgb(0 0 0 / 0.3);
+
+  --shadow-hairline: 0 0 0 1px rgb(0 0 0 / 0.04); /* dominant, 121 uses */
+  --shadow-lift: 0 1px 1px 0 rgb(0 0 0 / 0.12);
+  --shadow-card: 0 24px 48px -16px rgb(0 0 0 / 0.12);
+  --shadow-bloom: 0 0 216px 0 rgb(255 255 255 / 0.08); /* on-dark only */
+}
+
+/* --- Z-index ladder --------------------------------------------------------
+   The reference sprawls across -1, 0, 1, 2, 3, 9, 10, 11, 999 and 1000. Six
+   named steps replace it. Tailwind v4 has no z-index theme namespace, so these
+   stay custom properties, used as `z-[var(--z-nav)]` — verbose at the call site,
+   but it keeps every layering decision in one ordered list rather than scattered
+   as magic numbers. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 10;
+  --z-overlay: 100;
+  --z-nav: 1000;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* --- Fluid display type ----------------------------------------------------
+   The reference ships 72 / 64 / 56 as three separate presets purely because
+   Framer duplicates styles per breakpoint.  One fluid token replaces all three
+   and removes the breakpoint jumps entirely. */
+/* --- Optical size ----------------------------------------------------------
+   `font-optical-sizing: auto` sets opsz from the RENDERED size, and that is what
+   the reference does everywhere a style renders at the size it was authored at —
+   the 32px dial numbers are opsz 32 at every breakpoint, the 64px service title
+   is opsz 64 on desktop.
+
+   Where the reference scales a style down at a breakpoint it keeps the authored
+   opsz: the service title renders at 44px on phone but stays opsz 56, and the
+   hero h1 renders at 48px on phone but stays opsz 72. Those are the only two
+   exceptions on the page, and this is how they are pinned. Naming the axis makes
+   it override optical sizing without needing font-optical-sizing: none. */
+@utility opsz-* {
+  font-variation-settings: var(--display-variation), "opsz" --value(integer);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility text-display {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 2.2rem + 2.6vw, 4.5rem); /* 48px @390 · 72px @1440, measured */
+  line-height: 1.06;
+  letter-spacing: var(--tracking-display);
+  font-weight: 400;
+  /* opsz 72 at every width: the reference holds the authored optical size while
+     the rendered size ramps 48 → 72. */
+  font-variation-settings: var(--display-variation), "opsz" 72;
+  font-feature-settings: var(--display-features);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Containing block for the grain layer below. */
+    position: relative;
+  }
+
+  /* The page grain — ONE layer for the whole document, never per section.
+     A pseudo-element rather than a component: there is nothing to configure,
+     it must never be duplicated, and this way no section can forget it.
+
+     `z-index: -1` is what keeps it under the content. In the reference the
+     texture is a positioned sibling that comes after the page body in DOM
+     order, so by painting order it should cover the text — it does not, because
+     enough of Framer's wrappers create stacking contexts above it. Rather than
+     depend on that accident, a negative index puts it behind every descendant
+     while still painting over the body background, which is the intended result
+     stated directly.
+
+     `absolute` rather than `fixed`: the reference tiles across the full 16,950px
+     document, so the grain scrolls with the page instead of sitting still
+     behind it. */
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--texture-grain);
+    background-repeat: repeat;
+    background-size: var(--texture-grain-size);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-variation-settings: var(--display-variation);
+    font-feature-settings: var(--display-features);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  /* Visible focus for keyboard users — the reference has no consistent focus
+     treatment, which is one of the accessibility defects we are not porting. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-emerald);
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Respect the user's motion preference globally.  The reference honours this
+   for entrance animations but NOT for the hero shader; here it covers both. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
