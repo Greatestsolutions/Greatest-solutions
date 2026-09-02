@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { services } from "@/data/services";
 import { site } from "@/config/site";
+import { cn } from "@/lib/cn";
 
 /**
  * Contact enquiry form.
@@ -23,19 +24,43 @@ import { site } from "@/config/site";
  *
  * Native `required` and `type="email"` do the validation; no library.
  */
-export function EnquiryForm() {
+/**
+ * `card` — the standalone form with its own panel, as the /contact page uses it.
+ * `bare` — fields only, for a surface that is already a panel (the dialog).
+ */
+export type EnquiryFormVariant = "card" | "bare";
+
+export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant } = {}) {
   const [sent, setSent] = useState(false);
+  /*
+   * Field ids are namespaced per instance. The dialog can be opened while the
+   * /contact page is rendered behind it, which would otherwise put two `id="name"`
+   * inputs in one document — every label would then point at the first form and
+   * clicking a label in the dialog would focus the page behind it. `name`
+   * attributes stay fixed, because those are what the submission is keyed on.
+   */
+  const uid = useId();
+  const fid = (key: string) => `${key}-${uid}`;
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const get = (key: string) => String(data.get(key) ?? "").trim();
 
+    /*
+     * The select submits a SLUG, because service titles are not unique — two
+     * entries can share a title and only the slug says which was chosen. The
+     * enquiry itself still has to be readable, so the slug is resolved back to
+     * its title here and the slug kept alongside it to disambiguate the pair.
+     * An unmatched value (the "Something else" option) passes through as-is.
+     */
+    const chosen = services.find((s) => s.slug === get("service"));
+
     const body = [
       `Name: ${get("name")}`,
       `Email: ${get("email")}`,
       get("company") && `Company: ${get("company")}`,
-      `Service: ${get("service")}`,
+      `Service: ${chosen ? `${chosen.title} (${chosen.slug})` : get("service")}`,
       "",
       get("message"),
     ]
@@ -50,26 +75,37 @@ export function EnquiryForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-6 rounded-[var(--radius-lg)] border border-black/8 bg-surface p-8 tablet:p-10"
+      className={cn(
+        "flex flex-col gap-6",
+        // The dialog is already a panel; a second bordered card inside it reads
+        // as a box in a box.
+        variant === "card" && "rounded-[var(--radius-lg)] border border-black/8 bg-surface p-8 tablet:p-10",
+      )}
     >
       <div className="grid gap-6 tablet:grid-cols-2">
-        <Field id="name" label="Your name" placeholder="Jordan Lee" required />
-        <Field id="email" label="Your email" type="email" placeholder="you@company.com" required />
+        <Field id={fid("name")} name="name" label="Your name" placeholder="Jordan Lee" required />
+        <Field id={fid("email")} name="email" label="Your email" type="email" placeholder="you@company.com" required />
       </div>
 
       <div className="grid gap-6 tablet:grid-cols-2">
-        <Field id="company" label="Company" placeholder="Company name" />
+        <Field id={fid("company")} name="company" label="Company" placeholder="Company name" />
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="service">What do you need built?</Label>
+          <Label htmlFor={fid("service")}>What do you need built?</Label>
           <select
-            id="service"
+            id={fid("service")}
             name="service"
-            defaultValue={services[0]?.title}
+            /* Must be a slug now that the options carry slugs as values — a title
+               here would match no option and silently fall through to the first. */
+            defaultValue={services[0]?.slug}
             className="h-11 rounded-[var(--radius-sm)] border border-black/12 bg-white px-3 text-body-md text-ink transition-colors duration-[var(--duration-quick)] focus-visible:border-brand-green focus-visible:outline-none"
           >
+            {/* `value` is the slug, not the label: titles can repeat, slugs cannot,
+                so without this two different services submit the same string. */}
             {services.map((service) => (
-              <option key={service.slug}>{service.title}</option>
+              <option key={service.slug} value={service.slug}>
+                {service.title}
+              </option>
             ))}
             <option>Something else</option>
           </select>
@@ -77,9 +113,9 @@ export function EnquiryForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="message">Project details</Label>
+        <Label htmlFor={fid("message")}>Project details</Label>
         <textarea
-          id="message"
+          id={fid("message")}
           name="message"
           rows={5}
           required
@@ -115,16 +151,20 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
 }
 
 function Field({
-  id, label, placeholder, type = "text", required,
+  id, name, label, placeholder, type = "text", required,
 }: {
-  id: string; label: string; placeholder: string; type?: string; required?: boolean;
+  /** Unique per form instance. */
+  id: string;
+  /** Fixed: this is the key the submission is read by. */
+  name: string;
+  label: string; placeholder: string; type?: string; required?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>{label}</Label>
       <input
         id={id}
-        name={id}
+        name={name}
         type={type}
         required={required}
         placeholder={placeholder}

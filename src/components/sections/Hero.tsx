@@ -69,7 +69,10 @@ export function Hero() {
         </div>
 
         <div className="flex items-end justify-between gap-4">
-          <span className="hidden gap-1.5 font-mono text-body-sm uppercase tracking-[var(--tracking-label)] text-muted tablet:flex">
+          {/* `text-body` rather than `text-muted`, matching the email opposite it
+              — same 12px mono at the same size, so they should read at the same
+              strength. Colour only; size, weight and spacing are unchanged. */}
+          <span className="hidden gap-1.5 font-mono text-body-sm uppercase tracking-[var(--tracking-label)] text-body tablet:flex">
             {hero.timezone}
             <LocalTime offsetHours={hero.timezoneOffsetHours} />
           </span>

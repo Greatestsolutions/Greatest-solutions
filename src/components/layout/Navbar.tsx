@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { Container } from "@/components/layout/Container";
+import { CONTACT_PATH, useContactModal } from "@/components/contact/ContactModal";
 import { navCta, navItems, type NavItem } from "@/data/navigation";
 import { cn } from "@/lib/cn";
 import { site } from "@/config/site";
@@ -114,7 +115,8 @@ export function Navbar() {
         }
       >
       {/*
-        Below the 1024 switch this is a three-column grid, not a flex row.
+        One three-column grid at every width, not a grid below the switch and a
+        flex row above it.
 
         The reference's phone bar is menu · brand · CTA with the brand **centred
         on the viewport**, not on the space the two controls leave over — measured
@@ -127,18 +129,28 @@ export function Navbar() {
         by construction. Centring it with `justify-between` plus a nudge would
         drift the moment either control changed width.
 
+        Desktop now uses the same track set for the same reason. It used to be
+        `flex justify-between`, which only centres the links while the brand and
+        the CTA happen to be the same width — true of the old [mark + wordmark]
+        lockup, false the moment the wordmark text came out. With `1fr auto 1fr`
+        the links sit on the midline whatever the logo and CTA measure, so the
+        centring cannot drift again.
+
+        Only the occupant of each column changes across the switch: below it,
+        menu · brand · CTA; above it, brand · links · CTA.
+
         DOM order stays brand → links → controls, so the tab order still reaches
         the logo first; only the visual columns are reordered.
       */}
       <Container
         as="nav"
         aria-label="Main"
-        className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center gap-6 tablet:h-20 desktop:h-24 lg:flex lg:justify-between"
+        className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center gap-6 tablet:h-20 desktop:h-24"
       >
-        <Wordmark className="col-start-2 justify-self-center lg:col-auto" />
+        <Wordmark className="col-start-2 row-start-1 justify-self-center lg:col-start-1 lg:justify-self-start" />
 
         {/* Desktop links — hidden below the measured 1024px fit threshold. */}
-        <ul className="hidden items-center gap-2 lg:flex">
+        <ul className="hidden items-center gap-2 lg:col-start-2 lg:row-start-1 lg:flex lg:justify-self-center">
           {navItems.map((item) =>
             item.children ? (
               <li key={item.label}>
@@ -168,7 +180,7 @@ export function Navbar() {
           <MenuIcon open={menuOpen} />
         </button>
 
-        <div className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end lg:col-auto">
+        <div className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end">
           <CallToAction />
         </div>
       </Container>
@@ -182,16 +194,20 @@ export function Navbar() {
 /* -------------------------------------------------------------------------- */
 
 /**
- * The wordmark, with the hover measured in Task 3.5.
+ * The home link: the mark on its own, with the hover measured in Task 3.5.
  *
  * Reference, default → hover:
  *
  *   transform     scale 1 → 1.06, rotate 0 → −3deg, translateY 0 → −1px
  *   drop-shadow   rgba(9,52,27,0.22) 0 4px 10px  →  rgba(9,52,27,0.34) 0 8px 18px
  *
- * The transform sits on the emblem, not the whole lockup: scaling the text with
- * it would reflow the bar, and the measurement shows the mark moving while the
- * words hold their baseline.
+ * The transform sits on the emblem itself, which is why removing the "Greatest
+ * Solutions" text beside it left the hover untouched — nothing about the motion
+ * was ever attached to the words.
+ *
+ * The company name is gone from the BAR only. It stays in `site.name` and is
+ * still announced here as the link's accessible name: a link whose only content
+ * is an `aria-hidden` image would otherwise reach a screen reader unnamed.
  *
  * `focus-visible` gets the same treatment — the logo is a link, and a hover-only
  * affordance is invisible to anyone arriving by keyboard.
@@ -200,16 +216,10 @@ function Wordmark({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={cn(
-        "group/logo flex shrink-0 items-center gap-3 font-display text-[clamp(15px,0.9vw+8px,24px)] tracking-[var(--tracking-display)] text-brand-forest",
-        className,
-      )}
+      className={cn("group/logo flex shrink-0 items-center", className)}
       aria-label={`${site.name} — home`}
     >
       <EmblemIcon />
-      <span>
-        {site.name.split(" ")[0]} <span className="text-brand-green">{site.name.split(" ")[1]}</span>
-      </span>
     </Link>
   );
 }
@@ -349,6 +359,8 @@ function NavLink({ item }: { item: NavItem }) {
  * stays in the accessibility tree either way.
  */
 function CallToAction() {
+  const { open: openContact } = useContactModal();
+
   /*
    * Measured from the reference:
    *   background: linear-gradient(140deg, #219b4e 0%, #16713c 46%, #0c4b24 100%)
@@ -419,10 +431,15 @@ function CallToAction() {
       </span>
     );
   }
+  /*
+    A button, not a link: it opens the contact dialog rather than navigating.
+    `navCta.href` still records the route it stands in for, and /contact still
+    renders standalone — nothing points at it any more.
+  */
   return (
-    <Link href={navCta.href} className={className}>
+    <button type="button" onClick={openContact} className={cn(className, "cursor-pointer")}>
       {content}
-    </Link>
+    </button>
   );
 }
 
@@ -445,6 +462,10 @@ function Dropdown({ item }: { item: NavItem }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+
+  /* Two columns is the only widened layout in use, so the flag is read as a
+     boolean here rather than threaded through as a column count. */
+  const grid = (item.columns ?? 1) > 1;
 
   useEffect(() => {
     if (!open) return;
@@ -524,30 +545,117 @@ function Dropdown({ item }: { item: NavItem }) {
           open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
         )}
       >
-        <ul className="flex min-w-52 flex-col rounded-[var(--radius-sm)] border border-hairline bg-surface p-2 shadow-card">
-          {item.children?.map((child) => (
-            <li key={child.label}>
-              {child.pending ? (
-                <span
-                  aria-disabled="true"
-                  title="Coming soon"
-                  className="block rounded-[var(--radius-xs)] px-3 py-2 text-body-md text-muted"
-                >
-                  {child.label}
-                </span>
-              ) : (
-                <Link
-                  href={child.href}
-                  className="block rounded-[var(--radius-xs)] px-3 py-2 text-body-md text-brand-ink transition-colors duration-[320ms] ease-[var(--ease-brand)] hover:text-brand-green"
-                >
-                  {child.label}
-                </Link>
-              )}
-            </li>
-          ))}
+        {/*
+          One list, laid out as a column or as a grid depending on `item.columns`.
+          Services sets 2, which turns 11 stacked rows (~450px) into an overview
+          row plus a 5x2 block (~230px) — short enough that the scroll cap below
+          never engages at a normal window height. Pages, with no `columns`, is
+          untouched and still a single column.
+
+          The cap stays as a defensive fallback for very short windows: same
+          `max-h` + `overflow-y-auto` pattern the mobile menu below uses, with no
+          custom scrollbar styling, so the two match. `overscroll-contain` stops a
+          scroll that reaches the end from chaining into the page behind it.
+
+          Panel chrome — radius, hairline, shadow, padding — is one set of classes
+          for both layouts, so the two dropdowns cannot drift apart.
+        */}
+        <ul
+          className={cn(
+            "max-h-[calc(100dvh-7rem)] overflow-y-auto overscroll-contain",
+            "rounded-[var(--radius-sm)] border border-hairline bg-surface p-2 shadow-card",
+            grid
+              ? // Row-major, so DOM order and reading order are the same thing and
+                // Tab walks the panel exactly as the eye does.
+                //
+                // `max-content` tracks, NOT `grid-cols-2`: Tailwind's numbered
+                // utility is `repeat(2, minmax(0, 1fr))`, whose min size is zero,
+                // so the columns contribute nothing to the panel's intrinsic width.
+                // Measured, that collapsed the whole panel to 115px with 46px
+                // columns and the labels spilling out of their cells. Sizing the
+                // tracks to their content is what makes the panel as wide as the
+                // longest pair of labels needs.
+                "grid grid-cols-[repeat(2,max-content)] gap-x-1"
+              : "flex min-w-52 flex-col",
+          )}
+        >
+          {item.children?.map((child, i) => {
+            // In grid mode the first child is the overview link: full width, with a
+            // hairline beneath it so it reads as a heading for the block, not a
+            // twelfth service.
+            const overview = grid && i === 0;
+            const cell = cn(
+              "block rounded-[var(--radius-xs)] px-3 py-2 text-body-md",
+              // Nowrap only in the grid: it is what makes the two columns size to
+              // their longest label instead of wrapping into a ragged block.
+              grid && "whitespace-nowrap",
+            );
+            return (
+              <li
+                key={child.label}
+                className={cn(overview && "col-span-2 mb-1 border-b border-hairline pb-1")}
+              >
+                {child.pending ? (
+                  <span aria-disabled="true" title="Coming soon" className={cn(cell, "text-muted")}>
+                    {child.label}
+                  </span>
+                ) : (
+                  <PanelItem
+                    child={child}
+                    className={cn(
+                      cell,
+                      "text-brand-ink transition-colors duration-[320ms] ease-[var(--ease-brand)] hover:text-brand-green",
+                      overview && "font-medium",
+                    )}
+                  />
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
+  );
+}
+
+/**
+ * One row inside a dropdown panel or the mobile menu.
+ *
+ * The single place that decides link-or-button: an entry pointing at
+ * {@link CONTACT_PATH} opens the contact dialog instead of navigating, and
+ * everything else stays an ordinary `Link`. Written once so the desktop panel
+ * and the mobile menu cannot drift apart on it.
+ */
+function PanelItem({
+  child,
+  className,
+  onNavigate,
+}: {
+  child: NavItem;
+  className: string;
+  onNavigate?: () => void;
+}) {
+  const { open: openContact } = useContactModal();
+
+  if (child.href === CONTACT_PATH) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          onNavigate?.();
+          openContact();
+        }}
+        className={cn(className, "w-full cursor-pointer text-left")}
+      >
+        {child.label}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={child.href} onClick={onNavigate} className={className}>
+      {child.label}
+    </Link>
   );
 }
 
@@ -580,9 +688,11 @@ function MobileMenu({ open, onNavigate }: { open: boolean; onNavigate: () => voi
                             {child.label}
                           </span>
                         ) : (
-                          <Link href={child.href} onClick={onNavigate} className="block py-2 text-body-md text-brand-ink">
-                            {child.label}
-                          </Link>
+                          <PanelItem
+                            child={child}
+                            onNavigate={onNavigate}
+                            className="block py-2 text-body-md text-brand-ink"
+                          />
                         )}
                       </li>
                     ))}

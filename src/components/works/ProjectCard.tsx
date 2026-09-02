@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { ContactButton } from "@/components/contact/ContactButton";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
 import { THUMB_HEIGHT, THUMB_WIDTH, type Project } from "@/data/works";
@@ -44,23 +45,63 @@ import { THUMB_HEIGHT, THUMB_WIDTH, type Project } from "@/data/works";
  * Task 4; until then the card is not a link, matching the navbar's rule against
  * shipping links to 404s. `slug` is already in `data/works.ts` for that day.
  */
-export function ProjectCard({ project, className }: { project: Project; className?: string }) {
+export function ProjectCard({
+  project,
+  className,
+  showContactCta = false,
+}: {
+  project: Project;
+  className?: string;
+  /**
+   * Adds the "Start this service" action. Opt-in because this card is shared:
+   * the same component builds both the homepage section and the `/works`
+   * listing, and only the homepage asks for the second action.
+   */
+  showContactCta?: boolean;
+}) {
   return (
-    // `data-project` is the parity harness's handle on a card; nothing styles it.
-    <li data-project={project.slug} className={className}>
+    /*
+      `data-project` is the parity harness's handle on a card; nothing styles it.
+
+      The card used to be ONE <Link> wrapped around everything. That is the right
+      shape for a tile with a single action, but a second action cannot live
+      inside it — a <button> inside an <a> is invalid, and the nested control is
+      unreachable for some assistive tech even where browsers repair the markup.
+
+      So the standard stretched-link pattern: the <li> is a plain container, the
+      link is absolutely positioned across the whole card BELOW the content, and
+      any real control sits above it in the stacking order. Clicking the card
+      still hits the link everywhere the button is not.
+
+      `group/card` moves here from the link, since the styled parts are no longer
+      its descendants. Hover is unchanged — the link covered the same box. Focus
+      is expressed as `group-has-[a:focus-visible]`, which fires for the card link
+      only: focusing the CTA must not make "View details" appear.
+    */
+    <li
+      data-project={project.slug}
+      className={cn("group/card relative flex flex-col gap-6 rounded-[var(--radius-md)]", className)}
+    >
       {/*
-        One link wrapping the whole card: the entire tile is the target for a
-        pointer, and it is a single tab stop rather than one per card region.
-        `block` keeps the flex column that used to live on the <li>.
+        The stretched link. Covers the whole card for pointers, stays a single tab
+        stop, and carries the focus ring for the card as a whole.
+
+        FIRST in the DOM on purpose. It is absolutely positioned, so its position
+        here costs no layout, but it puts the card's primary action ahead of the
+        secondary one for both Tab order and screen-reader reading order. Painted
+        order is decided by z-index, not source order, so the CTA still sits on
+        top of it.
+
+        Its accessible name comes from the sr-only text: with the heading no
+        longer inside it, an empty link would be announced as just its URL.
       */}
       <Link
         href={`/works/${project.slug}`}
-        /* `group/card` lives on the link, not the <li>: the <li> cannot receive
-           focus, so keyboard users would never trigger the hover state if the
-           group were declared there. On the link, hover and focus-visible both
-           drive it. */
-        className="group/card flex flex-col gap-6 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green"
+        className="absolute inset-0 z-10 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green"
       >
+        <span className="sr-only">View {project.title}</span>
+      </Link>
+
       <div className="relative overflow-hidden rounded-[var(--radius-md)] bg-surface p-1 shadow-float">
         {/*
           `data-parallax` marks the clip window: WorksParallax measures this box
@@ -141,7 +182,7 @@ export function ProjectCard({ project, className }: { project: Project; classNam
           className={cn(
             "pointer-events-none absolute inset-0 flex items-center justify-center",
             "opacity-0 transition-opacity duration-[var(--duration-medium)] ease-[var(--ease-brand)]",
-            "group-hover/card:opacity-100 group-focus-visible/card:opacity-100",
+            "group-hover/card:opacity-100 group-has-[a:focus-visible]/card:opacity-100",
             "[@media(hover:none)]:hidden motion-reduce:transition-none",
           )}
         >
@@ -150,7 +191,7 @@ export function ProjectCard({ project, className }: { project: Project; classNam
               "grid size-[112px] place-items-center rounded-full bg-brand-ink text-center",
               "text-body-sm font-medium tracking-[-0.01em] text-surface",
               "scale-90 transition-transform duration-[var(--duration-spring)] ease-[var(--ease-spring)]",
-              "group-hover/card:scale-100 group-focus-visible/card:scale-100 motion-reduce:transition-none",
+              "group-hover/card:scale-100 group-has-[a:focus-visible]/card:scale-100 motion-reduce:transition-none",
             )}
           >
             View details
@@ -183,8 +224,26 @@ export function ProjectCard({ project, className }: { project: Project; classNam
             </Pill>
           ))}
         </ul>
+
+        {/*
+          The second action. `relative z-20` lifts it above the stretched link's
+          z-10, so a click here lands on the button and never on the link — the
+          two are siblings, not nested, so the card's navigation is not merely
+          suppressed, it is never in the event's path at all.
+
+          Deliberately always visible, unlike the hover-only "View details" ring:
+          that one is a redundant hint for an action the whole card already
+          performs, whereas this is a different action, so it has to be reachable
+          on touch and by keyboard. `self-start` keeps it to its own width rather
+          than stretching across the card.
+        */}
+        {showContactCta && (
+          <ContactButton size="md" tone="dark" className="relative z-20 self-start">
+            Start this service
+          </ContactButton>
+        )}
       </div>
-      </Link>
+
     </li>
   );
 }

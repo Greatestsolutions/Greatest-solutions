@@ -55,6 +55,11 @@ export type ButtonProps = {
   href?: string;
   /** Only meaningful without `href`. */
   type?: "button" | "submit";
+  /**
+   * Only meaningful without `href`. Passing this makes the caller a Client
+   * Component; this component itself stays server-renderable for every other use.
+   */
+  onClick?: () => void;
   size?: ButtonSize;
   tone?: ButtonTone;
   /** Route not built yet: renders non-interactive instead of linking to a 404. */
@@ -68,6 +73,7 @@ export function Button({
   children,
   href,
   type,
+  onClick,
   size = "md",
   tone = "dark",
   pending,
@@ -132,7 +138,7 @@ export function Button({
   // link cannot submit a form. Same classes, same label animation.
   if (!href) {
     return (
-      <button type={type ?? "button"} className={classes}>
+      <button type={type ?? "button"} onClick={onClick} className={classes}>
         {content}
       </button>
     );

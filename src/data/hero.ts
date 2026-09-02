@@ -11,13 +11,13 @@ export const hero = {
   /**
    * The headline as segments, so the editable keywords are data rather than JSX.
    *
-   * Each line is a list of runs; a run with an `id` is an independently editable
-   * keyword — it gets the selection highlight and, when activated, the formatting
-   * toolbar. Its `id` also keys its formatting state, which is what keeps the two
-   * keywords from sharing formatting.
+   * Each line is a list of runs; a run with an `id` is an editable keyword. All
+   * keywords belong to ONE formatting group — the headline has a single pencil
+   * and a single toolbar, and every control applies to all of them at once — so
+   * the `id` identifies the run, it does not key a separate format state.
    *
    * Adding or renaming a keyword is a data edit; `EditableHeadline` renders
-   * whatever is here.
+   * whatever is here, and a new keyword joins the same shared formatting.
    */
   headline: [
     [{ text: "we build the " }, { text: "GREATEST SOLUTIONS", id: "greatest-solutions" }],

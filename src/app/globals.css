@@ -255,6 +255,31 @@
     }
   }
 
+  /* --- Dialog entrance -----------------------------------------------------
+     Two small keyframes for the contact dialog: the scrim fades, the card rises
+     a few pixels behind it. Restrained on purpose — this is the site's only
+     overlay, and it should read as arriving rather than as animating. Both are
+     applied under `motion-safe`, so a reduced-motion preference gets neither. */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* --- Elevation (REBUILD-SPEC §5) ----------------------------------------
      Inside @theme so Tailwind generates real utilities — `shadow-hairline`,
      `shadow-card` — rather than leaving these as variables unreachable without
@@ -331,6 +356,8 @@
   --z-sticky: 10;
   --z-overlay: 100;
   --z-nav: 1000;
+  /* Above the nav: a modal dialog covers the whole page, navbar included. */
+  --z-modal: 2000;
 }
 
 /* --- Fluid display type ----------------------------------------------------

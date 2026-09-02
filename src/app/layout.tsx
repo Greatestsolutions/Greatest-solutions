@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist_Mono, Inter } from "next/font/google";
+import { ContactModalProvider } from "@/components/contact/ContactModal";
 import { site, siteUrl } from "@/config/site";
 import "./globals.css";
 
@@ -95,7 +96,13 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        {children}
+        {/*
+          The contact dialog's state lives here, at the root, because its triggers
+          are in three unrelated subtrees — the navbar, the footer and the pricing
+          cards. The provider renders nothing until something opens it; the dialog
+          itself is portalled to <body>, above everything including the nav.
+        */}
+        <ContactModalProvider>{children}</ContactModalProvider>
       </body>
     </html>
   );

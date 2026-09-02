@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/Button";
+import { ContactButton } from "@/components/contact/ContactButton";
 import { BenefitIcon } from "@/components/pricing/BenefitIcon";
 import { PlanIcon } from "@/components/pricing/PlanIcon";
 import type { PricingPlan } from "@/data/pricing";
@@ -80,9 +80,11 @@ export function PricingCard({ plan, className }: { plan: PricingPlan; className?
               baseline rather than on it. */}
           <span className="pb-[3px] text-body-md text-body">{plan.unit}</span>
         </p>
-        <Button href={plan.href} size="lg" tone={dark ? "light" : "dark"} className="w-full">
+        {/* Every plan's action points at /contact, so all three open the dialog.
+            A plan that ever points elsewhere would need the link form back. */}
+        <ContactButton size="lg" tone={dark ? "light" : "dark"} className="w-full">
           {plan.cta}
-        </Button>
+        </ContactButton>
       </div>
     </li>
   );

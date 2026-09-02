@@ -56,7 +56,18 @@ import { projects, worksCta, worksEyebrow, worksTitle } from "@/data/works";
  * a mistake, the header occupies columns 1–8 and the first card sits beside it in
  * 9–12.
  */
-export function Works({ showHeader = true }: { showHeader?: boolean } = {}) {
+export function Works({
+  showHeader = true,
+  showContactCta = false,
+}: {
+  showHeader?: boolean;
+  /**
+   * Adds "Start this service" to every card. Off by default so the `/works`
+   * listing, which renders this same section, is unaffected — the homepage opts
+   * in explicitly.
+   */
+  showContactCta?: boolean;
+} = {}) {
   return (
     <Section
       id="work"
@@ -127,7 +138,12 @@ export function Works({ showHeader = true }: { showHeader?: boolean } = {}) {
             }
           >
             {projects.map((project, i) => (
-              <ProjectCard key={project.slug} project={project} className={placements[i]} />
+              <ProjectCard
+                key={project.slug}
+                project={project}
+                className={placements[i]}
+                showContactCta={showContactCta}
+              />
             ))}
           </ul>
         </WorksParallax>

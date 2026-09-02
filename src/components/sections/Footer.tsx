@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import { ContactButton } from "@/components/contact/ContactButton";
 import { SocialIcon } from "@/components/footer/SocialIcon";
 import { site } from "@/config/site";
 import { footerCopyright, footerCta, footerVideo, socialLinks } from "@/data/footer";
@@ -89,13 +89,11 @@ export function Footer() {
               </h2>
             </div>
 
-            <Button
-              href={footerCta.action.href}
-              tone="light"
-              className="self-center shadow-bloom tablet:self-start"
-            >
+            {/* Opens the contact dialog rather than navigating — `action.href`
+                still records where it used to point, and the route still works. */}
+            <ContactButton tone="light" className="self-center shadow-bloom tablet:self-start">
               {footerCta.action.label}
-            </Button>
+            </ContactButton>
           </div>
 
           {/* Social row, pinned to the bottom of the card above a white rule. */}
@@ -194,11 +192,19 @@ export function Footer() {
             <div aria-hidden="true" className="h-px w-full bg-hairline-strong" />
 
             <div className="flex flex-col gap-1 text-body-md text-muted tablet:flex-row tablet:justify-between tablet:gap-0">
-              <p>{footerCopyright}</p>
+              {/* `text-body`, matching the address opposite it — the two halves of
+                  this row should read at the same strength. Applied to the element
+                  rather than to `--color-muted`, which still serves captions and
+                  secondary text elsewhere. */}
+              <p className="text-body">{footerCopyright}</p>
             <p>
               <Link
                 href={`mailto:${site.email}`}
-                className="transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] hover:text-ink"
+                /* `text-body` overrides the row's `text-muted` for the address
+                   only — it is the one interactive item in this row, so it is the
+                   one that has to be readable. The copyright beside it keeps its
+                   muted tone deliberately. */
+                className="text-body transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] hover:text-ink"
               >
                 {site.email}
               </Link>

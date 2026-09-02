@@ -43,7 +43,9 @@ export default function Home() {
         <Hero />
         <LogoStrip />
         <Showreel />
-        <Works />
+        {/* The homepage cards carry the second "Start this service" action; the
+            /works listing renders the same section without it. */}
+        <Works showContactCta />
         <Services />
         <Process />
         <Pricing />

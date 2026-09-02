@@ -61,7 +61,11 @@ export function CopyEmail() {
       type="button"
       onClick={copy}
       aria-label={`Copy ${site.email} to clipboard`}
-      className="pointer-events-auto mx-auto cursor-pointer font-mono text-body-sm tracking-[var(--tracking-label)] text-muted uppercase transition-colors duration-300 hover:text-ink focus-visible:text-ink tablet:mx-0"
+      /* `text-body` (#656565), not `text-muted` (#a4a4a4): at 12px mono over the
+         warm off-white the muted tone measured 2.3:1, which is below the point
+         where an address is comfortably readable. One step down the existing
+         neutral ladder takes it to ~5.1:1 without going to ink. */
+      className="pointer-events-auto mx-auto cursor-pointer font-mono text-body-sm tracking-[var(--tracking-label)] text-body uppercase transition-colors duration-300 hover:text-ink focus-visible:text-ink tablet:mx-0"
     >
       <span aria-live="polite">{copied ? "Copied!" : site.email}</span>
     </button>

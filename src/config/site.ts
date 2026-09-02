@@ -21,7 +21,10 @@ export const site = {
   tagline: "Software Development & Technology Services",
   description:
     "Greatest Solutions is a software development and technology services agency, building web platforms, products and digital systems for teams that need them to work.",
-  email: "hello@greatestsolutions.com",
+  /* Stored lower-case. The hero control uppercases it with `text-transform`,
+     so the display casing is a style choice and the value stays copyable and
+     mailto-safe. */
+  email: "greatestsolutions@gmail.com",
   locale: "en",
   url: siteUrl,
 } as const;

@@ -20,6 +20,15 @@ export interface NavItem {
   pending?: boolean;
   /** Presence of children turns this into a disclosure menu. */
   children?: NavItem[];
+  /**
+   * Lay the panel out in this many columns instead of one. Set where a list has
+   * grown long enough that a single column becomes a scroll — the panel gets
+   * wider and much shorter. Omit for the normal one-column menu.
+   *
+   * When set, the FIRST child is treated as the overview entry and spans the
+   * full width above a divider, which is why "All services" is authored first.
+   */
+  columns?: number;
 }
 
 /**
@@ -41,9 +50,14 @@ export const navItems: NavItem[] = [
   {
     label: "Services",
     href: "/services",
+    // Ten services in one column ran to 11 rows and started scrolling on short
+    // windows. Two columns of five is roughly half the height and reads as a
+    // menu rather than a list.
+    columns: 2,
     children: [
       // The trigger is a button (it opens the panel), so the overview page needs
-      // its own entry or /services becomes unreachable from the navbar.
+      // its own entry or /services becomes unreachable from the navbar. It is
+      // FIRST deliberately — the grid layout spans it across the full width.
       { label: "All services", href: "/services" },
       ...services.map((service) => ({ label: service.title, href: `/services/${service.slug}` })),
     ],
