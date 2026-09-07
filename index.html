@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greatest Solutions — Services Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0d1712;
+        --ink-2: #132019;
+        --ink-3: #1b2a22;
+        --paper: #eff2ec;
+        --paper-2: #e4e9df;
+        --line: #d6dccf;
+        --text: #1a241d;
+        --text-soft: #5b675c;
+        --cream: #f6f5ef;
+        --emerald: #2e7a57;
+        --emerald-dark: #1f5a3f;
+        --gold: #c99a3d;
+        --off-white: #f3f5ef;
+        --muted-on-dark: #9aafa1;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--text);
+        font-family: "IBM Plex Sans", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      .display {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 32px;
+      }
+      @media (max-width: 720px) {
+        .wrap {
+          padding: 0 20px;
+        }
+      }
+
+      /* ---------- HERO ---------- */
+      .hero {
+        background: radial-gradient(
+          120% 140% at 12% -10%,
+          #1c3327 0%,
+          var(--ink) 55%,
+          #0a100c 100%
+        );
+        color: var(--off-white);
+        padding: 88px 0 64px;
+      }
+      .hero-kicker {
+        color: var(--muted-on-dark);
+        font-size: 15px;
+        margin-bottom: 18px;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 5vw, 54px);
+        line-height: 1.08;
+        max-width: 14ch;
+        font-weight: 600;
+      }
+      .hero .accent {
+        color: var(--gold);
+      }
+      .hero-sub {
+        margin-top: 22px;
+        max-width: 52ch;
+        font-size: 17px;
+        line-height: 1.6;
+        color: #d3dbd2;
+      }
+      .hero-note {
+        margin-top: 28px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        max-width: 56ch;
+        padding: 16px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .hero-note .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--gold);
+        margin-top: 7px;
+        flex-shrink: 0;
+      }
+      .hero-note p {
+        font-size: 14px;
+        line-height: 1.55;
+        color: #c8d2c6;
+      }
+      .hero-note strong {
+        color: var(--off-white);
+        font-weight: 600;
+      }
+
+      /* ---------- NAV / SELECTOR ---------- */
+      .selector-band {
+        background: var(--ink-2);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 18px 0;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .selector-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .selector-count {
+        font-size: 12.5px;
+        color: var(--muted-on-dark);
+        white-space: nowrap;
+      }
+      .select-wrap {
+        position: relative;
+        flex: 0 0 auto;
+        width: min(100%, 360px);
+      }
+      .select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        border-right: 2px solid #b9c4b7;
+        border-bottom: 2px solid #b9c4b7;
+        transform: translateY(-65%) rotate(45deg);
+        pointer-events: none;
+      }
+      .service-select {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--ink-3);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: var(--off-white);
+        font-family: "IBM Plex Sans", sans-serif;
+        font-size: 14.5px;
+        font-weight: 500;
+        padding: 12px 40px 12px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.18s ease;
+      }
+      .service-select:hover {
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+      .service-select:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+      .service-select option {
+        background: var(--ink-2);
+        color: var(--off-white);
+      }
+      .step-nav {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .step-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: transparent;
+        color: #b9c4b7;
+        cursor: pointer;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          border-color 0.18s ease,
+          color 0.18s ease;
+      }
+      .step-btn:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        color: var(--off-white);
+      }
+      .step-btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      @media (max-width: 560px) {
+        .step-nav {
+          margin-left: 0;
+        }
+      }
+
+      /* ---------- DETAIL PANEL ---------- */
+      .panel {
+        padding: 56px 0 100px;
+      }
+      .service-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 28px;
+        margin-bottom: 40px;
+      }
+      .service-head h2 {
+        font-size: clamp(26px, 3.4vw, 38px);
+        font-weight: 600;
+      }
+      .service-tagline {
+        margin-top: 10px;
+        font-size: 16px;
+        color: var(--text-soft);
+        max-width: 56ch;
+        line-height: 1.55;
+      }
+      .timeline-badge {
+        font-size: 13px;
+        color: var(--emerald-dark);
+        background: #dcebe1;
+        border: 1px solid #c4decd;
+        padding: 7px 13px;
+        border-radius: 100px;
+        white-space: nowrap;
+      }
+
+      section.block {
+        margin-bottom: 52px;
+      }
+      .block-label {
+        font-size: 12.5px;
+        color: var(--emerald-dark);
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .block h3 {
+        font-size: 21px;
+        font-weight: 600;
+        margin-bottom: 14px;
+      }
+      .prose {
+        font-size: 15.5px;
+        line-height: 1.68;
+        color: #39433a;
+        max-width: 70ch;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+      @media (max-width: 820px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ---------- ROADMAP TIMELINE ---------- */
+      .roadmap {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0;
+        position: relative;
+      }
+      @media (max-width: 900px) {
+        .roadmap {
+          grid-template-columns: 1fr;
+          gap: 22px;
+        }
+      }
+      .phase {
+        position: relative;
+        padding: 0 16px 0 0;
+        border-right: 1px solid var(--line);
+      }
+      .roadmap > .phase:last-child {
+        border-right: none;
+        padding-right: 0;
+      }
+      @media (max-width: 900px) {
+        .phase {
+          border-right: none;
+          border-left: 2px solid var(--emerald);
+          padding: 0 0 0 18px;
+        }
+      }
+      .phase-num {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--emerald);
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+      .phase-name {
+        font-size: 14.5px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .phase-days {
+        font-size: 12.5px;
+        color: var(--text-soft);
+        margin-bottom: 12px;
+      }
+      .phase ul {
+        margin: 0;
+        padding-left: 16px;
+      }
+      .phase li {
+        font-size: 13px;
+        color: #4a554b;
+        line-height: 1.55;
+        margin-bottom: 4px;
+      }
+
+      /* ---------- TEAM ---------- */
+      .team-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .team-row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        background: var(--off-white);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+      .team-role-mark {
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--emerald);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .team-role-title {
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .team-role-focus {
+        font-size: 13px;
+        color: var(--text-soft);
+        margin-top: 2px;
+      }
+
+      /* ---------- TECH STACK ---------- */
+      .stack-cat {
+        margin-bottom: 16px;
+      }
+      .stack-cat-name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .stack-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .stack-chip {
+        font-size: 12.5px;
+        padding: 6px 11px;
+        border-radius: 100px;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        color: #3e4a3f;
+      }
+
+      /* ---------- AI+HUMAN FLOW ---------- */
+      .flow {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        max-width: 520px;
+      }
+      .flow-step {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 14px 0;
+      }
+      .flow-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .flow-icon.human {
+        background: #dcebe1;
+        color: var(--emerald-dark);
+      }
+      .flow-icon.ai {
+        background: #f3e9ce;
+        color: #8c6a1e;
+      }
+      .flow-text-title {
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .flow-text-sub {
+        font-size: 12.5px;
+        color: var(--text-soft);
+        margin-top: 2px;
+      }
+      .flow-connector {
+        width: 1px;
+        height: 20px;
+        background: var(--line);
+        margin-left: 20px;
+      }
+
+      /* ---------- DELIVERABLES ---------- */
+      .deliverables {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 24px;
+        max-width: 640px;
+      }
+      @media (max-width: 600px) {
+        .deliverables {
+          grid-template-columns: 1fr;
+        }
+      }
+      .deliverable {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        font-size: 14px;
+        color: #39433a;
+      }
+      .check {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+        border-radius: 4px;
+        background: var(--emerald);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+      }
+
+      /* ---------- OUTCOMES CHART ---------- */
+      .outcomes {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        max-width: 620px;
+      }
+      .outcome-row .outcome-label {
+        font-size: 13.5px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .bar-track {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .bar-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .bar-tag {
+        font-size: 11.5px;
+        color: var(--text-soft);
+        width: 52px;
+        flex-shrink: 0;
+      }
+      .bar-shell {
+        flex: 1;
+        height: 10px;
+        background: var(--paper-2);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 100px;
+      }
+      .bar-fill.before {
+        background: #c9cfc3;
+      }
+      .bar-fill.after {
+        background: var(--emerald);
+      }
+      .outcomes-note {
+        font-size: 12px;
+        color: var(--text-soft);
+        margin-top: 4px;
+        font-style: italic;
+      }
+
+      /* ---------- SUPPORT + CTA ---------- */
+      .support-cta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        background: var(--ink);
+        color: var(--off-white);
+        border-radius: 10px;
+        padding: 32px 36px;
+        margin-top: 8px;
+      }
+      .support-cta .support-text {
+        max-width: 56ch;
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: #cbd5c9;
+      }
+      .support-cta h4 {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: #fff;
+      }
+      .cta-btn {
+        background: var(--gold);
+        color: #241c08;
+        border: none;
+        padding: 13px 24px;
+        border-radius: 6px;
+        font-family: "IBM Plex Sans", sans-serif;
+        font-size: 14.5px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: transform 0.15s ease;
+      }
+      .cta-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      footer {
+        text-align: center;
+        padding: 26px 0 40px;
+        font-size: 12.5px;
+        color: var(--text-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <div class="wrap">
+        <div class="hero-kicker">Services — working preview</div>
+        <h1>
+          AI solutions built <span class="accent">around your business</span>
+        </h1>
+        <p class="hero-sub">
+          From strategy to implementation, our specialists use AI as leverage —
+          not as a replacement for human expertise. Every system is planned,
+          built, tested and optimized by people.
+        </p>
+        <div class="hero-note">
+          <div class="dot"></div>
+          <p>
+            <strong
+              >Human strategy → AI-assisted execution → Human quality control →
+              Measurable outcome.</strong
+            ><br />That's the model behind all ten services below. Pick one to
+            see exactly how it runs.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="selector-band">
+      <div class="wrap">
+        <div class="selector-row">
+          <span class="selector-count" id="selector-count"></span>
+          <div class="select-wrap">
+            <select class="service-select" id="selector"></select>
+          </div>
+          <div class="step-nav">
+            <button
+              class="step-btn"
+              id="prev-btn"
+              aria-label="Previous service"
+            >
+              ‹
+            </button>
+            <button class="step-btn" id="next-btn" aria-label="Next service">
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="wrap" id="panel-content"></div>
+    </div>
+
+    <footer>
+      Preview build for internal review — content and figures are illustrative
+      until real client data is added.
+    </footer>
+
+    <script>
+      const services = [
+        {
+          id: "voice",
+          name: "AI Voice Agents",
+          tagline:
+            "24/7 customer communication, scripted by your team and supervised by an Account Manager.",
+          timeline: "21-day rollout",
+          problem:
+            "Missed calls are missed revenue. Front desks can't answer every call, especially after hours or during rushes — and the businesses that feel this hardest lose bookings to whichever competitor picks up first.",
+          build:
+            "A custom-scripted AI voice agent that answers, qualifies, and books directly into your calendar — built around your actual call flow, not a generic script.",
+          roadmap: [
+            {
+              name: "Discovery & Call Mapping",
+              days: "Days 1–3",
+              items: [
+                "Audit current call flow",
+                "Identify FAQs & edge cases",
+                "Map booking logic",
+              ],
+            },
+            {
+              name: "Agent Strategy & Persona",
+              days: "Days 4–7",
+              items: [
+                "Voice & tone design",
+                "Conversation structure",
+                "Escalation rules",
+              ],
+            },
+            {
+              name: "Integration",
+              days: "Days 8–12",
+              items: ["Phone system", "Calendar & CRM", "Lead database"],
+            },
+            {
+              name: "Testing & QA",
+              days: "Days 13–17",
+              items: [
+                "Test calls",
+                "Edge-case stress test",
+                "Human transcript review",
+              ],
+            },
+            {
+              name: "Launch & Optimization",
+              days: "Days 18–21",
+              items: ["Go-live", "Weekly transcript review", "Response tuning"],
+            },
+          ],
+          team: [
+            {
+              role: "Voice Strategist",
+              focus: "Designs conversation architecture and brand tone",
+              mark: "VS",
+            },
+            {
+              role: "Integrations Engineer",
+              focus: "Connects phone, CRM, and calendar systems",
+              mark: "IE",
+            },
+            {
+              role: "Account Manager",
+              focus: "Monitors performance and manages optimization",
+              mark: "AM",
+            },
+          ],
+          stack: [
+            {
+              cat: "AI & Intelligence",
+              tools: ["Conversational voice AI", "Language reasoning model"],
+            },
+            { cat: "Communication", tools: ["Telephony", "SMS follow-up"] },
+            { cat: "CRM & Data", tools: ["Calendar sync", "Lead database"] },
+            {
+              cat: "Analytics",
+              tools: ["Call transcripts", "Reporting dashboard"],
+            },
+          ],
+          deliverables: [
+            "Custom AI voice agent",
+            "Call scripts & decision tree",
+            "CRM integration",
+            "Calendar integration",
+            "Call transcript log",
+            "Escalation routing",
+            "Monthly performance report",
+          ],
+          outcomes: [
+            { label: "Missed calls", before: 78, after: 22 },
+            { label: "After-hours response", before: 15, after: 85 },
+          ],
+          support:
+            "Your Account Manager reviews real call transcripts weekly for the first month, then monthly after that — tuning responses as your business evolves.",
+        },
+        {
+          id: "vertical",
+          name: "Vertical Automation",
+          tagline:
+            "Industry-specific automation systems built around how your business actually runs.",
+          timeline: "28-day rollout",
+          problem:
+            "Off-the-shelf automation tools assume every business works the same way. Generic automation breaks the moment it hits real operational complexity — legal intake isn't dental scheduling.",
+          build:
+            "A custom-built automation system covering intake, follow-up, handoffs, and reporting — architected around your industry's specific rules, not a template.",
+          roadmap: [
+            {
+              name: "Workflow Audit",
+              days: "Days 1–5",
+              items: [
+                "Map manual steps",
+                "Identify handoffs",
+                "Flag reporting gaps",
+              ],
+            },
+            {
+              name: "System Architecture",
+              days: "Days 6–10",
+              items: [
+                "Design around industry rules",
+                "Compliance mapping",
+                "Integration plan",
+              ],
+            },
+            {
+              name: "Build",
+              days: "Days 11–20",
+              items: [
+                "Workflow construction",
+                "Tool integration",
+                "Internal testing",
+              ],
+            },
+            {
+              name: "Human QA",
+              days: "Days 21–23",
+              items: [
+                "Scenario testing",
+                "Edge-case review",
+                "Compliance check",
+              ],
+            },
+            {
+              name: "Rollout & Training",
+              days: "Days 24–28",
+              items: ["Deployment", "Staff training", "Documentation"],
+            },
+          ],
+          team: [
+            {
+              role: "Automation Strategist",
+              focus: "Designs the system around your industry's rules",
+              mark: "AS",
+            },
+            {
+              role: "Automation Engineer",
+              focus: "Builds and QA's the workflow",
+              mark: "AE",
+            },
+            {
+              role: "Support Engineer",
+              focus: "Owns the live rollout period",
+              mark: "SE",
+            },
+          ],
+          stack: [
+            {
+              cat: "Automation",
+              tools: ["Workflow orchestration", "Trigger-based logic"],
+            },
+            {
+              cat: "CRM & Data",
+              tools: ["CRM / EHR / case management integration"],
+            },
+            {
+              cat: "AI & Intelligence",
+              tools: ["Document parsing", "Decision logic"],
+            },
+            { cat: "Analytics", tools: ["Workflow reporting"] },
+          ],
+          deliverables: [
+            "Full workflow audit document",
+            "Custom-built automation system",
+            "Integration with existing tools",
+            "Staff training session",
+            "Documentation",
+            "2-week live support window",
+          ],
+          outcomes: [
+            { label: "Manual admin hours", before: 82, after: 34 },
+            { label: "Dropped handoffs", before: 65, after: 12 },
+          ],
+          support:
+            "A Support Engineer stays on for two weeks post-launch, then your Account Manager checks in monthly to catch anything that needs adjusting as your workflows evolve.",
+        },
+        {
+          id: "leadgen",
+          name: "AI Lead Generation",
+          tagline:
+            "Every lead followed up in minutes, not days — managed by a real growth team.",
+          timeline: "30-day rollout",
+          problem:
+            "Most businesses lose 60–70% of leads simply through slow or inconsistent follow-up. By the time a rep calls back, the prospect has already booked with someone else.",
+          build:
+            "A multi-channel follow-up system — SMS, email, and voice — timed to industry-specific buying behavior, connected directly into your CRM.",
+          roadmap: [
+            {
+              name: "Lead Flow Audit",
+              days: "Days 1–4",
+              items: ["Source mapping", "Response-time baseline", "CRM review"],
+            },
+            {
+              name: "Follow-Up Architecture",
+              days: "Days 5–8",
+              items: [
+                "Channel sequencing",
+                "Message strategy",
+                "Qualification logic",
+              ],
+            },
+            {
+              name: "Build & Integration",
+              days: "Days 9–15",
+              items: ["CRM connection", "Sequence build", "Routing rules"],
+            },
+            {
+              name: "Simulation & QA",
+              days: "Days 16–18",
+              items: ["Simulated lead runs", "Edge-case testing"],
+            },
+            {
+              name: "Launch & Optimization",
+              days: "Days 19–30",
+              items: ["Go-live", "Weekly rate review", "Message tuning"],
+            },
+          ],
+          team: [
+            {
+              role: "Growth Strategist",
+              focus: "Owns follow-up logic and offer positioning",
+              mark: "GS",
+            },
+            {
+              role: "Automation Engineer",
+              focus: "Builds and connects the sequences",
+              mark: "AE",
+            },
+            {
+              role: "Account Manager",
+              focus: "Reviews performance weekly",
+              mark: "AM",
+            },
+          ],
+          stack: [
+            { cat: "Automation", tools: ["Multi-channel sequencing"] },
+            {
+              cat: "Communication",
+              tools: ["SMS", "Email", "Voice follow-up"],
+            },
+            { cat: "CRM & Data", tools: ["CRM integration", "Lead scoring"] },
+            { cat: "Analytics", tools: ["Response-rate dashboard"] },
+          ],
+          deliverables: [
+            "Multi-channel follow-up system",
+            "CRM integration",
+            "Lead-response dashboard",
+            "Automated sequences",
+            "Monthly optimization review",
+          ],
+          outcomes: [
+            { label: "First response time", before: 80, after: 18 },
+            { label: "Leads reached before cold", before: 35, after: 78 },
+          ],
+          support:
+            "Your Account Manager reviews response and booking rates weekly for the first month, shifting to monthly optimization once the system stabilizes.",
+        },
+        {
+          id: "content",
+          name: "AI Content & Social",
+          tagline:
+            "Consistent, on-brand content across every platform — directed by a real content team.",
+          timeline: "Ongoing, weekly batches",
+          problem:
+            "Consistent content production is one of the biggest time drains for growing businesses — and inconsistency kills algorithmic reach and brand trust alike.",
+          build:
+            "A monthly content calendar and platform-native posts, drafted with AI assistance and edited, fact-checked, and approved by a human before publishing.",
+          roadmap: [
+            {
+              name: "Brand & Voice Onboarding",
+              days: "Days 1–3",
+              items: ["Voice audit", "Audience mapping", "Top-content review"],
+            },
+            {
+              name: "Content Calendar Build",
+              days: "Days 4–7",
+              items: ["Monthly plan", "Platform mix", "Goal alignment"],
+            },
+            {
+              name: "Production",
+              days: "Ongoing",
+              items: ["AI-assisted drafting", "Human editing", "Fact-checking"],
+            },
+            {
+              name: "Review Cycle",
+              days: "Weekly",
+              items: ["Client approval", "Revisions"],
+            },
+            {
+              name: "Performance Review",
+              days: "Monthly",
+              items: ["What's working", "Calendar adjustment"],
+            },
+          ],
+          team: [
+            {
+              role: "Content Strategist",
+              focus: "Owns the calendar and brand voice",
+              mark: "CS",
+            },
+            {
+              role: "Human Editor",
+              focus: "Reviews and refines every AI-assisted draft",
+              mark: "HE",
+            },
+            {
+              role: "Account Manager",
+              focus: "Reports on performance monthly",
+              mark: "AM",
+            },
+          ],
+          stack: [
+            {
+              cat: "AI & Intelligence",
+              tools: ["Drafting & repurposing assistance"],
+            },
+            { cat: "Automation", tools: ["Scheduling & publishing"] },
+            { cat: "Analytics", tools: ["Platform performance tracking"] },
+          ],
+          deliverables: [
+            "Monthly content calendar",
+            "Platform-native posts",
+            "Human-edited copy",
+            "Repurposed content",
+            "Monthly performance report",
+          ],
+          outcomes: [
+            { label: "Publishing consistency", before: 30, after: 90 },
+            { label: "Monthly content output", before: 25, after: 75 },
+          ],
+          support:
+            "Your Content Strategist reviews what's resonating every month and adjusts the calendar — no static plan running on autopilot.",
+        },
+        {
+          id: "video",
+          name: "AI Video / UGC",
+          tagline:
+            "Scroll-stopping video, directed by real creative producers, produced at AI-assisted speed.",
+          timeline: "20-day cycle",
+          problem:
+            "Video is the highest-converting content format, but traditional production — crews, editors, weeks-long turnaround — is slow and expensive.",
+          build:
+            "A batch of platform-ready videos, scripted by a human copywriter and finished by a human editor, with AI accelerating generation and first-pass editing.",
+          roadmap: [
+            {
+              name: "Creative Strategy",
+              days: "Days 1–3",
+              items: ["Hooks & concepts", "Format selection"],
+            },
+            {
+              name: "Script Development",
+              days: "Days 4–6",
+              items: ["Human-written scripts", "AI-assisted iteration"],
+            },
+            {
+              name: "Production",
+              days: "Days 7–14",
+              items: ["AI-assisted generation", "First-pass editing"],
+            },
+            {
+              name: "Human Editing & QA",
+              days: "Days 15–17",
+              items: ["Final cuts", "Pacing & brand check"],
+            },
+            {
+              name: "Delivery",
+              days: "Days 18–20",
+              items: ["Platform-ready export", "Posting recommendations"],
+            },
+          ],
+          team: [
+            {
+              role: "Creative Producer",
+              focus: "Directs concept and hooks",
+              mark: "CP",
+            },
+            {
+              role: "Copywriter",
+              focus: "Writes and refines scripts",
+              mark: "CW",
+            },
+            {
+              role: "Video Editor",
+              focus: "Finishes every cut by hand",
+              mark: "VE",
+            },
+          ],
+          stack: [
+            {
+              cat: "AI & Intelligence",
+              tools: ["AI-assisted generation & editing"],
+            },
+            { cat: "Automation", tools: ["Repurposing across formats"] },
+            { cat: "Analytics", tools: ["Posting schedule optimization"] },
+          ],
+          deliverables: [
+            "Platform-ready video batch",
+            "Scripts & storyboards",
+            "Two rounds of revisions",
+            "Posting schedule recommendations",
+          ],
+          outcomes: [
+            { label: "Production turnaround", before: 85, after: 25 },
+            { label: "Monthly video output", before: 20, after: 70 },
+          ],
+          support:
+            "Two revision rounds are included on every batch — your Creative Producer stays involved through final delivery, not just the brief.",
+        },
+        {
+          id: "copy",
+          name: "AI Copy & Sales Pages",
+          tagline:
+            "Conversion-focused copy, written by real copywriters and stress-tested with AI iteration.",
+          timeline: "15-day cycle",
+          problem:
+            "Weak copy is one of the most common — and most fixable — reasons offers underperform. Most businesses either write it themselves without conversion expertise, or hire freelancers with inconsistent quality.",
+          build:
+            "Full sales or landing page copy, researched and structured by a dedicated copywriter, with AI used to rapidly test angles and headlines.",
+          roadmap: [
+            {
+              name: "Research",
+              days: "Days 1–4",
+              items: ["Audience & objections", "Competitor positioning"],
+            },
+            {
+              name: "Strategic Draft",
+              days: "Days 5–8",
+              items: ["Multiple angles tested", "Headline variations"],
+            },
+            {
+              name: "Human Refinement",
+              days: "Days 9–11",
+              items: ["Voice matching", "Objection-proofing"],
+            },
+            {
+              name: "Client Review",
+              days: "Days 12–14",
+              items: ["Feedback round", "Revisions"],
+            },
+            { name: "Delivery", days: "Day 15", items: ["Final copy handoff"] },
+          ],
+          team: [
+            {
+              role: "Copywriter",
+              focus: "Owns research, structure, and final voice",
+              mark: "CW",
+            },
+            {
+              role: "Conversion Strategist",
+              focus: "Reviews structure against conversion best practice",
+              mark: "CS",
+            },
+          ],
+          stack: [
+            { cat: "AI & Intelligence", tools: ["Headline & angle testing"] },
+            { cat: "Analytics", tools: ["Competitor & offer research"] },
+          ],
+          deliverables: [
+            "Sales or landing page copy",
+            "3 headline/angle options",
+            "Two rounds of revisions",
+            "Copy formatted for direct handoff",
+          ],
+          outcomes: [
+            { label: "Page conversion potential", before: 35, after: 80 },
+          ],
+          support:
+            "One round of light-touch adjustments is available after launch if early performance data suggests a specific section needs tightening.",
+        },
+        {
+          id: "seo",
+          name: "AI SEO Content",
+          tagline:
+            "Search-optimized content built on real keyword strategy, produced at scale with human review.",
+          timeline: "3–6 month retainer",
+          problem:
+            "SEO content requires consistent volume and quality over months to work — a combination most businesses can't sustain in-house, and most cheap AI content mills fail at.",
+          build:
+            "A keyword-driven content calendar and human-edited, SEO-optimized articles published on a consistent weekly cadence.",
+          roadmap: [
+            {
+              name: "Keyword Research",
+              days: "Days 1–5",
+              items: ["Search intent mapping", "Competitive gap analysis"],
+            },
+            {
+              name: "Content Plan",
+              days: "Days 6–8",
+              items: ["Prioritized calendar", "Buyer-journey mapping"],
+            },
+            {
+              name: "Production",
+              days: "Ongoing",
+              items: ["AI-assisted drafting", "Human editing & fact-check"],
+            },
+            {
+              name: "Publishing & On-Page SEO",
+              days: "Weekly",
+              items: ["Formatting", "Internal linking"],
+            },
+            {
+              name: "Reporting",
+              days: "Monthly",
+              items: ["Ranking review", "Plan adjustment"],
+            },
+          ],
+          team: [
+            {
+              role: "SEO Strategist",
+              focus: "Owns keyword strategy and reporting",
+              mark: "SS",
+            },
+            {
+              role: "Content Editor",
+              focus: "Fact-checks and refines every draft",
+              mark: "CE",
+            },
+            {
+              role: "Account Manager",
+              focus: "Delivers monthly reporting",
+              mark: "AM",
+            },
+          ],
+          stack: [
+            { cat: "AI & Intelligence", tools: ["AI-assisted drafting"] },
+            {
+              cat: "Analytics",
+              tools: ["SEO research platform", "Search analytics"],
+            },
+            { cat: "Automation", tools: ["CMS publishing"] },
+          ],
+          deliverables: [
+            "Keyword research & content calendar",
+            "Human-edited SEO articles",
+            "On-page optimization",
+            "Monthly ranking & traffic report",
+          ],
+          outcomes: [
+            { label: "Organic visibility (6mo)", before: 20, after: 65 },
+          ],
+          support:
+            "This is a compounding retainer, not a one-time build — the objective is growing organic visibility and qualified traffic over time, not an overnight ranking jump.",
+        },
+        {
+          id: "web",
+          name: "AI Websites",
+          tagline:
+            "Fast, professional websites — designed by a real team and built with AI-accelerated development.",
+          timeline: "28-day build",
+          problem:
+            "Traditional web builds take months and cost tens of thousands; DIY builders produce generic, slow, poorly-converting sites.",
+          build:
+            "A custom-designed, mobile-responsive website matched to your brand, with AI accelerating development while a human handles UX, integrations, and QA.",
+          roadmap: [
+            {
+              name: "Discovery & Wireframes",
+              days: "Days 1–5",
+              items: ["Site structure", "Conversion paths"],
+            },
+            {
+              name: "Design",
+              days: "Days 6–12",
+              items: ["Custom visual design", "Brand alignment"],
+            },
+            {
+              name: "Development",
+              days: "Days 13–20",
+              items: ["AI-assisted build", "Integrations"],
+            },
+            {
+              name: "Review & Revisions",
+              days: "Days 21–24",
+              items: ["Client feedback", "Two revision rounds"],
+            },
+            {
+              name: "Launch",
+              days: "Days 25–28",
+              items: ["Domain & hosting", "Final QA pass"],
+            },
+          ],
+          team: [
+            {
+              role: "Web Designer",
+              focus: "Owns visual and UX direction",
+              mark: "WD",
+            },
+            {
+              role: "Developer",
+              focus: "Handles build, integrations, and QA",
+              mark: "DV",
+            },
+            {
+              role: "QA Specialist",
+              focus: "Tests across devices before launch",
+              mark: "QA",
+            },
+          ],
+          stack: [
+            { cat: "AI & Intelligence", tools: ["AI-assisted development"] },
+            { cat: "Analytics", tools: ["Site analytics", "Basic SEO setup"] },
+            { cat: "Automation", tools: ["Form & booking integrations"] },
+          ],
+          deliverables: [
+            "Custom-designed responsive website",
+            "Analytics & basic SEO setup",
+            "Two rounds of revisions",
+            "30-day post-launch support",
+          ],
+          outcomes: [{ label: "Build turnaround", before: 90, after: 30 }],
+          support:
+            "A 30-day post-launch support window is included — after that, an optional monthly care plan covers updates, backups, and small changes.",
+        },
+        {
+          id: "email",
+          name: "AI Email & Brand",
+          tagline:
+            "Email systems and brand messaging that actually sound like you.",
+          timeline: "19-day build",
+          problem:
+            "Most businesses either neglect email entirely or send generic, inconsistent messaging that doesn't reflect their brand — leaving one of the highest-ROI channels underused.",
+          build:
+            "Documented brand voice plus built-out welcome, nurture, and campaign email sequences, drafted with AI and finalized by a human copywriter.",
+          roadmap: [
+            {
+              name: "Brand Voice Audit",
+              days: "Days 1–4",
+              items: ["Tone documentation", "Messaging pillars"],
+            },
+            {
+              name: "Email System Architecture",
+              days: "Days 5–9",
+              items: ["Sequence mapping", "Segment strategy"],
+            },
+            {
+              name: "Build",
+              days: "Days 10–16",
+              items: ["AI-assisted drafting", "Human finalization"],
+            },
+            {
+              name: "Testing",
+              days: "Days 17–19",
+              items: ["Deliverability testing", "Cross-client rendering"],
+            },
+            {
+              name: "Launch & Optimization",
+              days: "Monthly",
+              items: ["Open/click review", "Message refinement"],
+            },
+          ],
+          team: [
+            {
+              role: "Brand Strategist",
+              focus: "Defines voice and messaging architecture",
+              mark: "BS",
+            },
+            {
+              role: "Copywriter",
+              focus: "Finalizes every sequence by hand",
+              mark: "CW",
+            },
+            {
+              role: "Automation Specialist",
+              focus: "Builds and tests the sequences",
+              mark: "AS",
+            },
+          ],
+          stack: [
+            { cat: "AI & Intelligence", tools: ["Copy drafting assistance"] },
+            { cat: "Communication", tools: ["Email platform integration"] },
+            { cat: "Analytics", tools: ["Open/click reporting"] },
+          ],
+          deliverables: [
+            "Documented brand voice guide",
+            "Welcome & nurture sequences",
+            "Campaign templates",
+            "Deliverability testing",
+            "Monthly optimization report",
+          ],
+          outcomes: [
+            { label: "Open rate", before: 40, after: 72 },
+            { label: "Click-through rate", before: 30, after: 68 },
+          ],
+          support:
+            "Your Brand Strategist reviews open and click data monthly and refines messaging — the sequences aren't static once they launch.",
+        },
+        {
+          id: "pitch",
+          name: "Pitch Decks",
+          tagline:
+            "Investor- and client-ready decks, strategized by real deck specialists.",
+          timeline: "17-day build",
+          problem:
+            "A weak deck can kill a strong business — whether pitching investors, closing enterprise clients, or presenting internally.",
+          build:
+            "A fully designed, narrative-driven pitch deck — story arc built by a strategist, copy drafted with AI assistance, visuals finished by a designer.",
+          roadmap: [
+            {
+              name: "Narrative Strategy",
+              days: "Days 1–4",
+              items: ["Story arc", "Problem → solution → ask"],
+            },
+            {
+              name: "Content Draft",
+              days: "Days 5–7",
+              items: ["AI-assisted drafting", "Structure refinement"],
+            },
+            {
+              name: "Design",
+              days: "Days 8–13",
+              items: ["Custom visual design", "Brand alignment"],
+            },
+            {
+              name: "Review & Revisions",
+              days: "Days 14–16",
+              items: ["Client feedback", "Two revision rounds"],
+            },
+            {
+              name: "Delivery",
+              days: "Day 17",
+              items: ["Editable & presentation-ready files"],
+            },
+          ],
+          team: [
+            {
+              role: "Deck Strategist",
+              focus: "Owns the narrative arc",
+              mark: "DS",
+            },
+            {
+              role: "Copywriter",
+              focus: "Drafts and tightens slide copy",
+              mark: "CW",
+            },
+            {
+              role: "Presentation Designer",
+              focus: "Finishes the visual execution",
+              mark: "PD",
+            },
+          ],
+          stack: [
+            { cat: "AI & Intelligence", tools: ["Copy & structure iteration"] },
+            { cat: "Design", tools: ["Presentation design tools"] },
+          ],
+          deliverables: [
+            "Narrative strategy document",
+            "Custom-designed deck (10–20 slides)",
+            "Editable source file + PDF",
+            "Two rounds of revisions",
+          ],
+          outcomes: [
+            { label: "Meeting-to-next-step rate", before: 30, after: 70 },
+          ],
+          support:
+            "One light revision pass is available after your first real pitch, in case a live audience surfaces a question the deck should answer better.",
+        },
+      ];
+
+      const flowSteps = [
+        {
+          icon: "◆",
+          cls: "human",
+          title: "Human strategy",
+          sub: "A specialist scopes the problem and the plan",
+        },
+        {
+          icon: "◇",
+          cls: "ai",
+          title: "AI-assisted production",
+          sub: "AI accelerates drafting, iteration, repetitive work",
+        },
+        {
+          icon: "◆",
+          cls: "human",
+          title: "Human review & QA",
+          sub: "A specialist checks accuracy, quality, brand fit",
+        },
+        {
+          icon: "◆",
+          cls: "human",
+          title: "Client approval",
+          sub: "You review and sign off before anything ships",
+        },
+        {
+          icon: "◇",
+          cls: "ai",
+          title: "Implementation",
+          sub: "The system is deployed into your business",
+        },
+        {
+          icon: "◆",
+          cls: "human",
+          title: "Optimization",
+          sub: "Your Account Manager monitors and improves it",
+        },
+      ];
+
+      const selector = document.getElementById("selector");
+      const panel = document.getElementById("panel-content");
+      const counter = document.getElementById("selector-count");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+
+      services.forEach((s, i) => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = `${String(i + 1).padStart(2, "0")} — ${s.name}`;
+        selector.appendChild(opt);
+      });
+
+      selector.addEventListener("change", () => render(selector.value));
+      prevBtn.addEventListener("click", () => step(-1));
+      nextBtn.addEventListener("click", () => step(1));
+
+      function step(dir) {
+        const idx = services.findIndex((s) => s.id === selector.value);
+        const next = (idx + dir + services.length) % services.length;
+        render(services[next].id);
+      }
+
+      function render(id, opts = {}) {
+        const s = services.find((x) => x.id === id);
+        const idx = services.findIndex((x) => x.id === id);
+        selector.value = id;
+        counter.textContent = `Service ${idx + 1} of ${services.length}`;
+        prevBtn.disabled = idx === 0;
+        nextBtn.disabled = idx === services.length - 1;
+        if (!opts.initial) {
+          document
+            .querySelector(".selector-band")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        panel.innerHTML = `
+    <div class="service-head">
+      <div>
+        <h2>${s.name}</h2>
+        <p class="service-tagline">${s.tagline}</p>
+      </div>
+      <div class="timeline-badge">${s.timeline}</div>
+    </div>
+
+    <section class="block">
+      <div class="block-label">The problem</div>
+      <p class="prose">${s.problem}</p>
+    </section>
+
+    <section class="block">
+      <div class="block-label">What we build</div>
+      <p class="prose">${s.build}</p>
+    </section>
+
+    <section class="block">
+      <div class="block-label">Execution roadmap</div>
+      <div class="roadmap">
+        ${s.roadmap
+          .map(
+            (p, idx) => `
+          <div class="phase">
+            <div class="phase-num">${String(idx + 1).padStart(2, "0")}</div>
+            <div class="phase-name">${p.name}</div>
+            <div class="phase-days">${p.days}</div>
+            <ul>${p.items.map((it) => `<li>${it}</li>`).join("")}</ul>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
+    <div class="two-col">
+      <section class="block">
+        <div class="block-label">Your team</div>
+        <div class="team-list">
+          ${s.team
+            .map(
+              (t) => `
+            <div class="team-row">
+              <div class="team-role-mark">${t.mark}</div>
+              <div>
+                <div class="team-role-title">${t.role}</div>
+                <div class="team-role-focus">${t.focus}</div>
+              </div>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-label">Technology stack</div>
+        ${s.stack
+          .map(
+            (cat) => `
+          <div class="stack-cat">
+            <div class="stack-cat-name">${cat.cat}</div>
+            <div class="stack-chips">
+              ${cat.tools.map((t) => `<span class="stack-chip">${t}</span>`).join("")}
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </section>
+    </div>
+
+    <div class="two-col">
+      <section class="block">
+        <div class="block-label">AI + human workflow</div>
+        <div class="flow">
+          ${flowSteps
+            .map(
+              (f, idx) => `
+            <div class="flow-step">
+              <div class="flow-icon ${f.cls}">${f.icon}</div>
+              <div>
+                <div class="flow-text-title">${f.title}</div>
+                <div class="flow-text-sub">${f.sub}</div>
+              </div>
+            </div>
+            ${idx < flowSteps.length - 1 ? '<div class="flow-connector"></div>' : ""}
+          `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-label">What you receive</div>
+        <div class="deliverables">
+          ${s.deliverables
+            .map(
+              (d) => `
+            <div class="deliverable">
+              <div class="check">✓</div>
+              <div>${d}</div>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
+
+    <section class="block">
+      <div class="block-label">Expected outcomes</div>
+      <div class="outcomes">
+        ${s.outcomes
+          .map(
+            (o) => `
+          <div class="outcome-row">
+            <div class="outcome-label">${o.label}</div>
+            <div class="bar-track">
+              <div class="bar-line">
+                <div class="bar-tag">Before</div>
+                <div class="bar-shell"><div class="bar-fill before" style="width:${o.before}%"></div></div>
+              </div>
+              <div class="bar-line">
+                <div class="bar-tag">Typical</div>
+                <div class="bar-shell"><div class="bar-fill after" style="width:${o.after}%"></div></div>
+              </div>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+        <p class="outcomes-note">Illustrative direction only — actual results vary by client, offer, and starting baseline.</p>
+      </div>
+    </section>
+
+    <div class="support-cta">
+      <div>
+        <h4>Ongoing support</h4>
+        <p class="support-text">${s.support}</p>
+      </div>
+      <button class="cta-btn">Start with ${s.name}</button>
+    </div>
+  `;
+      }
+
+      render(services[0].id, { initial: true });
+    </script>
+  </body>
+</html>

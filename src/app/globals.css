@@ -280,6 +280,87 @@
     }
   }
 
+  /* --- Glass sweep ----------------------------------------------------------
+     Light crossing a pane, for the works carousel cards on hover. A band that
+     travels from off one edge to off the other and stops — a single pass per
+     hover, not a loop, which is what keeps it reading as a reflection catching
+     the surface rather than as a shimmer effect.
+
+     Only `translate` moves, so it composes with the band's own static `rotate`
+     instead of fighting it, and it animates on the compositor. Applied under
+     `motion-safe` at the call site. */
+  @keyframes glass-sweep {
+    from {
+      translate: -180% 0;
+    }
+    to {
+      translate: 180% 0;
+    }
+  }
+
+  /* --- Idle drift ------------------------------------------------------------
+     For a floating sculptural accent that has to read as ALIVE before anyone
+     touches it — the /services intro art, sized and treated like a genuinely
+     dominant piece rather than a small icon. `translate` + `rotate`, so it
+     composes with the element's own static transform (a fixed tilt, a hover
+     scale) instead of overwriting it, same reasoning as `glass-sweep`.
+
+     Deliberately NOT a spin: the artwork itself is close to radially
+     symmetric, so a full rotation would read as visually static at several
+     points in the cycle. A gentle rise-and-settle plus a few degrees of tilt
+     stays visible throughout regardless of the art's own symmetry. Slow (9s)
+     and small (18px, 2°) — calm, not the hero's ripple. */
+  @keyframes gst-drift {
+    0%,
+    100% {
+      translate: 0 0;
+      rotate: -1deg;
+    }
+    50% {
+      translate: 0 -18px;
+      rotate: 1deg;
+    }
+  }
+
+  /* The glow's own, slower breathing — offset from `gst-drift` in both period
+     and property (`scale`, not translate/rotate) so the two layers move
+     independently rather than in lockstep, which is what keeps a two-layer
+     composition from reading as one rigid unit.
+
+     `scale`, not `opacity`: a running keyframe animation and a hover-driven
+     change targeting the SAME property on the SAME element fight — the
+     animation keeps re-asserting its own value every frame, and the hover
+     class loses. Measured: with this pulse animating `opacity`, hovering only
+     moved it 0.34 → 0.37 against an intended 0.32 → 0.58, because the pulse
+     never stopped overriding it. The glow's hover "intensify" is what actually
+     owns `opacity` now; the idle pulse breathes `scale` instead, so the two
+     compose instead of competing. */
+  @keyframes gst-glow-pulse {
+    0%,
+    100% {
+      scale: 1;
+    }
+    50% {
+      scale: 1.08;
+    }
+  }
+
+  /* The process-line arrows' idle "flow" cue — a bare 3px nudge on `translate`,
+     never `transform`/`opacity`, because the scroll-reveal that brings each
+     arrow in (motion/react, ProcessSequence.tsx) animates those two via its
+     own inline styles. Same rule as `gst-drift` vs. the sharp/glow layers
+     above: idle motion and anything else touching the same element have to
+     live on different properties or one silently wins every frame. */
+  @keyframes gst-arrow-flow {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 3px 0;
+    }
+  }
+
   /* --- Elevation (REBUILD-SPEC §5) ----------------------------------------
      Inside @theme so Tailwind generates real utilities — `shadow-hairline`,
      `shadow-card` — rather than leaving these as variables unreachable without

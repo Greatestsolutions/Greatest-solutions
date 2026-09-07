@@ -1,3 +1,5 @@
+import { ContactButton } from "@/components/contact/ContactButton";
+import { Button } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
 import type { Service } from "@/data/services";
@@ -80,6 +82,28 @@ export function ServiceCard({ service }: { service: Service }) {
           </Pill>
         ))}
       </ul>
+
+      {/*
+        The two actions, following the pair already used at the foot of
+        `/services/[slug]`: the default ink `Button` as the primary and `light`
+        as the secondary. No new button style, and the same alignment rule the
+        tags above use — centred until desktop, then left.
+
+        `size="md"` rather than the `lg` that page uses: these sit inside a card
+        whose item is `min-h-svh`, and the smaller control keeps the content box
+        clear of that height at every width, so the scroll-progress-to-active-index
+        maths is untouched. `-mt-2` trims the card's 32px gap to 24px here, which
+        groups the buttons with the tags rather than floating them as a third
+        block.
+      */}
+      <div className="-mt-2 flex flex-wrap justify-center gap-3 desktop:justify-start">
+        <ContactButton>Start this project</ContactButton>
+        {/* Each service's OWN slug — the `-2` placeholders link to their own
+            pages, not back to the entry they duplicate. */}
+        <Button href={`/services/${service.slug}`} tone="light">
+          View roadmap
+        </Button>
+      </div>
     </div>
   );
 }

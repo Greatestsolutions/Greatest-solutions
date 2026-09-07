@@ -87,7 +87,7 @@ export const fadeUpSoft = (delay = delays.fourth): Variants => ({
 });
 
 /** y: 10 → 0, short settle. Reference delay 1.31 — the last thing to arrive. */
-export const fadeUpTight = (delay = delays.trailing): Variants => ({
+export const fadeUpTight = (delay: number = delays.trailing): Variants => ({
   hidden: hidden(10),
   show: { ...shown, transition: spring.settle(delay) },
 });

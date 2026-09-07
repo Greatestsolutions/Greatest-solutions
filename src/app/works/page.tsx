@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageShell } from "@/components/layout/PageShell";
-import { Works } from "@/components/sections/Works";
+import { WorksIndex } from "@/components/works/WorksIndex";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -10,8 +10,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * Reuses the home page's {@link Works} section rather than rebuilding the grid,
- * so the cards, hover zoom and parallax stay identical by construction.
+ * The full listing.
+ *
+ * This used to render the homepage's `Works` section with its header suppressed,
+ * which made the two pages the same thing twice. It now has its own layout — see
+ * {@link WorksIndex} — a searchable typographic index rather than the homepage's
+ * staggered image grid. `Works.tsx` is no longer imported here and is untouched.
  */
 export default function WorksPage() {
   return (
@@ -19,9 +23,9 @@ export default function WorksPage() {
       <PageHeader
         eyebrow="Work"
         title="Projects we have shipped"
-        description="A selection of the work. Every project below links through to a short summary."
+        description="A selection of the work. Search by tool, technique or name — every project links through to a short summary."
       />
-      <Works showHeader={false} />
+      <WorksIndex />
     </PageShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Input, fieldBase, fieldControl } from "@/components/ui/Input";
 import { services } from "@/data/services";
 import { site } from "@/config/site";
 import { cn } from "@/lib/cn";
@@ -98,7 +99,7 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
             /* Must be a slug now that the options carry slugs as values — a title
                here would match no option and silently fall through to the first. */
             defaultValue={services[0]?.slug}
-            className="h-11 rounded-[var(--radius-sm)] border border-black/12 bg-white px-3 text-body-md text-ink transition-colors duration-[var(--duration-quick)] focus-visible:border-brand-green focus-visible:outline-none"
+            className={fieldControl}
           >
             {/* `value` is the slug, not the label: titles can repeat, slugs cannot,
                 so without this two different services submit the same string. */}
@@ -120,7 +121,7 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
           rows={5}
           required
           placeholder="Tell us what you need built — the problem, any deadlines, and what it has to work with."
-          className="resize-y rounded-[var(--radius-sm)] border border-black/12 bg-white p-3 text-body-md text-ink transition-colors duration-[var(--duration-quick)] placeholder:text-muted focus-visible:border-brand-green focus-visible:outline-none"
+          className={cn("resize-y p-3", fieldBase)}
         />
       </div>
 
@@ -162,14 +163,7 @@ function Field({
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>{label}</Label>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        className="h-11 rounded-[var(--radius-sm)] border border-black/12 bg-white px-3 text-body-md text-ink transition-colors duration-[var(--duration-quick)] placeholder:text-muted focus-visible:border-brand-green focus-visible:outline-none"
-      />
+      <Input id={id} name={name} type={type} required={required} placeholder={placeholder} />
     </div>
   );
 }

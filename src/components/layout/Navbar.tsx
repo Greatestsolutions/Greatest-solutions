@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Container } from "@/components/layout/Container";
 import { CONTACT_PATH, useContactModal } from "@/components/contact/ContactModal";
 import { navCta, navItems, type NavItem } from "@/data/navigation";
@@ -541,8 +541,22 @@ function Dropdown({ item }: { item: NavItem }) {
          */
         className={cn(
           "absolute top-full left-0 pt-1",
-          "origin-top transition-[opacity,transform,visibility] duration-[280ms] ease-[var(--ease-brand)]",
-          open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
+          /*
+           * Entrance: fade + slide, now WITH a scale — `0.97 → 1`, "growing into
+           * place" rather than just sliding down. Named longhand properties
+           * (`translate`, `scale`), not `transform`: Tailwind v4's `translate-*`
+           * and `scale-*` utilities emit the standalone CSS `translate`/`scale`
+           * properties, not a composited `transform` string (the same reason
+           * `ProjectCard`'s hover zoom and `WorksCarousel`'s hover pop both
+           * transition `scale` by name rather than `transform`) — listing the
+           * literal `transform` property here, as before, transitioned nothing,
+           * which is almost certainly why the open/close read as an instant snap
+           * rather than the slide the code already asked for.
+           */
+          "origin-top transition-[opacity,visibility,translate,scale] duration-[280ms] ease-[var(--ease-brand)] motion-reduce:transition-none",
+          open
+            ? "visible translate-y-0 scale-100 opacity-100"
+            : "invisible -translate-y-1.5 scale-[0.97] opacity-0",
         )}
       >
         {/*
@@ -584,8 +598,23 @@ function Dropdown({ item }: { item: NavItem }) {
             // hairline beneath it so it reads as a heading for the block, not a
             // twelfth service.
             const overview = grid && i === 0;
+            /*
+             * The stagger reveals by ROW, not by item — two cells in the same
+             * grid row share a delay, so the panel reads as rows dropping in
+             * rather than eleven individual items popping one after another,
+             * which would take noticeably longer to finish for the same step
+             * size. In the ungridded Pages menu every item already is its own
+             * row (`i` itself), so one formula covers both without a branch.
+             */
+            const row = overview ? 0 : grid ? Math.ceil(i / 2) : i;
             const cell = cn(
-              "block rounded-[var(--radius-xs)] px-3 py-2 text-body-md",
+              "group/row block rounded-[var(--radius-xs)] px-3 py-2 text-body-md",
+              // One property list for the item's OWN hover, kept separate from
+              // the `<li>`'s entrance transition below — two elements, two
+              // reasons to change, two transitions. `--duration-quick` is the
+              // token this exact 320ms already was; naming it doesn't change the
+              // number, just stops it being a second, disconnected 320ms.
+              "transition-[background-color,color,translate] duration-[var(--duration-quick)] ease-[var(--ease-brand)] motion-reduce:transition-none",
               // Nowrap only in the grid: it is what makes the two columns size to
               // their longest label instead of wrapping into a ragged block.
               grid && "whitespace-nowrap",
@@ -593,7 +622,19 @@ function Dropdown({ item }: { item: NavItem }) {
             return (
               <li
                 key={child.label}
-                className={cn(overview && "col-span-2 mb-1 border-b border-hairline pb-1")}
+                /*
+                 * The stagger itself. Delayed only while OPENING — `open ?
+                 * delay : undefined` clears the inline style on close, so every
+                 * row fades out together on the same quick beat rather than
+                 * reversing the stagger, which would make closing feel slower
+                 * than opening for no reason.
+                 */
+                style={open ? { transitionDelay: `${row * 18}ms` } : undefined}
+                className={cn(
+                  "transition-[opacity,translate] duration-[var(--duration-quick)] ease-[var(--ease-brand)] motion-reduce:transition-none",
+                  open ? "translate-y-0 opacity-100" : "-translate-y-0.5 opacity-0",
+                  overview && "col-span-2 mb-1 border-b border-hairline pb-1",
+                )}
               >
                 {child.pending ? (
                   <span aria-disabled="true" title="Coming soon" className={cn(cell, "text-muted")}>
@@ -604,9 +645,33 @@ function Dropdown({ item }: { item: NavItem }) {
                     child={child}
                     className={cn(
                       cell,
-                      "text-brand-ink transition-colors duration-[320ms] ease-[var(--ease-brand)] hover:text-brand-green",
+                      // The background fill is the site's own established
+                      // "subtle neutral hover" token — the same `bg-scrim-06`
+                      // the navbar's own menu button, the contact dialog's
+                      // close button and the carousel's arrow controls already
+                      // use, not a new colour introduced for this one menu.
+                      "text-brand-ink hover:bg-scrim-06 hover:text-brand-green",
+                      // The "slight indent" reveal, on ordinary rows only — the
+                      // overview row gets its own reveal from the arrow instead,
+                      // so it isn't carrying two competing motions on hover.
+                      !overview && "hover:translate-x-0.5",
                       overview && "font-medium",
                     )}
+                    trailing={
+                      overview ? (
+                        // The arrow is the third thing that sets this row apart
+                        // (with the divider and the medium weight, both already
+                        // in place): visible at rest and shifting right on
+                        // hover, exactly the "View project →" idiom the works
+                        // index already uses — reused, not reinvented.
+                        <span
+                          aria-hidden="true"
+                          className="text-muted transition-[color,translate] duration-[var(--duration-quick)] ease-[var(--ease-brand)] group-hover/row:translate-x-1 group-hover/row:text-brand-green"
+                        >
+                          →
+                        </span>
+                      ) : undefined
+                    }
                   />
                 )}
               </li>
@@ -629,13 +694,26 @@ function Dropdown({ item }: { item: NavItem }) {
 function PanelItem({
   child,
   className,
+  trailing,
   onNavigate,
 }: {
   child: NavItem;
   className: string;
+  /** An extra element pinned to the row's trailing edge — currently only the
+   *  desktop "All services" row's arrow. Omitted everywhere else, including
+   *  the mobile menu, which never passes it. */
+  trailing?: ReactNode;
   onNavigate?: () => void;
 }) {
   const { open: openContact } = useContactModal();
+  const content = trailing ? (
+    <span className="flex w-full items-center justify-between gap-3">
+      {child.label}
+      {trailing}
+    </span>
+  ) : (
+    child.label
+  );
 
   if (child.href === CONTACT_PATH) {
     return (
@@ -647,14 +725,14 @@ function PanelItem({
         }}
         className={cn(className, "w-full cursor-pointer text-left")}
       >
-        {child.label}
+        {content}
       </button>
     );
   }
 
   return (
     <Link href={child.href} onClick={onNavigate} className={className}>
-      {child.label}
+      {content}
     </Link>
   );
 }
