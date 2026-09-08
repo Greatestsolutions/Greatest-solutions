@@ -141,7 +141,7 @@ export function Works({
               <ProjectCard
                 key={project.slug}
                 project={project}
-                className={placements[i]}
+                className={placements[i] ?? fallbackPlacement}
                 showContactCta={showContactCta}
               />
             ))}
@@ -162,6 +162,22 @@ export function Works({
  * Rows are explicit. With only a column declared, auto-placement would put River
  * beside Fluxa — a definite column does not stop the algorithm filling a row it
  * still has room in.
+ *
+ * ## Why this list was extended rather than cycled
+ *
+ * It used to hold exactly six, indexed directly, so a seventh project read
+ * `placements[6]` as `undefined` and lost its desktop placement silently. The
+ * obvious repair — `placements[i % placements.length]` — is the one thing that
+ * must NOT be done here: every entry pins an explicit `row-start`, so slot 7
+ * would be placed into row 1 on top of slot 1. Two items explicitly assigned the
+ * same grid cell overlap, which is a worse failure than the one being fixed, and
+ * a silent one at desktop width only.
+ *
+ * So the weave is written out to twelve, continuing the same rhythm: alternating
+ * sides, spans of 4 and 5, and offsets in the same range. Rows stay unique and
+ * monotonic, which is the property that makes the whole thing safe.
+ *
+ * Beyond twelve, `fallbackPlacement` takes over — see below.
  */
 const placements = [
   "desktop:col-start-9 desktop:col-span-4 desktop:row-start-1 desktop:mt-[-72px]",
@@ -170,4 +186,24 @@ const placements = [
   "desktop:col-start-2 desktop:col-span-5 desktop:row-start-4 desktop:mt-[180px]",
   "desktop:col-start-9 desktop:col-span-4 desktop:row-start-5 desktop:mt-[-180px]",
   "desktop:col-start-1 desktop:col-span-4 desktop:row-start-6 desktop:mt-[-120px]",
+  "desktop:col-start-8 desktop:col-span-4 desktop:row-start-7 desktop:mt-[-150px]",
+  "desktop:col-start-2 desktop:col-span-5 desktop:row-start-8 desktop:mt-[-200px]",
+  "desktop:col-start-9 desktop:col-span-4 desktop:row-start-9 desktop:mt-[-100px]",
+  "desktop:col-start-1 desktop:col-span-5 desktop:row-start-10 desktop:mt-[160px]",
+  "desktop:col-start-7 desktop:col-span-4 desktop:row-start-11 desktop:mt-[-190px]",
+  "desktop:col-start-2 desktop:col-span-4 desktop:row-start-12 desktop:mt-[-110px]",
 ];
+
+/**
+ * Slot 13 and beyond.
+ *
+ * A span with no `col-start` and no `row-start`, so the card is auto-placed. It
+ * leaves the weave — this is a plain flow position, not a woven one — but
+ * auto-placement finds free space by definition, so it can never land on top of
+ * an explicitly placed card the way a cycled entry would.
+ *
+ * The right fix for a thirteenth project is another line in `placements`. This
+ * only guarantees that forgetting to add one degrades to "not woven" instead of
+ * to "unstyled" or "overlapping".
+ */
+const fallbackPlacement = "desktop:col-span-4";

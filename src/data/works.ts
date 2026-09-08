@@ -170,4 +170,95 @@ export const projects: Project[] = [
     technologies: ["HTML", "Tailwind CSS", "Vanilla JavaScript"],
     services: ["web-development"],
   },
+
+  /* ---------------------------------------------------------------------- *
+   * 07-12 - placeholders. Each duplicates the entry six positions above it:
+   * same title, copy, category, type, tags, technologies and services. Only
+   * the slug differs, carrying the `-2` suffix already established by the
+   * service placeholders - it keeps the kebab-case convention and makes the
+   * pairing obvious at a glance in the sitemap and the /works listing.
+   *
+   * Load-bearing because routing, `generateStaticParams` and the sitemap all
+   * key off the slug; everything else here is copy waiting to be replaced.
+   * Replacing a placeholder with a real project is a pure data edit.
+   * ---------------------------------------------------------------------- */
+
+  {
+    slug: "pricewatch-2",
+    title: "PriceWatch",
+    description:
+      "A competitor price monitoring and product matching platform for furniture and mattress retailers.",
+    fullDescription:
+      "A full-stack price intelligence system: scrapers collect competitor listings, a matching engine pairs them to a catalogue using brand family, part numbers and fuzzy name matching, and a dashboard exposes live price comparison, a review queue for uncertain matches, and alerting for undercuts and price drops. The repository covers the backend, frontend, scrapers, matching engine and supporting automation, with handover documentation written so a developer can go from a fresh machine to a running system.",
+    type: "Internal Project",
+    category: "Data Platform",
+    tags: ["Web Scraping", "Dashboard", "Automation"],
+    technologies: ["Python", "Full-stack web"],
+    services: ["custom-software-development"],
+  },
+  {
+    slug: "docchat-ai-2",
+    title: "DocChat AI",
+    description:
+      "A document question-and-answer chatbot built on a retrieval-augmented generation pipeline.",
+    fullDescription:
+      "Upload a document and ask questions about it in natural language. A two-stage intent classifier routes casual conversation away from the vector store so it is only queried when a question actually needs grounding. Built as a FastAPI backend with a single-page frontend.",
+    type: "Personal Project",
+    category: "AI / RAG",
+    tags: ["RAG", "API", "Document Q&A"],
+    technologies: ["FastAPI", "FAISS", "LangChain", "Groq (Llama 3.3)"],
+    services: ["web-applications"],
+  },
+  {
+    slug: "policai-2",
+    title: "PolicAI",
+    description:
+      "An HR policy assistant that answers employee questions from uploaded policy documents.",
+    fullDescription:
+      "A retrieval-augmented generation pipeline over a company's own HR documents: ingestion chunks and embeds the source material, retrieval grounds each answer in it, and a guardrail stage sits between the model and the response. Employees ask in natural language rather than searching a PDF.",
+    type: "Personal Project",
+    category: "AI / RAG",
+    tags: ["RAG", "Internal Tool", "Document Search"],
+    technologies: ["Flask", "ChromaDB", "Sentence Transformers", "Groq (Llama 3.1)"],
+    services: ["custom-software-development"],
+  },
+  {
+    slug: "linkedin-job-scraper-2",
+    title: "LinkedIn Job Scraper",
+    description:
+      "A job scraping and AI summarisation tool with both a web interface and a command-line pipeline.",
+    fullDescription:
+      "Collects job listings and summarises them, offered two ways: a Streamlit web UI for interactive use, and a CLI pipeline that runs scraping and summarisation as separate steps. Results are written to a single spreadsheet ready to open in Google Sheets.",
+    type: "Personal Project",
+    category: "Automation",
+    tags: ["Web Scraping", "Automation", "Summarisation"],
+    technologies: ["Python", "Selenium", "Streamlit"],
+    services: ["custom-software-development"],
+  },
+  {
+    slug: "flipsense-2",
+    title: "FlipSense",
+    description:
+      "A product review sentiment analyser running entirely on open-source models.",
+    fullDescription:
+      "Analyses e-commerce product review sentiment using DistilBERT, with VADER as an automatic fallback. Built deliberately without paid APIs — the whole pipeline runs on open-source models.",
+    type: "Personal Project",
+    category: "Machine Learning",
+    tags: ["NLP", "Sentiment Analysis", "Open Source"],
+    technologies: ["Python", "DistilBERT (HuggingFace)", "VADER"],
+    services: ["custom-software-development"],
+  },
+  {
+    slug: "comixhub-2",
+    title: "ComixHub",
+    description:
+      "A front-end catalogue app for browsing and bookmarking serialised comics.",
+    fullDescription:
+      "A static multi-page site with no backend: the catalogue ships in the page and bookmarks live in localStorage. Includes live text search across title, author and description, genre and status filters, five sort orders, three view modes, pagination, and a detail modal per title. Responsive from 320px upward.",
+    type: "Personal Project",
+    category: "Front-end",
+    tags: ["Front-end", "Search & Filtering", "Responsive"],
+    technologies: ["HTML", "Tailwind CSS", "Vanilla JavaScript"],
+    services: ["web-development"],
+  },
 ];
