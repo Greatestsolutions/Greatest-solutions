@@ -275,7 +275,8 @@ export default function ServicesPage() {
         The Works-style carousel, replacing the numbered-arc scroller on this
         page only — `Services.tsx` itself is untouched and still renders on
         `/`. Full-bleed (no `Container`/`Section` wrapper): the peeking cards
-        run to the viewport edges, exactly like `WorksCarousel` on `/works`.
+        run to the viewport edges. (`/works` used to carry the same carousel; it
+        is a static grid now, so this is the only one left.)
         It renders no heading of its own — the SectionHeader above is the
         only page-level heading for this list.
       */}

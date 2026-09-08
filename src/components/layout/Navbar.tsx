@@ -547,7 +547,7 @@ function Dropdown({ item }: { item: NavItem }) {
            * (`translate`, `scale`), not `transform`: Tailwind v4's `translate-*`
            * and `scale-*` utilities emit the standalone CSS `translate`/`scale`
            * properties, not a composited `transform` string (the same reason
-           * `ProjectCard`'s hover zoom and `WorksCarousel`'s hover pop both
+           * `ProjectCard`'s hover zoom and the card carousels' hover pop both
            * transition `scale` by name rather than `transform`) — listing the
            * literal `transform` property here, as before, transitioned nothing,
            * which is almost certainly why the open/close read as an instant snap

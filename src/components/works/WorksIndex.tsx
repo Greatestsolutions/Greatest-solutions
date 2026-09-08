@@ -5,15 +5,15 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { FilterPill } from "@/components/works/FilterPill";
 import { Input } from "@/components/ui/Input";
-import { WorksCarousel } from "@/components/works/WorksCarousel";
+import { WorksGrid } from "@/components/works/WorksGrid";
 import { projects, type Project } from "@/data/works";
 
 /**
  * The `/works` index.
  *
  * Owns the search — the field, the keyword chips, the result count and the empty
- * state — and hands whatever survives filtering to {@link WorksCarousel}, which
- * renders it as an autoplaying horizontal carousel.
+ * state — and hands whatever survives filtering to {@link WorksGrid}, which
+ * renders it as a plain wrapping grid.
  *
  * The split is deliberate: this component knows about querying and nothing about
  * presentation; the carousel knows how to show projects and nothing about where
@@ -127,24 +127,24 @@ export function WorksIndex() {
           </p>
         </div>
 
-        {results.length === 0 ? <EmptyState query={query.trim()} onClear={() => setQuery("")} /> : null}
-      </Container>
+        {results.length === 0 ? (
+          <EmptyState query={query.trim()} onClear={() => setQuery("")} />
+        ) : (
+          /*
+            The results, now inside the Container rather than full-bleed beside
+            it: the carousel sat outside because its peeking cards ran to the
+            viewport edges, and a grid has no peeking cards — it should stop at
+            the same max-width column as the search above it.
 
-      {/*
-        The results themselves are a carousel, outside the Container because it is
-        full-bleed: the peeking cards run to the viewport edges rather than
-        stopping at a max-width column. It renders straight from `results`, so a
-        chip or a keystroke re-renders it with just those projects and resets it
-        to the first match. Zero results renders nothing here — the empty state
-        above stands on its own.
-      */}
-      {results.length > 0 ? (
-        /* The key is the result set. A new set is a different carousel, so React
-           remounts it and its `activeIndex` starts at 0 — the reset falls out of
-           the component's identity rather than needing an effect to undo state
-           after the fact. */
-        <WorksCarousel key={results.map((p) => p.slug).join("|")} projects={results} />
-      ) : null}
+            It renders straight from `results`, so a chip or a keystroke
+            re-renders it with just those projects. No `key` remount either: that
+            existed only to reset the carousel's `activeIndex` to the first match,
+            and a grid holds no such state to reset. Zero results renders the
+            empty state instead.
+          */
+          <WorksGrid projects={results} />
+        )}
+      </Container>
     </Section>
   );
 }

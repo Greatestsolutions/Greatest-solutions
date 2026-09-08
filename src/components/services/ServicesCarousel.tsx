@@ -11,19 +11,57 @@ import { cn } from "@/lib/cn";
 import type { Service } from "@/data/services";
 
 /**
- * The `/services` carousel — {@link WorksCarousel}'s exact layout, autoplay,
- * drag/swipe and hover treatment, carrying services instead of projects.
+ * The `/services` carousel: a horizontal row of landscape cards, the middle one
+ * focused, its neighbours peeking in from both sides, advancing on a timer.
  *
- * This is a second component rather than `WorksCarousel` made generic over
- * `Project | Service`, on purpose: the two data shapes diverge (services have
- * no `category`/`type`, works have no `tags`) and the two carousels serve
- * pages that must be free to drift independently later — the exact reasoning
- * that already split `/works` off the homepage's own Works section. See
- * `WorksCarousel` for the full rationale behind the mechanics duplicated here
- * (looping distance, the timer-vs-scroll tradeoff, the drag/swipe pipeline);
- * only what actually differs for services is called out below.
+ * This began as a copy of the `/works` carousel, which has since been replaced
+ * by a static grid — so the rationale that file carried now lives here, as the
+ * only carousel left on the site.
  *
- * What differs from `WorksCarousel`:
+ * ## Timer-driven, and why that replaced the scroll track
+ *
+ * The earlier version mirrored `ServiceScroller`: a tall track with a sticky
+ * stage, where the focused card was a pure function of scroll position. That is
+ * why it could not loop — a real scroll track has ends, and wrapping would mean
+ * teleporting the document mid-gesture.
+ *
+ * Autoplay is the opposite model. Two things cannot both own "which card is
+ * active": a timer that advances every few seconds and a scroll position that
+ * pins the index would overwrite each other on every frame. So the track is gone
+ * entirely. This is an ordinary fixed-height block with `active` in React state,
+ * moved by a timer and by clicks — nothing here reads `window.scrollY`, and
+ * there is no oversized track for the page to scroll through.
+ *
+ * ## Looping
+ *
+ * Offsets are computed on the shorter way round the ring, so the card "before"
+ * the first is the last one. Advancing from the end wraps without any card
+ * visibly flying across the viewport: the one that wraps is at |offset| ≈ half
+ * the count, where opacity is already 0.
+ *
+ * ## Drag / swipe
+ *
+ * One Pointer Events pipeline drives mouse drag and touch swipe alike: a small
+ * `DRAG_SLOP_PX` of movement decides tap vs. drag AND, for touch, horizontal
+ * vs. vertical, before anything visual happens or any native behaviour is
+ * touched. Below that threshold nothing here fires at all — the click underneath
+ * a short tap reaches its target exactly as if none of this existed. At or past
+ * it: for a horizontal gesture the whole row follows the pointer 1:1
+ * (`dragOffset`, transition zeroed so it cannot lag); for a vertical one on
+ * touch, tracking is abandoned and the browser's own scroll — already running,
+ * because `touch-pan-y` told it to start without waiting on us — continues
+ * untouched. Release resolves to whichever of go(1) / go(-1) / snap-back the
+ * distance earns, and a following capture-phase handler swallows the click that
+ * would otherwise land on whatever the pointer released over.
+ *
+ * ## Why this was never made generic over the works cards
+ *
+ * The two data shapes diverge (services have no `category`/`type`, works have no
+ * `tags`) and the two pages had to stay free to drift independently — which is
+ * exactly what happened: `/works` is a grid now and this is not. Sharing one
+ * component would have made that divergence a refactor instead of a deletion.
+ *
+ * What is specific to services here:
  *   - Art is each service's OWN `illustration` — real per-item artwork, not a
  *     cycled placeholder (services never needed a placeholder in the first
  *     place; the arc-scroller version already used the real asset per item).
@@ -166,7 +204,7 @@ export function ServicesCarousel({ services }: { services: Service[] }) {
       {/* The emerald ramp the illustrations are painted through. `/services`
           no longer renders the arc-scroller `<Services />`, which used to be
           this page's only source of `<EmeraldFilter />` — this replaces it,
-          same as `WorksCarousel` does for `/works`. */}
+          same as `WorksGrid` does for `/works`. */}
       <EmeraldFilter />
 
       <div className="relative h-[300px] tablet:h-[320px] desktop:h-[360px]">
@@ -305,7 +343,8 @@ function CarouselCard({
         <p className="line-clamp-2 text-body-md text-body">{service.description}</p>
       </div>
 
-      {/* The glass sweep — see WorksCarousel for the full rationale. */}
+      {/* The glass sweep — same treatment `WorksGrid`'s cards carry; see the
+          full rationale there. */}
       <span
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[15] overflow-hidden motion-reduce:hidden"
