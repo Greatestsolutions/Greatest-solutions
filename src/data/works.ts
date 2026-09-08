@@ -70,7 +70,7 @@ export interface Project {
  *     category: "Web Application",
  *     description: "A self-service portal for account and billing management.",
  *     fullDescription: "...",
- *     services: ["web-applications", "ui-ux-product-design"],
+ *     services: ["ai-websites", "vertical-automation"],
  *     technologies: ["Next.js", "PostgreSQL"],
  *     tags: ["Dashboard", "Authentication"],
  *     thumbnail: { avif: "/works/acme.avif", webp: "...", fallback: "..." },
@@ -103,7 +103,7 @@ export const projects: Project[] = [
     category: "Data Platform",
     tags: ["Web Scraping", "Dashboard", "Automation"],
     technologies: ["Python", "Full-stack web"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "docchat-ai",
@@ -116,7 +116,7 @@ export const projects: Project[] = [
     category: "AI / RAG",
     tags: ["RAG", "API", "Document Q&A"],
     technologies: ["FastAPI", "FAISS", "LangChain", "Groq (Llama 3.3)"],
-    services: ["web-applications"],
+    services: ["vertical-automation"],
   },
   {
     slug: "policai",
@@ -129,7 +129,7 @@ export const projects: Project[] = [
     category: "AI / RAG",
     tags: ["RAG", "Internal Tool", "Document Search"],
     technologies: ["Flask", "ChromaDB", "Sentence Transformers", "Groq (Llama 3.1)"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "linkedin-job-scraper",
@@ -142,7 +142,7 @@ export const projects: Project[] = [
     category: "Automation",
     tags: ["Web Scraping", "Automation", "Summarisation"],
     technologies: ["Python", "Selenium", "Streamlit"],
-    services: ["custom-software-development"],
+    services: ["ai-lead-generation"],
   },
   {
     slug: "flipsense",
@@ -155,7 +155,7 @@ export const projects: Project[] = [
     category: "Machine Learning",
     tags: ["NLP", "Sentiment Analysis", "Open Source"],
     technologies: ["Python", "DistilBERT (HuggingFace)", "VADER"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "comixhub",
@@ -168,7 +168,7 @@ export const projects: Project[] = [
     category: "Front-end",
     tags: ["Front-end", "Search & Filtering", "Responsive"],
     technologies: ["HTML", "Tailwind CSS", "Vanilla JavaScript"],
-    services: ["web-development"],
+    services: ["ai-websites"],
   },
 
   /* ---------------------------------------------------------------------- *
@@ -194,7 +194,7 @@ export const projects: Project[] = [
     category: "Data Platform",
     tags: ["Web Scraping", "Dashboard", "Automation"],
     technologies: ["Python", "Full-stack web"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "docchat-ai-2",
@@ -207,7 +207,7 @@ export const projects: Project[] = [
     category: "AI / RAG",
     tags: ["RAG", "API", "Document Q&A"],
     technologies: ["FastAPI", "FAISS", "LangChain", "Groq (Llama 3.3)"],
-    services: ["web-applications"],
+    services: ["vertical-automation"],
   },
   {
     slug: "policai-2",
@@ -220,7 +220,7 @@ export const projects: Project[] = [
     category: "AI / RAG",
     tags: ["RAG", "Internal Tool", "Document Search"],
     technologies: ["Flask", "ChromaDB", "Sentence Transformers", "Groq (Llama 3.1)"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "linkedin-job-scraper-2",
@@ -233,7 +233,7 @@ export const projects: Project[] = [
     category: "Automation",
     tags: ["Web Scraping", "Automation", "Summarisation"],
     technologies: ["Python", "Selenium", "Streamlit"],
-    services: ["custom-software-development"],
+    services: ["ai-lead-generation"],
   },
   {
     slug: "flipsense-2",
@@ -246,7 +246,7 @@ export const projects: Project[] = [
     category: "Machine Learning",
     tags: ["NLP", "Sentiment Analysis", "Open Source"],
     technologies: ["Python", "DistilBERT (HuggingFace)", "VADER"],
-    services: ["custom-software-development"],
+    services: ["vertical-automation"],
   },
   {
     slug: "comixhub-2",
@@ -259,6 +259,6 @@ export const projects: Project[] = [
     category: "Front-end",
     tags: ["Front-end", "Search & Filtering", "Responsive"],
     technologies: ["HTML", "Tailwind CSS", "Vanilla JavaScript"],
-    services: ["web-development"],
+    services: ["ai-websites"],
   },
 ];

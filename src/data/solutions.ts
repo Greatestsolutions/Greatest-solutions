@@ -34,7 +34,7 @@ export const solutions: Solution[] = [
     description:
       "A product with users, accounts and a roadmap — built to be released early and changed often rather than delivered once.",
     examples: ["Customer-facing web apps", "Onboarding and accounts", "Subscription and billing flows"],
-    service: "web-applications",
+    service: "ai-websites",
   },
   {
     slug: "business-platforms",
@@ -42,7 +42,7 @@ export const solutions: Solution[] = [
     description:
       "Systems the business itself runs on, where correctness and uptime matter more than novelty.",
     examples: ["Client and order management", "Reporting and dashboards", "Role-based access"],
-    service: "custom-software-development",
+    service: "vertical-automation",
   },
   {
     slug: "internal-tools",
@@ -50,7 +50,7 @@ export const solutions: Solution[] = [
     description:
       "The spreadsheet that outgrew itself. Replacing manual process with something your team can actually rely on.",
     examples: ["Admin interfaces", "Data entry and validation", "Team workflows"],
-    service: "custom-software-development",
+    service: "vertical-automation",
   },
   {
     slug: "ecommerce-systems",
@@ -58,7 +58,7 @@ export const solutions: Solution[] = [
     description:
       "Storefronts and the machinery behind them — catalogue, checkout, and the integrations that keep stock and orders in step.",
     examples: ["Storefront builds", "Checkout and payments", "Inventory and fulfilment integrations"],
-    service: "web-development",
+    service: "ai-websites",
   },
   {
     slug: "automation",
@@ -66,7 +66,7 @@ export const solutions: Solution[] = [
     description:
       "Connecting systems that do not talk to each other, so work stops being copied by hand between them.",
     examples: ["Scheduled jobs and pipelines", "Third-party API integration", "Notifications and reporting"],
-    service: "custom-software-development",
+    service: "vertical-automation",
   },
   {
     slug: "modernisation",
@@ -74,6 +74,6 @@ export const solutions: Solution[] = [
     description:
       "Bringing something already in production up to date without stopping it — dependencies, performance, accessibility, or a staged rebuild.",
     examples: ["Framework and dependency upgrades", "Performance and accessibility work", "Incremental rewrites"],
-    service: "maintenance-support",
+    service: "ai-websites",
   },
 ];

@@ -1,34 +1,38 @@
 import type { ImageSource } from "@/types/media";
 
 /**
- * The services, in the order the scroll choreography reveals them.
+ * The service catalogue, in the order the carousel reveals them.
  *
- * Copy, slugs and tag lists are transcribed from the reference; the dial numbers
- * (01–10) are derived from array position rather than stored, so reordering this
- * list renumbers the dial automatically. Nothing downstream stores a count —
- * `Services.tsx` passes `services.length` to the scroller and the dial, and the
- * navbar dropdown, contact `<select>`, sitemap and `/services/[slug]` params are
- * all generated from this array.
+ * These are the ten services the business actually offers. Titles and
+ * descriptions are transcribed from the service reference document — the
+ * description is each service's `tagline` there, verbatim — so the wording a
+ * visitor reads here is the wording the business chose, not a paraphrase.
  *
- * Entries 6–10 are PLACEHOLDERS: each duplicates the copy of the entry five
- * positions above it and reuses that entry's illustration, so the section can be
- * exercised at ten items before the real copy exists. Only the slugs are unique,
- * because those are load-bearing — routing, the dropdown and the form option
- * values all key off them. Replacing the copy is a pure data edit.
+ * This replaced a placeholder catalogue of five generic software disciplines
+ * and five `-2` duplicates of them, which existed only to exercise the layout
+ * at ten items before the real list arrived. Nothing downstream needed changing
+ * when they were swapped out: the dial numbers (01–10) come from array position,
+ * `Services.tsx` passes `services.length` to the scroller, and the navbar
+ * dropdown, contact `<select>`, sitemap and `/services/[slug]` params are all
+ * generated from this array.
  *
- * Illustrations are the reference's 1360px renders, downloaded once and served
- * from `/services` — see `scripts/build-image-assets.mjs`. They are abstract
- * greyscale forms carrying no information the copy does not already give, so
- * they render with an empty `alt`, as the reference does. The brand colour is
- * NOT in the asset: it comes from the `#gst-emerald` luminance ramp applied at
- * render time, which is why a reused greyscale render needs no new artwork.
+ * Tags are derived from each service's own build description and tooling in the
+ * reference rather than invented — three short capability labels, the same shape
+ * the placeholder set used.
+ *
+ * Illustrations are the reference build's 1360px greyscale renders, served from
+ * `/services` — see `scripts/build-image-assets.mjs`. There are five and ten
+ * services, so they cycle. They are abstract forms carrying no information the
+ * copy does not already give, so they render with an empty `alt`. The brand
+ * colour is NOT in the asset: it comes from the `#gst-emerald` luminance ramp
+ * applied at render time, which is why a reused render needs no new artwork.
  */
 export interface Service {
-  /** Route under /services. The section links to it; the page arrives in Task 4. */
+  /** Route under /services, and the value the contact form submits. */
   slug: string;
   title: string;
   description: string;
-  /** Three capability pills. Rendered in order, wrapping when the column is narrow. */
+  /** Short capability labels. Rendered in order, wrapping when the column is narrow. */
   tags: string[];
   illustration: ImageSource;
 }
@@ -41,95 +45,87 @@ const illustration = (name: string): ImageSource => ({
 
 export const services: Service[] = [
   {
-    slug: "web-development",
-    title: "Web Development",
+    slug: "ai-voice-agents",
+    title: "AI Voice Agents",
     description:
-      "Marketing sites, landing pages and content-driven platforms, built to load fast, stay accessible and be easy to edit.",
-    tags: ["Frontend", "Performance", "Accessibility"],
+      "24/7 customer communication, scripted by your team and supervised by an Account Manager.",
+    tags: ["Voice AI", "Call Handling", "CRM Integration"],
     illustration: illustration("web-development"),
   },
   {
-    slug: "custom-software-development",
-    title: "Custom Software Development",
+    slug: "vertical-automation",
+    title: "Vertical Automation",
     description:
-      "Internal tools and business systems shaped around how a team actually works, rather than around an off-the-shelf product.",
-    tags: ["Architecture", "Integrations", "Automation"],
+      "Industry-specific automation systems built around how your business actually runs.",
+    tags: ["Workflow Design", "Integrations", "Reporting"],
     illustration: illustration("digital-marketing"),
   },
   {
-    slug: "web-applications",
-    title: "Web Applications & SaaS",
+    slug: "ai-lead-generation",
+    title: "AI Lead Generation",
     description:
-      "Multi-user products with accounts, permissions and dashboards — from a first release through to ongoing iteration.",
-    tags: ["Product", "APIs", "Dashboards"],
+      "Every lead followed up in minutes, not days — managed by a real growth team.",
+    tags: ["Multi-channel", "Follow-up", "CRM"],
     illustration: illustration("social-content"),
   },
   {
-    slug: "ui-ux-product-design",
-    title: "UI/UX & Product Design",
+    slug: "ai-content-social",
+    title: "AI Content & Social",
     description:
-      "Interface and interaction design grounded in real user flows, handed over as build-ready specifications.",
-    tags: ["UX", "UI", "Design Systems"],
+      "Consistent, on-brand content across every platform — directed by a real content team.",
+    tags: ["Content Calendar", "Social", "Human Review"],
     illustration: illustration("product-design"),
   },
   {
-    slug: "maintenance-support",
-    title: "Maintenance & Support",
+    slug: "ai-video-ugc",
+    title: "AI Video / UGC",
     description:
-      "Updates, monitoring and incremental improvement, so what gets shipped keeps working after launch.",
-    tags: ["Monitoring", "Updates", "Support"],
+      "Scroll-stopping video, directed by real creative producers, produced at AI-assisted speed.",
+    tags: ["Short-form Video", "Scripting", "Editing"],
     illustration: illustration("brand-identity"),
   },
-
-  /* ---------------------------------------------------------------------- *
-   * 06–10 — placeholders. Copy duplicated from 01–05 in order; illustrations
-   * cycle back through the same five assets. Slugs carry a `-2` suffix, which
-   * keeps the existing kebab-case convention and makes the pairing obvious at
-   * a glance in the sitemap and the dropdown.
-   * ---------------------------------------------------------------------- */
   {
-    slug: "web-development-2",
-    title: "Web Development",
+    slug: "ai-copy-sales-pages",
+    title: "AI Copy & Sales Pages",
     description:
-      "Marketing sites, landing pages and content-driven platforms, built to load fast, stay accessible and be easy to edit.",
-    tags: ["Frontend", "Performance", "Accessibility"],
+      "Conversion-focused copy, written by real copywriters and stress-tested with AI iteration.",
+    tags: ["Copywriting", "Landing Pages", "Conversion"],
     illustration: illustration("web-development"),
   },
   {
-    slug: "custom-software-development-2",
-    title: "Custom Software Development",
+    slug: "ai-seo-content",
+    title: "AI SEO Content",
     description:
-      "Internal tools and business systems shaped around how a team actually works, rather than around an off-the-shelf product.",
-    tags: ["Architecture", "Integrations", "Automation"],
+      "Search-optimized content built on real keyword strategy, produced at scale with human review.",
+    tags: ["Keyword Strategy", "Editorial", "Publishing Cadence"],
     illustration: illustration("digital-marketing"),
   },
   {
-    slug: "web-applications-2",
-    title: "Web Applications & SaaS",
+    slug: "ai-websites",
+    title: "AI Websites",
     description:
-      "Multi-user products with accounts, permissions and dashboards — from a first release through to ongoing iteration.",
-    tags: ["Product", "APIs", "Dashboards"],
+      "Fast, professional websites — designed by a real team and built with AI-accelerated development.",
+    tags: ["Web Design", "Responsive Build", "UX & QA"],
     illustration: illustration("social-content"),
   },
   {
-    slug: "ui-ux-product-design-2",
-    title: "UI/UX & Product Design",
+    slug: "ai-email-brand",
+    title: "AI Email & Brand",
     description:
-      "Interface and interaction design grounded in real user flows, handed over as build-ready specifications.",
-    tags: ["UX", "UI", "Design Systems"],
+      "Email systems and brand messaging that actually sound like you.",
+    tags: ["Email Sequences", "Brand Voice", "Lifecycle"],
     illustration: illustration("product-design"),
   },
   {
-    slug: "maintenance-support-2",
-    title: "Maintenance & Support",
+    slug: "pitch-decks",
+    title: "Pitch Decks",
     description:
-      "Updates, monitoring and incremental improvement, so what gets shipped keeps working after launch.",
-    tags: ["Monitoring", "Updates", "Support"],
+      "Investor- and client-ready decks, strategized by real deck specialists.",
+    tags: ["Narrative", "Deck Design", "Investor Ready"],
     illustration: illustration("brand-identity"),
   },
 ];
 
-/** Section landmark name. The reference ships no visible heading here. */
 export const servicesLabel = "Services";
 
 /**
