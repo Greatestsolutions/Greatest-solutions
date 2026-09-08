@@ -9,7 +9,7 @@ import { DeliverablesList } from "@/components/services/DeliverablesList";
 import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { OutcomeChart } from "@/components/services/OutcomeChart";
 import { PageShell } from "@/components/layout/PageShell";
-import { Picture } from "@/components/ui/Picture";
+import { ServiceArt } from "@/components/services/ServiceArt";
 import { RoadmapTimeline } from "@/components/services/RoadmapTimeline";
 import { SectionLabel } from "@/components/services/SectionLabel";
 import { StackGroups } from "@/components/services/StackGroups";
@@ -133,89 +133,165 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         of the page are the two emphatic surfaces, everything between alternates
         quietly.
       */}
-      <section className="relative overflow-hidden bg-brand-forest pt-[136px] pb-14 desktop:pt-[184px] desktop:pb-20">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -right-32 hidden size-[560px] opacity-25 tablet:block"
-          style={{ filter: "url(#gst-emerald)" }}
-        >
-          <Picture
-            source={service.illustration}
-            alt=""
-            width={1360}
-            height={1360}
-            sizes="560px"
-            className="size-full object-contain"
-          />
-        </div>
+      {/*
+        An INSET panel, not a full-bleed band.
 
+        Run to the top edge, the forest sits directly under the navbar — and the
+        navbar is a transparent surface with ink-coloured links until it gains
+        its scroll backdrop, so every nav item and the logo disappeared into the
+        dark. The bar is a frozen surface that a service page has no business
+        restyling, so the page yields instead: it keeps the warm ground behind
+        the navbar and starts the dark panel below it.
+
+        The inset also reads better. A rounded panel floating on the page is the
+        treatment the footer CTA and the showreel already use, so the masthead
+        now belongs to the same family rather than being the one section that
+        bleeds edge to edge.
+      */}
+      <section className="pt-[136px] desktop:pt-[184px]">
         <Container>
-          <div className="relative flex max-w-[640px] flex-col items-start gap-5">
+          <div className="relative overflow-hidden rounded-[var(--radius-xl)] bg-brand-forest px-6 py-12 tablet:px-10 tablet:py-14 desktop:px-16 desktop:py-16">
+          {/*
+            Text and art as two columns rather than art washed behind the words.
+            An earlier pass floated the illustration at 25% opacity underneath
+            the heading; it read as a texture rather than an object, and putting
+            anything behind display type is a legibility bet with no upside. Side
+            by side, the art can be full strength and the text sits on flat
+            forest with nothing behind it at all.
+          */}
+          <div className="flex items-center gap-16 desktop:gap-24">
+            <div className="relative flex max-w-[640px] flex-col items-start gap-5">
+              {/*
+                The eyebrow geometry of `Pill size="eyebrow"` — 28px tall, mono
+                12, label tracking, leading dot — restated for a dark ground
+                rather than passing a className to the component. `cn` is a plain
+                joiner with no conflict resolution, so a `bg-*` override would
+                race the component's own tone in the stylesheet and win or lose
+                by rule order. This is the one on-dark instance on the site; if a
+                second appears, `Pill` should gain a real `onDark` tone instead.
+              */}
+              <span className="inline-flex h-7 items-center gap-2 rounded-full bg-on-dark-surface px-3 font-mono text-body-sm tracking-[var(--tracking-label)] text-white/70 uppercase">
+                <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-brand-leaf" />
+                Service
+              </span>
+
+              <h1 className="text-heading-xl text-white opsz-56 tablet:text-display-md">
+                {service.title}
+              </h1>
+
+              <p className="text-body-lg text-white/70">{service.description}</p>
+
+              <ul className="flex flex-wrap gap-2">
+                {service.tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="flex h-8 items-center rounded-full bg-on-dark-surface px-3 text-body-md text-white/80"
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+
+              {/* The one number in the header. Stated plainly rather than as a
+                  promise — it is the shape of the engagement, not a guarantee. */}
+              <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-white/75 uppercase">
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-leaf" />
+                {service.timeline}
+              </p>
+            </div>
+
             {/*
-              The eyebrow geometry of `Pill size="eyebrow"` — 28px tall, mono 12,
-              label tracking, leading dot — restated for a dark ground rather
-              than passing a className to the component. `cn` is a plain joiner
-              with no conflict resolution, so a `bg-*` override would race the
-              component's own tone in the stylesheet and win or lose by rule
-              order. This is the one on-dark instance on the site; if a second
-              appears, `Pill` should gain a real `onDark` tone instead.
+              The signature illustration — the `/services` intro treatment,
+              now shared as `ServiceArt`. Each service carries its own asset
+              from `services.ts`, cycling the five renders, so the ten detail
+              mastheads are not the same picture ten times.
+
+              Desktop only: at 1024 and below the text column needs the full
+              width, and a shrunken sculpture beside a squeezed heading would
+              cost the header more than it gave it.
             */}
-            <span className="inline-flex h-7 items-center gap-2 rounded-full bg-on-dark-surface px-3 font-mono text-body-sm tracking-[var(--tracking-label)] text-white/70 uppercase">
-              <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-brand-leaf" />
-              Service
-            </span>
-
-            <h1 className="text-heading-xl text-white opsz-56 tablet:text-display-md">
-              {service.title}
-            </h1>
-
-            <p className="text-body-lg text-white/70">{service.description}</p>
-
-            <ul className="flex flex-wrap gap-2">
-              {service.tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="flex h-8 items-center rounded-full bg-on-dark-surface px-3 text-body-md text-white/80"
-                >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-
-            {/* The one number in the header. Stated plainly rather than as a
-                promise — it is the shape of the engagement, not a guarantee. */}
-            <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-white/75 uppercase">
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-leaf" />
-              {service.timeline}
-            </p>
+            <div className="hidden shrink-0 desktop:flex desktop:flex-1 desktop:items-center desktop:justify-center">
+              <ServiceArt
+                source={service.illustration}
+                className="desktop:size-[clamp(320px,26vw,420px)]"
+                sizes="(min-width: 1200px) 26vw, 420px"
+              />
+            </div>
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* ---- problem + what we build ------------------------------------- */}
+      {/* ---- problem -> what we build ------------------------------------ */}
+      {/*
+        A question and its answer, laid out as one movement rather than two
+        columns that happen to be adjacent. Three things carry that reading:
+
+          - the problem sits open on the ground with no panel around it, so it
+            reads as the unresolved half;
+          - the answer is a raised ink card — the page's darkest surface after
+            the masthead, and the only one in the body — so the eye lands on the
+            resolution, not on the complaint;
+          - a connector runs between them, horizontal at desktop and vertical
+            below it, ending in an arrowhead at the answer. It is the same
+            hairline-plus-emerald device the roadmap uses, so the page has one
+            connector language rather than two.
+      */}
       <Band>
-        <div className="grid gap-6 desktop:grid-cols-2 desktop:gap-10">
+        <div className="relative grid gap-10 desktop:grid-cols-2 desktop:gap-24">
           <div className={BLOCK}>
             <SectionLabel>The problem</SectionLabel>
             {/*
-              The lead paragraph is set in the display serif at heading size —
-              the site's own editorial voice, and the one place on the page where
-              body copy is promoted to a heading treatment. It is the argument
-              the rest of the page answers, so it earns the weight.
+              The lead is set in the display serif at heading size — the site's
+              editorial voice, and the one place on the page where body copy is
+              promoted to a heading treatment. It is the argument the rest of the
+              page answers, so it earns the weight.
             */}
-            <p className="max-w-[34ch] text-heading-sm text-ink opsz-32">{service.problem}</p>
+            <p className="display-plain max-w-[34ch] text-heading-sm text-ink">{service.problem}</p>
           </div>
 
-          <div className="relative flex flex-col gap-6 overflow-hidden rounded-[var(--radius-lg)] bg-surface p-6 shadow-card tablet:p-8">
-            <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-brand-emerald" />
-            <SectionLabel>What we build</SectionLabel>
-            <p className="max-w-[52ch] text-body-lg text-body">{service.build}</p>
+          {/* ---- the connector ------------------------------------------- */}
+          {/* Desktop: horizontal, centred in the 96px column gap. */}
+          <span
+            aria-hidden="true"
+            className="absolute top-1/2 left-1/2 hidden h-px w-16 -translate-x-1/2 -translate-y-1/2 bg-hairline-strong desktop:block"
+          >
+            <span className="block size-full origin-left bg-brand-emerald" />
+            <span className="absolute -top-[3px] -right-px size-[7px] rotate-45 border-t border-r border-brand-emerald" />
+          </span>
+
+          {/*
+            Below desktop the connector is an ordinary grid child sitting between
+            the two blocks, not an absolutely-positioned one. Absolute placement
+            was measured from the grid's own height, and because the two blocks
+            are different heights, "halfway down the grid" landed in the middle
+            of the problem paragraph rather than in the gap between them. In
+            flow, it is between them by definition at any height.
+          */}
+          <span aria-hidden="true" className="ml-5 flex h-10 desktop:hidden">
+            <span className="relative block w-px bg-brand-emerald">
+              <span className="absolute -bottom-px -left-[3px] size-[7px] rotate-135 border-t border-r border-brand-emerald" />
+            </span>
+          </span>
+
+          <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-ink p-6 shadow-card tablet:p-8">
+            <div className="flex flex-col gap-6">
+              <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-brand-leaf uppercase">
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-emerald" />
+                What we build
+              </p>
+              <p className="max-w-[52ch] text-body-lg text-white/80">{service.build}</p>
+            </div>
           </div>
         </div>
       </Band>
 
       {/* ---- execution roadmap ------------------------------------------- */}
-      <Band tone="panel">
+      {/* Cards need a ground to sit on: the roadmap, team, workflow and outcome
+          cards are all `bg-surface`, so their bands are warm or emerald-washed
+          and never white. The two sections WITHOUT cards — the stack chips and
+          the deliverables list — are the ones that take the white panel. */}
+      <Band tone="wash">
         <div className={BLOCK}>
           <SectionLabel>Execution roadmap</SectionLabel>
           <RoadmapTimeline phases={service.roadmap} />
@@ -239,7 +315,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </Band>
 
       {/* ---- the shared method ------------------------------------------- */}
-      <Band tone="wash">
+      <Band>
         <div className={BLOCK}>
           <SectionLabel>AI + human workflow</SectionLabel>
           <AiHumanWorkflow />

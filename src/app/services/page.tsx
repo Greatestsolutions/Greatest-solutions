@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { PageShell } from "@/components/layout/PageShell";
-import { Picture } from "@/components/ui/Picture";
+import { ServiceArt } from "@/components/services/ServiceArt";
 import { Pill } from "@/components/ui/Pill";
 import { ProcessSequence } from "@/components/services/ProcessSequence";
 import { ServicesCarousel } from "@/components/services/ServicesCarousel";
@@ -146,83 +146,24 @@ export default function ServicesPage() {
             at any container width rather than a value tuned for one.
           */}
           <div className="hidden shrink-0 desktop:flex desktop:flex-1 desktop:items-center desktop:justify-center">
-          <div className="group relative desktop:size-[clamp(420px,36vw,560px)]">
             {/*
-              Idle motion lives on THIS wrapper — `translate`/`rotate` via
-              `gst-drift` — deliberately on a different element than the hover
-              states below, and each of THOSE two children also keeps its own
-              idle animation off whichever property its OWN hover uses (the
-              glow idles on `scale` and hovers on `opacity`; the sharp image
-              has no idle animation of its own at all). A running `@keyframes`
-              and a hover transition fighting over the SAME property on the
-              SAME element is what makes an idle animation cancel a hover
-              effect — measured directly on the glow while building this: with
-              its pulse animating `opacity`, hovering only nudged it 0.34 →
-              0.37 against an intended 0.32 → 0.58, because the running
-              animation kept overriding the hover class every frame. Moving the
-              pulse onto `scale` fixed it; see `gst-glow-pulse` in globals.css.
+              This treatment — the drifting, glowing, hover-reactive sculpture —
+              was designed here and is now shared as `ServiceArt`, which the
+              service detail mastheads use too. It was extracted rather than
+              copied: its layers are balanced against each other, so two
+              divergent copies would be two different effects wearing the same
+              name.
+
+              `ServiceArt` deliberately does NOT render `<EmeraldFilter />`. That
+              SVG lives once per document by id, and `<ServicesCarousel />` below
+              already renders it on this page; a second copy would collide on
+              `id="gst-emerald"`.
             */}
-            <div className="size-full motion-safe:animate-[gst-drift_9s_ease-in-out_infinite] motion-reduce:animate-none">
-              {/*
-                The glow: the identical asset, bled out to roughly 1.3x its own
-                box and blurred, sitting behind the sharp copy — `TestimonialCard`'s
-                own device, just floating instead of clipped inside a panel.
-                `-inset-[16%]` is deliberately short of the 96px column gap
-                (`desktop:gap-24`) at every clamp size from 420–560px, so even at
-                its hover-intensified widest the blur has faded to near-nothing
-                well before it could reach the text column — verified visually,
-                not just by the arithmetic.
-              */}
-              <div
-                aria-hidden="true"
-                className={
-                  "pointer-events-none absolute -inset-[16%] blur-[64px] " +
-                  "opacity-[0.32] transition-opacity duration-[var(--duration-medium)] ease-[var(--ease-brand)] " +
-                  "motion-safe:animate-[gst-glow-pulse_12s_ease-in-out_infinite] motion-reduce:animate-none " +
-                  "group-hover:opacity-[0.58] " +
-                  "[filter:url(#gst-emerald)]"
-                }
-              >
-                <Picture source={introArt} alt="" width={1024} height={1024} className="size-full object-contain" />
-              </div>
-
-              {/*
-                The sharp copy. A static tilt (−3°) rather than dead-square,
-                straightening on hover, plus a grounding drop-shadow chained
-                onto the same emerald filter (the same "layer a standard CSS
-                filter after the SVG one" trick the previous pass already used,
-                just carrying a shadow this time instead of only a saturation
-                bump) — depth cues, not a flat 1:1 drop-in.
-
-                Hover is unmistakable on purpose, per the brief: scale to 1.1
-                (from the previous attempt's barely-there 1.04), the tilt
-                resolving to level, and the filter pushed hard enough —
-                saturate 1.4, brightness 1.15, a deeper shadow — that the
-                material genuinely reads as brightening, not just shifting.
-              */}
-              <div
-                className={
-                  "absolute inset-0 rotate-[-3deg] transition-[scale,rotate,filter] duration-[var(--duration-medium)] ease-[var(--ease-brand)] " +
-                  "[filter:url(#gst-emerald)_saturate(1.05)_drop-shadow(0_28px_44px_rgba(12,75,36,0.32))] " +
-                  "group-hover:scale-110 group-hover:rotate-0 " +
-                  "group-hover:[filter:url(#gst-emerald)_saturate(1.4)_brightness(1.15)_drop-shadow(0_36px_64px_rgba(12,75,36,0.48))] " +
-                  "motion-reduce:transition-none"
-                }
-              >
-                <Picture
-                  source={introArt}
-                  /* Purely decorative brand art, the same category as the hero
-                     sculpture — not a claim about a specific service or
-                     project, so nothing here needs a caption or a name. */
-                  alt=""
-                  width={1024}
-                  height={1024}
-                  sizes="(min-width: 1200px) 36vw, 560px"
-                  className="size-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
+            <ServiceArt
+              source={introArt}
+              className="desktop:size-[clamp(420px,36vw,560px)]"
+              sizes="(min-width: 1200px) 36vw, 560px"
+            />
           </div>
         </div>
       </Section>
