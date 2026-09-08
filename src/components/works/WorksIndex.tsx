@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { FilterPill } from "@/components/works/FilterPill";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { WorksGrid } from "@/components/works/WorksGrid";
 import { projects, type Project } from "@/data/works";
@@ -12,8 +13,12 @@ import { projects, type Project } from "@/data/works";
  * The `/works` index.
  *
  * Owns the search — the field, the keyword chips, the result count and the empty
- * state — and hands whatever survives filtering to {@link WorksGrid}, which
- * renders it as a plain wrapping grid.
+ * state — plus how much of the result set is revealed, and hands the revealed
+ * slice to {@link WorksGrid}, which renders it as a plain wrapping grid.
+ *
+ * Both pieces of state live here for the same reason: filtering and revealing
+ * interact (a new filter resets the reveal), so splitting them across two
+ * components would mean synchronising them across a boundary.
  *
  * The split is deliberate: this component knows about querying and nothing about
  * presentation; the carousel knows how to show projects and nothing about where
@@ -59,6 +64,24 @@ const haystack = (p: Project) =>
 
 const INDEX = new Map(projects.map((p) => [p.slug, haystack(p)]));
 
+/**
+ * How many cards are shown before "View more", and how many each press adds.
+ *
+ * Six — two full rows of the three-column desktop grid. A batch that ends
+ * mid-row would leave a ragged edge above the button at exactly the width most
+ * people see the page at, and two rows is enough to establish the grid as a grid
+ * before asking anyone to press anything.
+ *
+ * One constant for both the first batch and each subsequent one, deliberately:
+ * "show me more" should mean the same amount every time it is pressed.
+ *
+ * At six projects this means the button never appears, which is correct rather
+ * than untested — the whole control is provisioned for a portfolio that has
+ * outgrown one screen, and it starts working the moment a seventh project is
+ * added to `works.ts`, with no code change.
+ */
+const INITIAL_BATCH = 6;
+
 export function WorksIndex() {
   const [query, setQuery] = useState("");
 
@@ -67,6 +90,32 @@ export function WorksIndex() {
     () => (term ? projects.filter((p) => INDEX.get(p.slug)?.includes(term)) : projects),
     [term],
   );
+
+  const [revealed, setRevealed] = useState(INITIAL_BATCH);
+
+  /*
+   * Reset the reveal when the query changes.
+   *
+   * Adjusting state during render rather than in an effect: React discards this
+   * pass and re-runs with the new value before anything is committed, so the
+   * browser never paints the wrong number of cards. An effect would paint the
+   * stale count first and correct it a frame later — visible as a flash of
+   * twelve results collapsing to four, and, worse, a wave of flips starting on
+   * cards that are about to be removed.
+   *
+   * `lastTerm` is compared rather than watched, which is what makes this cover
+   * both directions the brief calls out: a narrower filter cannot carry a
+   * "12 revealed" state into four matches, and a broader one cannot stay
+   * under-revealed, because every change lands back on exactly INITIAL_BATCH.
+   */
+  const [lastTerm, setLastTerm] = useState(term);
+  if (term !== lastTerm) {
+    setLastTerm(term);
+    setRevealed(INITIAL_BATCH);
+  }
+
+  const visible = useMemo(() => results.slice(0, revealed), [results, revealed]);
+  const hidden = results.length - visible.length;
 
   /* A chip is pressed when the box holds exactly its keyword — so typing the word
      by hand lights the chip too, and editing the text afterwards unlights it. */
@@ -120,10 +169,16 @@ export function WorksIndex() {
 
           {/* Announced, so a keyboard or screen-reader user learns the result
               count changed without having to go looking for the list. */}
+          {/* The "· showing N" clause appears only while something is held back,
+              so the sentence is unchanged at the six-project size and the reveal
+              is what introduces it. It also gives the live region something to
+              announce when "View more" is pressed — otherwise a screen-reader
+              user gets cards appended with no indication anything happened. */}
           <p aria-live="polite" className="text-body-sm text-muted">
             {term
               ? `${results.length} of ${projects.length} ${results.length === 1 ? "project" : "projects"} matching “${query.trim()}”`
               : `${projects.length} projects`}
+            {hidden > 0 ? ` · showing ${visible.length}` : ""}
           </p>
         </div>
 
@@ -141,9 +196,37 @@ export function WorksIndex() {
             existed only to reset the carousel's `activeIndex` to the first match,
             and a grid holds no such state to reset. Zero results renders the
             empty state instead.
+
+            It receives `visible`, not `results` — the grid renders what is
+            revealed and knows nothing about the rest. That is also what keeps the
+            flip wave correct across a reveal: the wave is keyed on the slugs it
+            was handed, so twelve cards arriving restarts it over the full twelve
+            rather than continuing to cycle the original six.
           */
-          <WorksGrid projects={results} />
+          <WorksGrid projects={visible} />
         )}
+
+        {/*
+          Only while something is actually held back — the control is absent, not
+          disabled, when there is nothing more to show. A permanently dead "View
+          more" advertises content that does not exist.
+
+          A real <button>: this reveals what is already on the client, so there is
+          no URL to link to and nothing to navigate.
+        */}
+        {hidden > 0 ? (
+          <div className="flex justify-center">
+            <Button onClick={() => setRevealed((shown) => shown + INITIAL_BATCH)}>
+              View more
+              {/* The count rides in the accessible name rather than the visible
+                  label — it costs no layout and tells a screen-reader user what
+                  pressing this will actually do. An `sr-only` child rather than
+                  an `aria-label` prop, because `ButtonProps` is a closed list and
+                  widening the shared component for one caller is the wrong trade. */}
+              <span className="sr-only"> projects — {hidden} remaining</span>
+            </Button>
+          </div>
+        ) : null}
       </Container>
     </Section>
   );
