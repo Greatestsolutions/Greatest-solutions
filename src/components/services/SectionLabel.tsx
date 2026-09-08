@@ -1,36 +1,25 @@
-import { cn } from "@/lib/cn";
+import { Pill } from "@/components/ui/Pill";
 
 /**
- * The mono uppercase label every section on a service detail page opens with.
+ * The eyebrow every section on a service detail page opens with.
  *
- * Extracted because the page has nine of them and they were nine copies of the
- * same four utilities — exactly how a tracking value or a colour drifts between
- * headings meant to be identical.
+ * It is the site's existing eyebrow — `Pill size="eyebrow"`, the same component
+ * and variant behind the "SERVICE" pill at the top of this page and the
+ * "SERVICES" eyebrow on the intro page. An earlier pass invented a separate
+ * treatment for these (bare mono text with a short rule beside it), which meant
+ * two eyebrow styles on one page and a third convention on the site. Reusing the
+ * component makes them consistent by construction rather than by matching
+ * utilities by hand.
  *
- * The short emerald rule is the whole visual addition: it gives a long
- * single-column scroll a repeating left edge to follow, so each section reads as
- * a deliberate unit rather than another paragraph. Restrained on purpose — one
- * 24px line, the brand colour, no icon and no box.
+ * Wrapped in a real `h2` so each section is announced as a heading. The Pill
+ * renders a `span`, so nothing about its box changes; only the semantics do.
+ * Base styles paint every heading in the display serif, which is wrong for an
+ * eyebrow, so the mono family the Pill carries is restated here to win over it.
  */
-export function SectionLabel({
-  children,
-  as: Tag = "h2",
-  className,
-}: {
-  children: React.ReactNode;
-  /** `h2` for a real section heading, `p` where the heading lives elsewhere. */
-  as?: "h2" | "h3" | "p";
-  className?: string;
-}) {
+export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Tag
-      className={cn(
-        "flex items-center gap-3 font-mono text-body-sm tracking-[var(--tracking-label)] text-muted uppercase",
-        className,
-      )}
-    >
-      <span aria-hidden="true" className="h-px w-6 shrink-0 bg-brand-emerald" />
-      {children}
-    </Tag>
+    <h2 className="font-mono [font-variation-settings:normal] [letter-spacing:normal]">
+      <Pill size="eyebrow">{children}</Pill>
+    </h2>
   );
 }

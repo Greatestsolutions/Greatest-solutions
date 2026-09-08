@@ -1,8 +1,6 @@
 "use client";
 
 import { MotionConfig, motion } from "motion/react";
-import { Section } from "@/components/layout/Section";
-import { SectionLabel } from "@/components/services/SectionLabel";
 import { fadeUpTight, inView } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
@@ -20,13 +18,12 @@ import { cn } from "@/lib/cn";
  *
  * ## Reading it as a flow
  *
- * Steps sit in a wrapping row with an arrow between them, so the sequence reads
- * as one continuous path rather than six unrelated tiles. The arrow is a flex
- * sibling of its step rather than an absolutely-positioned connector, which is
- * what lets the row wrap at any width without a connector stranding itself at
- * the end of a line — it simply wraps along with the step it follows. It reuses
- * the `gst-arrow-flow` drift the services intro already uses, under
- * `motion-safe`.
+ * Steps read as a sequence from their numbering (01–06) and their staggered
+ * entrance, which arrives in order. An earlier pass drew arrows between them in
+ * a wrapping flex row; that broke down at desktop, where six cards split 5 + 1
+ * and the stranded sixth stretched across the whole row. A grid keeps every step
+ * on the same track, and the number carries the order the arrow was there to
+ * show.
  *
  * ## Human versus AI
  *
@@ -51,32 +48,36 @@ const container = { hidden: {}, show: {} };
 
 export function AiHumanWorkflow() {
   return (
-    <Section spacing="compact">
-      <MotionConfig reducedMotion="user">
-        <div className="flex flex-col gap-6">
-          <SectionLabel>AI + human workflow</SectionLabel>
-
-          <motion.ol
-            initial="hidden"
-            whileInView="show"
-            viewport={inView}
-            variants={container}
-            className="flex flex-col gap-3 tablet:flex-row tablet:flex-wrap tablet:items-stretch"
-          >
+    <MotionConfig reducedMotion="user">
+      <motion.ol
+        initial="hidden"
+        whileInView="show"
+        viewport={inView}
+        variants={container}
+        /*
+          A grid, not a wrapping flex row. With `flex-wrap` and `flex-1` the six
+          steps split 5 + 1 at desktop and the lone sixth card stretched the full
+          width of the row — the grid gives every step the same track regardless
+          of how many land on the last line, which also means a future seventh
+          step needs no retuning.
+        */
+        className="grid gap-3 tablet:grid-cols-2 desktop:grid-cols-3"
+      >
             {STEPS.map((step, i) => {
               const human = step.led === "Human";
               return (
                 <motion.li
                   key={step.title}
                   variants={fadeUpTight(i * STEP_DELAY)}
-                  className="flex items-center gap-3 tablet:flex-1 tablet:basis-[240px]"
+                  className="flex"
                 >
                   <div
                     className={
                       "group/step flex h-full w-full flex-col gap-2 rounded-[var(--radius-lg)] " +
-                      "border border-black/8 bg-surface p-4 " +
-                      "transition-[border-color,box-shadow] duration-[var(--duration-quick)] " +
-                      "ease-[var(--ease-brand)] hover:border-brand-emerald/40 hover:shadow-pill"
+                      "bg-surface p-5 shadow-card " +
+                      "transition-[transform,box-shadow] duration-[var(--duration-quick)] " +
+                      "ease-[var(--ease-brand)] hover:-translate-y-0.5 hover:shadow-float " +
+                      "motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     }
                   >
                     <div className="flex items-center gap-2">
@@ -93,27 +94,15 @@ export function AiHumanWorkflow() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
-                    <h3 className="text-body-md font-medium text-ink">{step.title}</h3>
-                    <p className="text-body-sm text-body">{step.sub}</p>
+                    <h3 className="text-body-lg font-medium text-ink [font-family:var(--font-sans)] [font-variation-settings:normal]">{step.title}</h3>
+                    <p className="text-body-md text-body">{step.sub}</p>
                   </div>
 
-                  {/* The connector. Hidden on the stacked phone layout, where the
-                      cards already read top-to-bottom without one. */}
-                  {i < STEPS.length - 1 && (
-                    <span
-                      aria-hidden="true"
-                      className="hidden shrink-0 text-muted tablet:block motion-safe:animate-[gst-arrow-flow_2.6s_ease-in-out_infinite] motion-reduce:animate-none"
-                    >
-                      &rarr;
-                    </span>
-                  )}
                 </motion.li>
               );
             })}
-          </motion.ol>
-        </div>
-      </MotionConfig>
-    </Section>
+      </motion.ol>
+    </MotionConfig>
   );
 }
 

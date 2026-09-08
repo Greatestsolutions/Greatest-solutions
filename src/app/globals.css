@@ -67,6 +67,12 @@
      Declared once here and referenced everywhere Fraunces is set, so the display
      face cannot drift between the heading rule, the utility and the token. */
   --display-variation: "SOFT" 100, "WONK" 1, "wght" 350;
+  /* The same face with the wonk turned off. WONK 1 is what swaps in Fraunces'
+     alternate forms — most visibly its ampersand, which at display sizes is a
+     flourish and at 24px stops reading as "and" at all. Item-level headings
+     ("Discovery & Call Mapping", "Testing & QA") use this instead; SOFT and
+     wght are untouched, so the two remain the same typeface. */
+  --display-variation-plain: "SOFT" 100, "WONK" 0, "wght" 350;
   --display-features: "ss01";
   --font-display--font-variation-settings: var(--display-variation);
   --font-display--font-feature-settings: var(--display-features);
@@ -494,6 +500,19 @@
    it override optical sizing without needing font-optical-sizing: none. */
 @utility opsz-* {
   font-variation-settings: var(--display-variation), "opsz" --value(integer);
+}
+
+/* Display type at ITEM size — phase names, role titles, outcome labels.
+   `ss01` is Fraunces' swash set, authored for the 44–72px headings it was
+   chosen for. At 24px its alternate ampersand stops reading as "and" and starts
+   reading as an unrelated symbol, which is exactly what it did to "Discovery &
+   Call Mapping". The face, weight and tracking are unchanged; only the
+   stylistic set is dropped. */
+@utility display-plain {
+  /* Sets the whole `font-variation-settings` property, so it must not be paired
+     with `opsz-*` — the two would race for the same declaration. The optical
+     size is baked in here at 32, which is what these headings want anyway. */
+  font-variation-settings: var(--display-variation-plain), "opsz" 32;
 }
 
 @utility text-display {

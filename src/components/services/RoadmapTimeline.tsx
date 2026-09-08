@@ -118,10 +118,10 @@ export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
 
             <div className="flex flex-col gap-2 pb-2 desktop:pb-0">
               <span className="font-mono text-body-sm text-brand-green">{phase.days}</span>
-              <h3 className="text-body-lg font-medium text-ink">{phase.name}</h3>
+              <h3 className="display-plain text-heading-sm text-ink">{phase.name}</h3>
               <ul className="flex flex-col gap-1.5">
                 {phase.items.map((item) => (
-                  <li key={item} className="flex gap-2 text-body-md text-body">
+                  <li key={item} className="flex gap-2 text-body-lg text-body">
                     <span
                       aria-hidden="true"
                       className="mt-2 size-1 shrink-0 rounded-full bg-brand-emerald/50"

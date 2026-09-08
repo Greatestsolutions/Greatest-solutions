@@ -38,16 +38,16 @@ export function TeamRoles({ team }: { team: ServiceRole[] }) {
             variants={fadeUpTight(i * STEP)}
             className={
               "group/role flex items-start gap-4 rounded-[var(--radius-lg)] " +
-              "border border-black/8 bg-surface p-5 " +
-              "transition-[transform,border-color,box-shadow] duration-[var(--duration-medium)] " +
-              "ease-[var(--ease-brand)] hover:-translate-y-0.5 hover:border-brand-emerald/40 " +
+              "bg-surface p-6 shadow-card " +
+              "transition-[transform,box-shadow] duration-[var(--duration-medium)] " +
+              "ease-[var(--ease-brand)] hover:-translate-y-1 " +
               "hover:shadow-float motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             }
           >
             <RoleMark initials={member.initials} />
             <div className="flex flex-col gap-1">
-              <h3 className="text-body-lg font-medium text-ink">{member.role}</h3>
-              <p className="text-body-md text-body">{member.focus}</p>
+              <h3 className="display-plain text-heading-sm text-ink">{member.role}</h3>
+              <p className="text-body-lg text-body">{member.focus}</p>
             </div>
           </motion.li>
         ))}

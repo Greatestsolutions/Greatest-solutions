@@ -55,9 +55,9 @@ export function OutcomeChart({ outcomes }: { outcomes: ServiceOutcome[] }) {
         {outcomes.map((outcome, i) => (
           <li
             key={outcome.label}
-            className="flex flex-col gap-5 rounded-[var(--radius-lg)] border border-black/8 bg-surface p-6"
+            className="flex flex-col gap-5 rounded-[var(--radius-lg)] bg-surface p-6 shadow-card"
           >
-            <h3 className="text-body-lg font-medium text-ink">{outcome.label}</h3>
+            <h3 className="display-plain text-heading-sm text-ink">{outcome.label}</h3>
             <div className="flex flex-col gap-4">
               <Bar label="Before" value={outcome.before} delay={i * 0.1} tone="muted" />
               <Bar label="After" value={outcome.after} delay={i * 0.1 + 0.12} tone="brand" />
