@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { Button } from "@/components/ui/Button";
@@ -14,8 +17,12 @@ import type { Project } from "@/data/works";
  * rather than a rewrite — autoplay, arrow controls, the pointer drag/swipe
  * pipeline and the peek/falloff maths (scale, blur and opacity by distance from
  * a focused card) are gone with the component that held them, not disabled
- * behind a flag. What is left needs no state at all, which is why this is a
- * Server Component: `WorksIndex` owns the query and hands down the survivors.
+ * behind a flag. `WorksIndex` owns the query and hands down the survivors; the
+ * layout itself holds no state.
+ *
+ * It is a Client Component only for the decorative flip wave — see
+ * {@link useSerpentineFlip}. Nothing about the grid, the cards or the links
+ * needs the client; strip the one `useEffect` and this is static markup again.
  *
  * Every card is now equal. There is no focused card, so there is no
  * focused-versus-peeking distinction to express, and the card-level link always
@@ -59,7 +66,156 @@ const placeholderArt = (i: number): ImageSource => {
   };
 };
 
+/**
+ * The flip wave.
+ *
+ * One card at a time turns over, cascading along each row and alternating
+ * direction row by row — left→right, then right→left, then left→right — and
+ * restarting from the first card the moment the last one lands. A boustrophedon,
+ * the way an ox ploughs a field.
+ *
+ * ## Why JS schedules it and CSS performs it
+ *
+ * The wave's shape depends on the RENDERED column count, and that changes with
+ * the breakpoint: three across on desktop is a different set of rows from two on
+ * tablet or one on a phone, so the same card holds a different slot in the
+ * sequence at each width. Pure CSS could stagger `animation-delay` per card, but
+ * only against a row grouping baked in at author time — and there is a second
+ * moving part, since filtering changes how many cards exist at all.
+ *
+ * So the schedule is computed here and the motion is not: each card's turn is a
+ * single attribute flip, and the CSS keyframes do the work on the compositor.
+ *
+ * Columns are read from the grid's own resolved `grid-template-columns` rather
+ * than from a `matchMedia` copy of the breakpoints. The browser has already done
+ * this layout; counting its tracks cannot disagree with what is on screen, where
+ * a duplicated 810/1200 threshold in JS silently could.
+ *
+ * ## Why the DOM directly instead of React state
+ *
+ * A card's turn comes roughly once a second, forever. Routing that through
+ * `useState` would re-render the whole grid on every step for the lifetime of
+ * the page, to change one attribute. The elements are queried fresh on each step,
+ * which is also what lets a resize or a filter change take effect on the very
+ * next card without restarting anything.
+ *
+ * ## Not running when it cannot be seen
+ *
+ * An `IntersectionObserver` stops the wave when the grid scrolls out of view.
+ * A perpetual animation is exactly the kind that otherwise keeps a phone's
+ * compositor awake while the user reads the footer.
+ */
+
+/** One card's turn. Comfortably inside the 2s ceiling, and slow enough that the
+ *  squash-through-zero reads as a turn rather than a glitch. */
+const FLIP_MS = 1400;
+/**
+ * Gap between one card starting and the next.
+ *
+ * Below `FLIP_MS`, so the flips overlap: the next card begins at 71% of the
+ * current one, while it is on its way back up from the edge. Tuned by ear
+ * between two failure modes — at 1400 (no overlap) the cards read as separate
+ * events in a queue, and below about 700 the wave outruns the eye and the row
+ * looks like it is shimmering rather than turning over one card at a time.
+ */
+const STAGGER_MS = 1000;
+
+function useSerpentineFlip(dependency: string) {
+  const list = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    const ul = list.current;
+    if (!ul) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let timers: number[] = [];
+    let running = false;
+
+    /* Resolved tracks, e.g. "341.33px 341.33px 341.33px" → 3. `none` on a grid
+       that has not been laid out yet falls back to a single column, which is the
+       correct answer for the narrowest case anyway. */
+    const columns = () => {
+      const tracks = getComputedStyle(ul).gridTemplateColumns;
+      if (!tracks || tracks === "none") return 1;
+      return tracks.split(/\s+/).filter(Boolean).length;
+    };
+
+    /* Cards in wave order: rows chunked by the live column count, every other
+       row reversed. Recomputed per step, so an uneven final row (7 or 8 cards
+       across 3 columns) needs no special case — the last chunk is simply short. */
+    const sequence = () => {
+      const cards = Array.from(ul.querySelectorAll<HTMLElement>("[data-flip-card]"));
+      const cols = columns();
+      const ordered: HTMLElement[] = [];
+      for (let start = 0; start < cards.length; start += cols) {
+        const row = cards.slice(start, start + cols);
+        if ((start / cols) % 2 === 1) row.reverse();
+        ordered.push(...row);
+      }
+      return ordered;
+    };
+
+    const step = (slot: number) => {
+      const cards = sequence();
+      if (cards.length === 0) return;
+
+      /* A filter can shrink the set between steps; wrap rather than skip, so the
+         wave never stalls waiting for a slot that no longer exists. */
+      const index = slot % cards.length;
+      const card = cards[index];
+      card?.setAttribute("data-flipping", "");
+      timers.push(window.setTimeout(() => card?.removeAttribute("data-flipping"), FLIP_MS));
+
+      /* The last card of a cycle gets the full flip before card one starts
+         again — "loops back after the last card finishes" — where every other
+         hand-off overlaps. No pause either way: the restart lands exactly as the
+         final card settles. */
+      const last = index === cards.length - 1;
+      timers.push(window.setTimeout(() => step(slot + 1), last ? FLIP_MS : STAGGER_MS));
+    };
+
+    const stop = () => {
+      running = false;
+      timers.forEach(clearTimeout);
+      timers = [];
+      ul.querySelectorAll("[data-flip-card][data-flipping]").forEach((el) =>
+        el.removeAttribute("data-flipping"),
+      );
+    };
+
+    const start = () => {
+      if (running || reduced.matches) return;
+      running = true;
+      step(0);
+    };
+
+    /* Only while on screen. `stop()` clears mid-flight timers, so a card cannot
+       be left frozen at scaleX(0) by scrolling away mid-turn. */
+    const observer = new IntersectionObserver(
+      ([entry]) => (entry?.isIntersecting ? start() : stop()),
+      { rootMargin: "100px" },
+    );
+    observer.observe(ul);
+
+    /* Honoured live, not just at mount: switching the OS setting on stops the
+       wave immediately rather than at the next reload. */
+    const onPreferenceChange = () => (reduced.matches ? stop() : start());
+    reduced.addEventListener("change", onPreferenceChange);
+
+    return () => {
+      observer.disconnect();
+      reduced.removeEventListener("change", onPreferenceChange);
+      stop();
+    };
+    /* Restarts when the result set changes — a new set is a new wave. */
+  }, [dependency]);
+
+  return list;
+}
+
 export function WorksGrid({ projects }: { projects: Project[] }) {
+  const list = useSerpentineFlip(projects.map((p) => p.slug).join("|"));
+
   return (
     <>
       {/* The emerald luminance ramp the card artwork is filtered through. Defined
@@ -77,7 +233,14 @@ export function WorksGrid({ projects }: { projects: Project[] }) {
         `placements[]`, untouched by this file), and repeating it here is what
         made the two pages read as the same thing twice.
       */}
-      <ul className="grid grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-3">
+      <ul
+        ref={list}
+        /* One source of truth for the flip's length: the scheduler's constant
+           feeds the CSS animation through this variable, so the attribute can
+           never be removed before — or long after — the keyframes finish. */
+        style={{ "--flip-duration": `${FLIP_MS}ms` } as React.CSSProperties}
+        className="grid grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-3"
+      >
         {projects.map((project, i) => (
           <ProjectGridCard key={project.slug} project={project} art={placeholderArt(i)} />
         ))}
@@ -105,6 +268,7 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
   return (
     <li className="contents">
       <article
+        data-flip-card=""
         className={
           "group/card relative flex h-[300px] flex-col overflow-hidden " +
           "rounded-[var(--radius-md)] border border-black/8 bg-surface shadow-card " +
@@ -126,7 +290,24 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
           */
           "transition-[scale] duration-[var(--duration-medium)] ease-[var(--ease-brand)] " +
           "hover:z-10 hover:scale-[1.035] " +
-          "motion-reduce:transition-none motion-reduce:hover:scale-100"
+          "motion-reduce:transition-none motion-reduce:hover:scale-100 " +
+          /*
+            The flip, driven entirely by the presence of the attribute the
+            scheduler sets. `linear` at the animation level because the keyframes
+            carry their own per-half easing.
+
+            `motion-reduce:animate-none` belts what the scheduler already braces:
+            the hook refuses to start under `prefers-reduced-motion`, and this
+            means that even if an attribute were somehow set, nothing moves.
+
+            Nothing here touches the hover pop, the click layers or focus. The
+            animation is on `transform` while hover owns `scale`; the attribute
+            is decorative and carries no ARIA, no `pointer-events` change and no
+            `tabindex`, so the card stays as clickable and as focusable
+            mid-flip as it is at rest.
+          */
+          "data-flipping:animate-[card-flip_var(--flip-duration)_linear_both] " +
+          "motion-reduce:animate-none"
         }
       >
         {/* ---- top 60%: artwork + overlaid actions -------------------------- */}

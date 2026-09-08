@@ -298,6 +298,42 @@
     }
   }
 
+  /* --- Card flip -------------------------------------------------------------
+     One card turning over, for the serpentine wave on the /works grid.
+
+     `scaleX` through zero, NOT a `rotateY`. A real 180° rotation reveals a back
+     face, and these cards have no back-face content designed for them — a full
+     360° spin would show the front mirrored and unreadable for half its
+     duration, and `backface-visibility: hidden` would instead blank the card for
+     that half. Squashing to zero width and back is the same silhouette a flip
+     projects onto the screen, and the scale never goes negative, so the content
+     is never mirrored at any frame. It also stays on the compositor.
+
+     Deliberately `transform`, not the standalone `scale` property: the card's
+     hover pop already owns `scale`, and these two have to multiply rather than
+     overwrite each other — the same separation `glass-sweep` relies on by
+     moving `translate` while the band holds a static `rotate`.
+
+     Easing is per-keyframe, which is why the animation itself runs `linear`: an
+     `ease-in-out` across the whole thing would ease into the midpoint and out of
+     it once, but a flip has TWO halves and each needs its own acceleration —
+     into the edge, then out of it. A single curve reads mechanical at the turn.
+     Duration comes from --flip-duration so the JS scheduler and the CSS cannot
+     disagree about how long a flip lasts. */
+  @keyframes card-flip {
+    0% {
+      transform: scaleX(1);
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    50% {
+      transform: scaleX(0);
+      animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
   /* --- Idle drift ------------------------------------------------------------
      For a floating sculptural accent that has to read as ALIVE before anyone
      touches it — the /services intro art, sized and treated like a genuinely
