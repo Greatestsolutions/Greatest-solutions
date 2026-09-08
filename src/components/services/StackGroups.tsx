@@ -45,8 +45,20 @@ export function StackGroups({ stack }: { stack: ServiceStackGroup[] }) {
             variants={fadeUpTight(i * STEP)}
             className="flex flex-col gap-3"
           >
-            <dt className="flex items-center gap-2 text-body-md font-medium text-ink">
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-emerald" />
+            {/*
+              The category is set as a LABEL, not as body text: mono, uppercase,
+              on the label tracking — the same type role the section eyebrows
+              use. Before, it was Inter 14 medium and the chips beneath it were
+              Inter 14 too, so the group heading and its contents read at the
+              same level and the grouping did no work. Changing the type role
+              rather than the size is what separates them; a bolder 14 would
+              still have been the same voice.
+
+              A hairline under it binds the chips to their heading, so which
+              chips belong to which category survives the columns wrapping.
+            */}
+            <dt className="flex items-center gap-2 border-b border-hairline-strong pb-3 font-mono text-body-sm tracking-[var(--tracking-label)] text-ink uppercase">
+              <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-brand-emerald" />
               {group.category}
             </dt>
             <dd>
