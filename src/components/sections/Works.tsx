@@ -7,7 +7,18 @@ import { WorksParallax } from "@/components/works/WorksParallax";
 import { projects, worksCta, worksEyebrow, worksTitle } from "@/data/works";
 
 /**
- * Featured work — six projects on a staggered 12-column grid.
+ * Featured work — four projects on a staggered 12-column grid, with a link to
+ * the full `/works` listing below.
+ *
+ * `/works` grew to twelve entries (six real, six `-2` duplicates added to
+ * exercise its own pagination) — showing all twelve here made the homepage an
+ * excessively long scroll for what is meant to be a teaser. `FEATURED_COUNT`
+ * caps it back down, and the `-2` slugs are filtered out first: they exist
+ * only to test `/works`'s "View more" and have nothing to feature.
+ *
+ * This file has exactly one caller (the homepage) — `/works` builds its own
+ * listing from `WorksIndex`/`WorksGrid` and does not import this component,
+ * so the slice below affects nothing else.
  *
  * A Server Component. The only client code in the section is `WorksParallax`,
  * which owns no markup: it wraps the list and writes one custom property per card.
@@ -56,18 +67,29 @@ import { projects, worksCta, worksEyebrow, worksTitle } from "@/data/works";
  * a mistake, the header occupies columns 1–8 and the first card sits beside it in
  * 9–12.
  */
+/** How many projects the homepage teaser shows before pointing to `/works`. */
+const FEATURED_COUNT = 4;
+
 export function Works({
   showHeader = true,
   showContactCta = false,
 }: {
   showHeader?: boolean;
-  /**
-   * Adds "Start this service" to every card. Off by default so the `/works`
-   * listing, which renders this same section, is unaffected — the homepage opts
-   * in explicitly.
-   */
+  /** Adds "Start this service" to every card. Off by default. */
   showContactCta?: boolean;
 } = {}) {
+  /*
+   * Real projects first, `-2` duplicates last, then take the first
+   * FEATURED_COUNT. `projects` in `data/works.ts` is already ordered that way
+   * (all six real entries before any duplicate), so this is a plain slice —
+   * but filtering by slug rather than assuming the array's order stays that
+   * way is what makes "prioritise the real ones" true by construction instead
+   * of by coincidence of authoring order.
+   */
+  const featured = projects
+    .filter((project) => !project.slug.endsWith("-2"))
+    .slice(0, FEATURED_COUNT);
+
   return (
     <Section
       id="work"
@@ -113,7 +135,7 @@ export function Works({
         />
         )}
 
-        {projects.length === 0 ? (
+        {featured.length === 0 ? (
           /* Honest empty state. The grid, cards and parallax are all still here —
              they simply have nothing to render until real projects exist. */
           <div className="flex flex-col items-start gap-6 rounded-[var(--radius-lg)] border border-black/8 bg-surface p-8 tablet:p-12">
@@ -126,6 +148,7 @@ export function Works({
             </Button>
           </div>
         ) : (
+        <>
         <WorksParallax>
           <ul
             className={
@@ -137,7 +160,7 @@ export function Works({
               "desktop:grid-cols-12 desktop:gap-x-3 desktop:gap-y-0"
             }
           >
-            {projects.map((project, i) => (
+            {featured.map((project, i) => (
               <ProjectCard
                 key={project.slug}
                 project={project}
@@ -147,6 +170,26 @@ export function Works({
             ))}
           </ul>
         </WorksParallax>
+
+        {/* The teaser's way out to the full listing. `tone="light"` is the
+            site's own secondary-action pattern — the same tone Blog's "View
+            all Articles" uses to link to its own archive — so this reads as
+            the section's second action rather than competing with the
+            header's "Book an intro call". Centred below the grid, matching
+            the "View more" control `/works` itself uses under its own grid.
+
+            Margin, not the parent flex's `gap`: that gap is shared with the
+            header-to-grid space above, which is deliberately 0 at desktop
+            (the header sits beside the first row of cards there). This is a
+            different relationship — after the LAST row, with no card beside
+            it to share space with — so it earns its own real gap at every
+            width instead of inheriting a value tuned for a different pair. */}
+        <div className="flex justify-center pt-14 tablet:pt-16 desktop:pt-16">
+          <Button href="/works" tone="light">
+            Show all works
+          </Button>
+        </div>
+        </>
         )}
       </div>
     </Section>
