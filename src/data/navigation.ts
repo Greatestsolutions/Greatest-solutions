@@ -42,11 +42,14 @@ export interface NavItem {
  * "Pages" carries the utility routes. **Blog is deliberately not among them**
  * (task 6.3): /blog, blog.ts, the Blog section and its components all still exist
  * and the route still returns 200 — only the navigation entry is gone.
+ *
+ * **Solutions has no entry at all**, same reasoning, one step further: the
+ * `/solutions` route itself was deleted along with `data/solutions.ts`, so there
+ * is no route to link to and nothing to mark `pending`.
  */
 export const navItems: NavItem[] = [
   { label: "Works", href: "/works" },
   { label: "About", href: "/about" },
-  { label: "Solutions", href: "/solutions" },
   {
     label: "Services",
     href: "/services",
