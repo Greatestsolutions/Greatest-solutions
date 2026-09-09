@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { AiHumanWorkflow } from "@/components/services/AiHumanWorkflow";
 import { Container } from "@/components/layout/Container";
-import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { ConnectorArrowhead } from "@/components/ui/ConnectorArrowhead";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { DeliverablesList } from "@/components/services/DeliverablesList";
 import { EmeraldFilter } from "@/components/services/EmeraldFilter";
@@ -237,9 +238,24 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             below it, ending in an arrowhead at the answer. It is the same
             hairline-plus-emerald device the roadmap uses, so the page has one
             connector language rather than two.
+
+        The connector is positioned against the CARD's own box, not the grid
+        row. Both blocks sit in a CSS grid, whose default align-items:stretch
+        makes the "answer" card and the "problem" text always the same
+        measured height — but the card's own content (label + copy + padding)
+        does not reliably fill that stretched box, and the plain text side
+        never does (it has no background to show the stretch at all).
+        Centring on the stretched ROW put the arrow wherever the taller of the
+        two blocks happened to end, which on a short "problem" paragraph
+        landed well below the visible text — floating in blank space,
+        touching neither element. `self-start` on the card's wrapper opts it
+        out of the stretch, so the wrapper's height becomes the card's own
+        true content height, and the arrow — positioned against THAT wrapper —
+        always centres on the card, regardless of how long the problem text
+        runs.
       */}
       <Band>
-        <div className="relative grid gap-10 desktop:grid-cols-2 desktop:gap-24">
+        <div className="grid gap-10 desktop:grid-cols-2 desktop:gap-24">
           <div className={BLOCK}>
             <SectionLabel>The problem</SectionLabel>
             {/*
@@ -251,16 +267,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <p className="display-plain max-w-[34ch] text-heading-sm text-ink">{service.problem}</p>
           </div>
 
-          {/* ---- the connector ------------------------------------------- */}
-          {/* Desktop: horizontal, centred in the 96px column gap. */}
-          <span
-            aria-hidden="true"
-            className="absolute top-1/2 left-1/2 hidden h-px w-16 -translate-x-1/2 -translate-y-1/2 bg-hairline-strong desktop:block"
-          >
-            <span className="block size-full origin-left bg-brand-emerald" />
-            <span className="absolute -top-[3px] -right-px size-[7px] rotate-45 border-t border-r border-brand-emerald" />
-          </span>
-
           {/*
             Below desktop the connector is an ordinary grid child sitting between
             the two blocks, not an absolutely-positioned one. Absolute placement
@@ -270,18 +276,36 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             flow, it is between them by definition at any height.
           */}
           <span aria-hidden="true" className="ml-5 flex h-10 desktop:hidden">
-            <span className="relative block w-px bg-brand-emerald">
-              <span className="absolute -bottom-px -left-[3px] size-[7px] rotate-135 border-t border-r border-brand-emerald" />
+            <span className="relative block w-0.5 rounded-full bg-brand-emerald">
+              <ConnectorArrowhead direction="down" className="absolute -bottom-1 -left-[3px]" />
             </span>
           </span>
 
-          <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-ink p-6 shadow-card tablet:p-8">
-            <div className="flex flex-col gap-6">
-              <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-brand-leaf uppercase">
-                <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-emerald" />
-                What we build
-              </p>
-              <p className="max-w-[52ch] text-body-lg text-white/80">{service.build}</p>
+          {/* `self-start`: see the note above the grid — this keeps the
+              wrapper's height, and so the connector's centring, tied to the
+              card's own content rather than to the grid's stretched row. */}
+          <div className="relative self-start">
+            {/* Desktop: horizontal, spanning the full 96px column gap edge to
+                edge, anchored to and vertically centred on the card. */}
+            <span
+              aria-hidden="true"
+              className="absolute top-1/2 right-full hidden h-0.5 w-24 -translate-y-1/2 rounded-full bg-hairline-strong desktop:block"
+            >
+              <span className="block size-full origin-right rounded-full bg-brand-emerald" />
+              <ConnectorArrowhead
+                direction="right"
+                className="absolute top-1/2 -right-1 -translate-y-1/2"
+              />
+            </span>
+
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-ink p-6 shadow-card tablet:p-8">
+              <div className="flex flex-col gap-6">
+                <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-brand-leaf uppercase">
+                  <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-emerald" />
+                  What we build
+                </p>
+                <p className="max-w-[52ch] text-body-lg text-white/80">{service.build}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -377,29 +401,23 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                   </p>
 
                   {/*
-                    One button, one link — not two buttons.
-
-                    Both actions were pills before: the emerald gradient primary
-                    beside a solid white `light` secondary. On ink, white is the
-                    higher-contrast of the two, so the secondary was drawing the
-                    eye harder than the action the page exists to get. Demoting
-                    "All services" to a text link makes the hierarchy
-                    unambiguous, and it is the treatment `/works/[slug]` already
-                    uses for its own secondary navigation.
+                    Both actions are buttons. A text-link treatment was tried
+                    here and read as a bare arrow with no visible surface — a
+                    link, not a second action — beside a solid primary pill.
+                    `tone="light"` is the site's own secondary-button pattern
+                    (the works cards' "View roadmap", `/services`'s own "All
+                    services") and restoring it is what makes this read as two
+                    real actions rather than one button and some loose text.
                   */}
-                  <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                  <div className="flex flex-wrap gap-3">
                     {/* The same dialog every other CTA on the site opens — not a
                         second contact mechanism. `/contact` still works. */}
                     <ContactButton size="lg" tone="brand">
                       Start with {service.title}
                     </ContactButton>
-
-                    <Link
-                      href="/services"
-                      className="text-body-lg font-medium text-white/80 underline-offset-4 transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] hover:text-white hover:underline"
-                    >
-                      All services &rarr;
-                    </Link>
+                    <Button href="/services" tone="light" size="lg">
+                      All services
+                    </Button>
                   </div>
                 </div>
               </div>

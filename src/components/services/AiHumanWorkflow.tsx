@@ -3,6 +3,7 @@
 import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import { fadeUpTight, inView, noDrawX, noReveal } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { ConnectorArrowhead } from "@/components/ui/ConnectorArrowhead";
 
 /**
  * How the work actually gets done: the six-step loop every service runs through.
@@ -35,12 +36,25 @@ import { cn } from "@/lib/cn";
  * The same device the roadmap uses: a hairline that draws itself in as the
  * section scrolls, one segment per step, arriving just behind the step it
  * leaves. Deliberately not a unicode arrow — that was a text glyph inheriting
- * the font's own metrics and sitting at whatever baseline it liked.
+ * the font's own metrics and sitting at whatever baseline it liked. The track
+ * is a bolder 2px (the roadmap's own hairline is 1px, but that line runs
+ * beside a column of numbered markers that already carry visual weight; this
+ * one is the only graphic between two cards and reads as thin at 1px), capped
+ * with a rounded end and a solid {@link ConnectorArrowhead} rather than the
+ * bordered-mitre shape used previously.
  *
  * Which connectors exist depends on the column count, and the row end is
  * computed here rather than left to CSS: with three columns the third and sixth
  * steps end a row, with two columns every second one does. Drawing those would
  * leave a line pointing into the gutter.
+ *
+ * ## No step numbers
+ *
+ * The six cards no longer carry a 01-06 badge. The sequence is already legible
+ * from position (left-to-right, top-to-bottom) and the connectors between
+ * them; a number in the corner of every card added nothing and, once the
+ * connector line ran close beside it, competed with it for the same small
+ * corner of space.
  */
 const STEPS = [
   { title: "Human strategy", sub: "A specialist scopes the problem and the plan", led: "Human" },
@@ -95,7 +109,7 @@ export function AiHumanWorkflow() {
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "absolute top-1/2 -right-8 hidden h-px w-8 -translate-y-1/2 bg-hairline-strong",
+                    "absolute top-1/2 -right-8 hidden h-0.5 w-8 -translate-y-1/2 rounded-full bg-hairline-strong",
                     endsTabletRow ? "tablet:hidden" : "tablet:block",
                     endsDesktopRow ? "desktop:hidden" : "desktop:block",
                   )}
@@ -108,9 +122,12 @@ export function AiHumanWorkflow() {
                     whileInView="show"
                     viewport={inView}
                     variants={reduced ? noDrawX : draw(i)}
-                    className="block size-full origin-left bg-brand-emerald"
+                    className="block size-full origin-left rounded-full bg-brand-emerald"
                   />
-                  <span className="absolute -top-[3px] -right-px size-[7px] rotate-45 border-t border-r border-brand-emerald" />
+                  <ConnectorArrowhead
+                    direction="right"
+                    className="absolute top-1/2 -right-1 -translate-y-1/2"
+                  />
                 </span>
               )}
 
@@ -142,9 +159,6 @@ export function AiHumanWorkflow() {
                     )}
                   >
                     {step.led}
-                  </span>
-                  <span className="ml-auto font-mono text-body-sm text-muted">
-                    {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
 
