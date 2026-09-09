@@ -1,7 +1,7 @@
 "use client";
 
-import { MotionConfig, motion } from "motion/react";
-import { fadeUpTight, inView } from "@/lib/motion";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
+import { fadeUpTight, inView, noDrawX, noDrawY, noReveal } from "@/lib/motion";
 import type { ServicePhase } from "@/data/services";
 
 /**
@@ -66,6 +66,7 @@ const draw = (axis: "x" | "y", index: number) => ({
 
 export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
   const count = phases.length;
+  const reduced = useReducedMotion();
 
   return (
     <MotionConfig reducedMotion="user">
@@ -80,7 +81,7 @@ export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
         {phases.map((phase, i) => (
           <motion.li
             key={phase.name}
-            variants={fadeUpTight(i * STEP)}
+            variants={reduced ? noReveal : fadeUpTight(i * STEP)}
             /* One grid declaration serves both layouts: below desktop every
                phase spans the full row, which stacks them without a second
                container or a media-query branch in the markup. */
@@ -93,7 +94,13 @@ export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
                 className="absolute top-10 -bottom-8 left-5 w-px bg-hairline-strong desktop:hidden"
               >
                 <motion.span
-                  variants={draw("y", i)}
+                  /* Self-triggering: a plain <span> track sits between this and
+                     the list, and variant propagation does not reliably cross a
+                     plain DOM element here — see the note in `OutcomeChart`. */
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={inView}
+                  variants={reduced ? noDrawY : draw("y", i)}
                   className="block size-full origin-top bg-brand-emerald"
                 />
               </span>
@@ -117,7 +124,10 @@ export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
                 className="absolute top-5 left-10 hidden h-px w-[calc(100%-1.5rem)] bg-hairline-strong desktop:block"
               >
                 <motion.span
-                  variants={draw("x", i)}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={inView}
+                  variants={reduced ? noDrawX : draw("x", i)}
                   className="block size-full origin-left bg-brand-emerald"
                 />
               </span>

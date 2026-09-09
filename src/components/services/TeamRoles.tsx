@@ -1,8 +1,8 @@
 "use client";
 
-import { MotionConfig, motion } from "motion/react";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import { Picture } from "@/components/ui/Picture";
-import { fadeUpTight, inView } from "@/lib/motion";
+import { fadeUpTight, inView, noReveal } from "@/lib/motion";
 import type { ImageSource } from "@/types/media";
 import type { ServiceRole } from "@/data/services";
 
@@ -50,6 +50,8 @@ const ICONS: ImageSource[] = [
 ];
 
 export function TeamRoles({ team }: { team: ServiceRole[] }) {
+  const reduced = useReducedMotion();
+
   return (
     <MotionConfig reducedMotion="user">
       <motion.ul
@@ -62,7 +64,7 @@ export function TeamRoles({ team }: { team: ServiceRole[] }) {
         {team.map((member, i) => (
           <motion.li
             key={member.role}
-            variants={fadeUpTight(i * STEP)}
+            variants={reduced ? noReveal : fadeUpTight(i * STEP)}
             className={
               "group/role flex items-start gap-4 rounded-[var(--radius-lg)] " +
               "bg-surface p-6 shadow-card " +

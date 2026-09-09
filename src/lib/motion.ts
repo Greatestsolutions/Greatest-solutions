@@ -121,5 +121,35 @@ export const stagger = (staggerChildren = 0.08, delayChildren = 0): Variants => 
   show: { transition: { staggerChildren, delayChildren } },
 });
 
+/**
+ * Variants whose hidden state IS their shown state — i.e. no reveal at all.
+ *
+ * `MotionConfig reducedMotion="user"` is not enough on its own. It drops
+ * transform animations for anyone who has asked for less motion but KEEPS
+ * opacity ones, on the reasoning that a fade is not movement. Measured under
+ * `prefers-reduced-motion: reduce`, a deliverables item was still mid-fade at
+ * 0.52 opacity 60ms in — the bars and connectors snapped correctly, because
+ * those are transforms, but anything fading did not.
+ *
+ * Swapping the variants for these makes the element render at its final state on
+ * the first frame instead. Pair with `useReducedMotion()` at the call site.
+ *
+ * They are complete rather than empty objects on purpose: server rendering
+ * cannot know the preference, so the hidden frame is always what ships in the
+ * HTML. Naming every property the real variants animate is what lets motion
+ * resolve all of them on hydration rather than leaving one behind at its
+ * hidden value.
+ */
+export const noReveal: Variants = {
+  hidden: { opacity: 1, y: 0, scale: 1 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
+
+/** As {@link noReveal}, for the horizontal draw used by connectors and bars. */
+export const noDrawX: Variants = { hidden: { scaleX: 1 }, show: { scaleX: 1 } };
+
+/** As {@link noReveal}, for the vertical draw used by the stacked connectors. */
+export const noDrawY: Variants = { hidden: { scaleY: 1 }, show: { scaleY: 1 } };
+
 /** Shared viewport config so scroll-triggered reveals behave consistently. */
 export const inView = { once: true, amount: 0.25 } as const;

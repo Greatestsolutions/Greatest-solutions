@@ -1,7 +1,7 @@
 "use client";
 
-import { MotionConfig, motion } from "motion/react";
-import { inView } from "@/lib/motion";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
+import { inView, noDrawX } from "@/lib/motion";
 import type { ServiceOutcome } from "@/data/services";
 
 /**
@@ -43,6 +43,8 @@ const bar = (delay: number) => ({
 const container = { hidden: {}, show: {} };
 
 export function OutcomeChart({ outcomes }: { outcomes: ServiceOutcome[] }) {
+  const reduced = useReducedMotion();
+
   return (
     <MotionConfig reducedMotion="user">
       <motion.ul
@@ -58,9 +60,27 @@ export function OutcomeChart({ outcomes }: { outcomes: ServiceOutcome[] }) {
             className="flex flex-col gap-5 rounded-[var(--radius-lg)] bg-surface p-6 shadow-card"
           >
             <h3 className="display-plain text-heading-sm text-ink">{outcome.label}</h3>
-            <div className="flex flex-col gap-4">
-              <Bar label="Before" value={outcome.before} delay={i * 0.1} tone="muted" />
-              <Bar label="After" value={outcome.after} delay={i * 0.1 + 0.12} tone="brand" />
+            {/*
+              A shared origin rail down the left edge, binding the two bars into
+              one comparison rather than two unrelated meters. It marks where
+              both bars START — the only thing the two figures genuinely have in
+              common — so it adds no claim about which way is better. That
+              restraint is deliberate and stays: "missed calls" falling and
+              "after-hours response" rising are both improvements, so an arrow or
+              a colour-coded delta would be wrong on half the entries.
+            */}
+            <div className="relative flex flex-col gap-4 pl-4">
+              {/* Emerald at low alpha rather than the neutral hairline: at 1px
+                  on a white card, `hairline-strong` (black 8%) was invisible at
+                  normal viewing distance — checked in a screenshot before
+                  changing it — which is worse than no rail at all, since the
+                  markup would be there doing nothing. */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-1 left-0 w-px bg-brand-emerald/30"
+              />
+              <Bar label="Before" value={outcome.before} delay={i * 0.1} tone="muted" reduced={reduced} />
+              <Bar label="After" value={outcome.after} delay={i * 0.1 + 0.12} tone="brand" reduced={reduced} />
             </div>
           </li>
         ))}
@@ -74,11 +94,13 @@ function Bar({
   value,
   delay,
   tone,
+  reduced,
 }: {
   label: string;
   value: number;
   delay: number;
   tone: "muted" | "brand";
+  reduced: boolean | null;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -101,7 +123,21 @@ function Bar({
       </div>
       <div aria-hidden="true" className="h-2 w-full overflow-hidden rounded-full bg-scrim-06">
         <motion.div
-          variants={bar(delay)}
+          /*
+            Triggers ITSELF rather than inheriting the list's variant.
+            Measured: with only `variants` here and the state on the `<ul>`, the
+            bars rendered at full width with no animation at all — a screenshot
+            taken 120ms after the section scrolled in was already settled.
+            Between that `<ul>` and this element sit four plain DOM wrappers (the
+            `<li>`, the column, the row and the track), and variant propagation
+            does not reliably survive them in this version. `ProcessSequence`
+            documents measuring the same failure and abandoning parent
+            orchestration for the same reason.
+          */
+          initial="hidden"
+          whileInView="show"
+          viewport={inView}
+          variants={reduced ? noDrawX : bar(delay)}
           style={{ width: `${value}%` }}
           className={
             "h-full origin-left rounded-full " +

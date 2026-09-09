@@ -1,7 +1,7 @@
 "use client";
 
-import { MotionConfig, motion } from "motion/react";
-import { fadeUpTight, inView } from "@/lib/motion";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
+import { fadeUpTight, inView, noDrawX, noReveal } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 /**
@@ -68,6 +68,8 @@ const draw = (index: number) => ({
 });
 
 export function AiHumanWorkflow() {
+  const reduced = useReducedMotion();
+
   return (
     <MotionConfig reducedMotion="user">
       <motion.ol
@@ -87,7 +89,7 @@ export function AiHumanWorkflow() {
           const endsDesktopRow = i % 3 === 2;
 
           return (
-            <motion.li key={step.title} variants={fadeUpTight(i * STEP_DELAY)} className="relative">
+            <motion.li key={step.title} variants={reduced ? noReveal : fadeUpTight(i * STEP_DELAY)} className="relative">
               {/* The connector into the next step, sitting in the column gap. */}
               {!last && (
                 <span
@@ -99,7 +101,13 @@ export function AiHumanWorkflow() {
                   )}
                 >
                   <motion.span
-                    variants={draw(i)}
+                    /* Self-triggering, for the reason documented in
+                       `OutcomeChart`: the plain <span> track between this and
+                       the list breaks variant propagation. */
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={inView}
+                    variants={reduced ? noDrawX : draw(i)}
                     className="block size-full origin-left bg-brand-emerald"
                   />
                   <span className="absolute -top-[3px] -right-px size-[7px] rotate-45 border-t border-r border-brand-emerald" />

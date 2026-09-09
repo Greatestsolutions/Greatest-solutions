@@ -1,8 +1,8 @@
 "use client";
 
-import { MotionConfig, motion } from "motion/react";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import { Pill } from "@/components/ui/Pill";
-import { fadeUpTight, inView } from "@/lib/motion";
+import { fadeUpTight, inView, noReveal } from "@/lib/motion";
 import type { ServiceStackGroup } from "@/data/services";
 
 /**
@@ -23,6 +23,8 @@ const STEP = 0.08;
 const container = { hidden: {}, show: {} };
 
 export function StackGroups({ stack }: { stack: ServiceStackGroup[] }) {
+  const reduced = useReducedMotion();
+
   return (
     <MotionConfig reducedMotion="user">
       <motion.dl
@@ -42,7 +44,7 @@ export function StackGroups({ stack }: { stack: ServiceStackGroup[] }) {
         {stack.map((group, i) => (
           <motion.div
             key={group.category}
-            variants={fadeUpTight(i * STEP)}
+            variants={reduced ? noReveal : fadeUpTight(i * STEP)}
             className="flex flex-col gap-3"
           >
             {/*

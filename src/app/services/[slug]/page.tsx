@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { AiHumanWorkflow } from "@/components/services/AiHumanWorkflow";
-import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/layout/Container";
+import Link from "next/link";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { DeliverablesList } from "@/components/services/DeliverablesList";
 import { EmeraldFilter } from "@/components/services/EmeraldFilter";
@@ -11,6 +11,7 @@ import { OutcomeChart } from "@/components/services/OutcomeChart";
 import { PageShell } from "@/components/layout/PageShell";
 import { ServiceArt } from "@/components/services/ServiceArt";
 import { RoadmapTimeline } from "@/components/services/RoadmapTimeline";
+import { Reveal } from "@/components/ui/Reveal";
 import { SectionLabel } from "@/components/services/SectionLabel";
 import { StackGroups } from "@/components/services/StackGroups";
 import { TeamRoles } from "@/components/services/TeamRoles";
@@ -346,33 +347,76 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           The conversion point, and the second of the page's two emphatic
           surfaces. Ink rather than forest so it reads as a close rather than a
           repeat of the masthead.
-        */}
-        <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-ink p-8 shadow-card tablet:p-12">
-          <div className="relative flex flex-col gap-8">
-            <div className="flex flex-col gap-4">
-              <p className="font-mono text-body-sm tracking-[var(--tracking-label)] text-brand-leaf uppercase">
-                Ongoing support
-              </p>
-              <p className="max-w-[62ch] text-body-lg text-white/70">{service.support}</p>
-            </div>
 
-            <div className="flex flex-col gap-6">
-              <p className="max-w-[18ch] text-heading-lg text-white opsz-56">Ready when you are.</p>
-              <div className="flex flex-wrap gap-3">
-                {/* The same dialog every other CTA on the site opens — not a
-                    second contact mechanism. `/contact` still works directly. */}
-                {/* Brand gradient as the primary against ink — `dark` would be
-                    ink on ink. `light` is the secondary, as everywhere else. */}
-                <ContactButton size="lg" tone="brand">
-                  Start with {service.title}
-                </ContactButton>
-                <Button href="/services" tone="light" size="lg">
-                  All services
-                </Button>
+          It now carries the masthead's illustration at the masthead's scale and
+          with the masthead's motion — the same `ServiceArt`, idle drift, glow
+          and hover included. It previously held a 420px copy at 18% opacity
+          pushed off the corner, which read as a watermark next to a hero that
+          had a real object in it; the page's last screen should not be quieter
+          than its first.
+
+          `Reveal` gives the whole panel one entrance on scroll. It is the last
+          thing a visitor sees before deciding whether to act, so it arrives
+          rather than being already there.
+        */}
+        <Reveal>
+          <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-ink p-8 shadow-card tablet:p-12">
+            <div className="flex items-center gap-16 desktop:gap-24">
+              <div className="relative flex flex-col gap-8">
+                <div className="flex flex-col gap-4">
+                  <p className="flex items-center gap-2 font-mono text-body-sm tracking-[var(--tracking-label)] text-brand-leaf uppercase">
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-brand-emerald" />
+                    Ongoing support
+                  </p>
+                  <p className="max-w-[62ch] text-body-lg text-white/70">{service.support}</p>
+                </div>
+
+                <div className="flex flex-col gap-6">
+                  <p className="max-w-[18ch] text-heading-lg text-white opsz-56">
+                    Ready when you are.
+                  </p>
+
+                  {/*
+                    One button, one link — not two buttons.
+
+                    Both actions were pills before: the emerald gradient primary
+                    beside a solid white `light` secondary. On ink, white is the
+                    higher-contrast of the two, so the secondary was drawing the
+                    eye harder than the action the page exists to get. Demoting
+                    "All services" to a text link makes the hierarchy
+                    unambiguous, and it is the treatment `/works/[slug]` already
+                    uses for its own secondary navigation.
+                  */}
+                  <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                    {/* The same dialog every other CTA on the site opens — not a
+                        second contact mechanism. `/contact` still works. */}
+                    <ContactButton size="lg" tone="brand">
+                      Start with {service.title}
+                    </ContactButton>
+
+                    <Link
+                      href="/services"
+                      className="text-body-lg font-medium text-white/80 underline-offset-4 transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] hover:text-white hover:underline"
+                    >
+                      All services &rarr;
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop only, matching the masthead: below 1200 the copy needs
+                  the full width and a shrunken sculpture would cost more than
+                  it gave. */}
+              <div className="hidden shrink-0 desktop:flex desktop:flex-1 desktop:items-center desktop:justify-center">
+                <ServiceArt
+                  source={service.illustration}
+                  className="desktop:size-[clamp(320px,26vw,420px)]"
+                  sizes="(min-width: 1200px) 26vw, 420px"
+                />
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </Band>
     </PageShell>
   );
