@@ -133,7 +133,7 @@ export function RoadmapTimeline({ phases }: { phases: ServicePhase[] }) {
               </span>
             )}
 
-            <div className="flex gap-4 desktop:flex-col desktop:gap-4">
+            <div className="flex h-full gap-4 desktop:flex-col desktop:gap-4">
               {/*
                 The marker. Opaque so the connector stops at its edge rather than
                 striking through the number — it reads as a station on the line.
