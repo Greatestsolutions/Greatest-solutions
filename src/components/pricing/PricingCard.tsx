@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { BenefitIcon } from "@/components/pricing/BenefitIcon";
 import { PlanIcon } from "@/components/pricing/PlanIcon";
-import type { PricingPlan } from "@/data/pricing";
+import { PRICE_PLACEHOLDER, type PricingPlan } from "@/data/pricing";
 
 /**
  * One pricing plan. A Server Component — the only interaction is the button's
@@ -72,14 +72,35 @@ export function PricingCard({ plan, className }: { plan: PricingPlan; className?
       {/* mt-auto keeps the price and button flush with the bottom when cards in
           a row have different amounts of copy, as they do at every breakpoint. */}
       <div className="mt-auto flex flex-col gap-6">
-        <p className="flex items-end gap-1.5">
-          <span className={cn("text-heading-md", dark ? "text-background" : "text-ink")}>
+        {plan.price === PRICE_PLACEHOLDER ? (
+          /*
+            Unmistakably not a real price. This is deliberately NOT the same
+            slot styled the same way with different text — that reads as "an
+            oddly-formatted real price" rather than "no price yet". A dashed
+            border is a widely understood "fill this in" convention, muted
+            colour keeps it visually secondary to the benefits above it, and
+            mono/uppercase matches how this site already marks metadata (the
+            roadmap's day ranges, the eyebrow labels) rather than content.
+          */
+          <p
+            className={cn(
+              "w-fit rounded-full border border-dashed px-3 py-1.5 font-mono text-body-sm tracking-[var(--tracking-label)] uppercase",
+              dark ? "border-white/30 text-white/60" : "border-black/20 text-muted",
+            )}
+          >
             {plan.price}
-          </span>
-          {/* The 3px bottom padding is measured: the unit sits above the price's
-              baseline rather than on it. */}
-          <span className="pb-[3px] text-body-md text-body">{plan.unit}</span>
-        </p>
+          </p>
+        ) : (
+          <p className="flex items-end gap-1.5">
+            <span className={cn("text-heading-md", dark ? "text-background" : "text-ink")}>
+              {plan.price}
+            </span>
+            {/* The 3px bottom padding is measured: the unit sits above the
+                price's baseline rather than on it. Only rendered when there is
+                one — the placeholder branch above has no separate unit. */}
+            {plan.unit && <span className="pb-[3px] text-body-md text-body">{plan.unit}</span>}
+          </p>
+        )}
         {/* Every plan's action points at /contact, so all three open the dialog.
             A plan that ever points elsewhere would need the link form back. */}
         <ContactButton size="lg" tone={dark ? "light" : "dark"} className="w-full">

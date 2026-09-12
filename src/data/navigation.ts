@@ -43,9 +43,13 @@ export interface NavItem {
  * (task 6.3): /blog, blog.ts, the Blog section and its components all still exist
  * and the route still returns 200 — only the navigation entry is gone.
  *
- * **Solutions has no entry at all**, same reasoning, one step further: the
- * `/solutions` route itself was deleted along with `data/solutions.ts`, so there
- * is no route to link to and nothing to mark `pending`.
+ * **Solutions and Pricing have no entry at all**, same reasoning as Blog, one
+ * step further: both routes were deleted outright (`/solutions` with
+ * `data/solutions.ts`; `/pricing` with the homepage's Pricing section, once
+ * each service grew its own three tiers on its own detail page), so there is
+ * no route to link to and nothing to mark `pending`. `data/pricing.ts` and
+ * `PricingCard` are not part of that deletion — they are what the per-service
+ * tiers on `/services/[slug]` are built from.
  */
 export const navItems: NavItem[] = [
   { label: "Works", href: "/works" },
@@ -65,7 +69,6 @@ export const navItems: NavItem[] = [
       ...services.map((service) => ({ label: service.title, href: `/services/${service.slug}` })),
     ],
   },
-  { label: "Pricing", href: "/pricing" },
   {
     label: "Pages",
     href: "#",

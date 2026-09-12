@@ -20,7 +20,6 @@ const routes: Array<{
   { path: "/works", changeFrequency: "monthly", priority: 0.9 },
   { path: "/services", changeFrequency: "monthly", priority: 0.9 },
   { path: "/about", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/pricing", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.8 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
   // /privacy and /terms are deliberately absent: both are noindex until the real

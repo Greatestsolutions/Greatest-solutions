@@ -3,7 +3,6 @@ import { Blog } from "@/components/sections/Blog";
 import { FAQ } from "@/components/sections/FAQ";
 import { LogoStrip } from "@/components/sections/LogoStrip";
 import { Hero } from "@/components/sections/Hero";
-import { Pricing } from "@/components/sections/Pricing";
 import { Process } from "@/components/sections/Process";
 import { Services } from "@/components/sections/Services";
 import { Testimonials } from "@/components/sections/Testimonials";
@@ -13,6 +12,14 @@ import { Works } from "@/components/sections/Works";
 /**
  * Home page. Composes sections and nothing else — layout, copy and behaviour all
  * belong to the sections themselves, so adding one is a single import here.
+ *
+ * The standalone Pricing section is deliberately gone: each of the ten
+ * services now carries its own three pricing tiers on its own `/services/[slug]`
+ * page, which made one generic homepage section redundant rather than
+ * complementary. `sections/Pricing.tsx` and `data/pricing.ts` are untouched on
+ * disk — `PricingCard`, `PlanIcon` and `BenefitIcon` are exactly what the new
+ * per-service tiers are built from, and the homepage section itself is simply
+ * unreferenced, the same treatment `Blog`'s removal from the nav got.
  */
 /*
  * LogoStrip and Testimonials are both restored. Their content is the template's,
@@ -48,7 +55,6 @@ export default function Home() {
         <Works showContactCta />
         <Services />
         <Process />
-        <Pricing />
         <Testimonials />
         <Blog />
         <FAQ />
