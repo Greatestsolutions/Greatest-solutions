@@ -1,3 +1,5 @@
+import type { ImageSource } from "@/types/media";
+
 /**
  * Client testimonials — `Section - Client` in the reference (the export gives that
  * name to BOTH this block and the logo strip; this is the lower of the two).
@@ -46,7 +48,23 @@ export interface Testimonial {
    *  the field is a number rather than a hardcoded "5.0" string so a future
    *  review with a different score needs no component change. */
   rating: number;
+  /**
+   * A small decorative accent on the card, not an avatar. Neither client
+   * supplied a photo, and their real likeness is not something to simulate
+   * — this is the same abstract emerald illustration set already used on the
+   * hero, service cards and service detail pages, cycled per testimonial so
+   * the two cards do not carry the same shape. Purely decorative: it renders
+   * with an empty `alt` in `TestimonialCard`, the same convention every other
+   * use of this artwork on the site already follows.
+   */
+  illustration: ImageSource;
 }
+
+const illustration = (name: string): ImageSource => ({
+  avif: `/services/${name}.avif`,
+  webp: `/services/${name}.webp`,
+  fallback: `/services/${name}.png`,
+});
 
 export const testimonials: Testimonial[] = [
   {
@@ -60,6 +78,7 @@ export const testimonials: Testimonial[] = [
       "He proved to be a highly skilled AI content creator with a strong combination of technical expertise and creative storytelling ability.",
     attribution: "Client, AITube",
     rating: 5.0,
+    illustration: illustration("web-development"),
   },
   {
     /* Used in full — the entire review is already the length of a pull-quote,
@@ -67,6 +86,7 @@ export const testimonials: Testimonial[] = [
     quote: "Working with Muhammad was nice. Great communication, good ai work and matching deadlines. Thanks Muhammad.",
     attribution: "Verified client",
     rating: 5.0,
+    illustration: illustration("digital-marketing"),
   },
 ];
 

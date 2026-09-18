@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { Picture } from "@/components/ui/Picture";
 import type { Testimonial } from "@/data/testimonials";
 
 /**
@@ -26,6 +27,7 @@ import type { Testimonial } from "@/data/testimonials";
  *   card          360x557                     (354x551 compact)
  *     frame       padding 4 · radius 24 · white · --shadow-float-soft
  *       panel     352x549 · padding 40 · radius 20 · #000 · overflow hidden
+ *         accent  decorative illustration, inset near the top-right corner
  *         stars   5 marks, filled per `rating`
  *         content padding-top 24 · gap 20
  *           h3    Fraunces 24 / 28 / −0.04em · white          (the quote)
@@ -35,6 +37,36 @@ import type { Testimonial } from "@/data/testimonials";
  *
  * The compact variant only changes panel padding (36 vs 40) and card size, so
  * it stays a prop rather than a second component — unchanged from before.
+ *
+ * ## The corner accent
+ *
+ * `filter: url(#gst-emerald)` is tuned for the WARM page background these
+ * illustrations normally sit on — its ramp deliberately maps the artwork's own
+ * near-white halo back to near-white, so the halo disappears into a light
+ * page. On this card's black panel that halo does the opposite: it is the
+ * brightest thing in the frame rather than invisible. Three adjustments make
+ * that work here instead of fighting the panel:
+ *
+ *   - moderate opacity (35%) — low enough to sit behind the white quote text
+ *     without eating its contrast, high enough that it actually reads as a
+ *     shape rather than vanishing the way an even lower value did when this
+ *     was first tried (measured directly: at 12% it was not visibly
+ *     different from flat black in a pixel-level check);
+ *   - INSET from the corner, not bled past the edge. Every one of these
+ *     illustrations is a small sculpted form on a mostly-transparent square,
+ *     off-centre within it — bleeding the box two-thirds off the panel (as
+ *     first tried) put the visible window over the transparent margin around
+ *     the shape, not the shape itself, which is why nothing showed up despite
+ *     the maths otherwise looking right. Keeping the whole square inside the
+ *     panel guarantees whatever the asset actually contains is on-card;
+ *   - `isolate` on the panel. `-z-10` on its own does not reliably mean
+ *     "behind this element's own background" — a `position:relative` element
+ *     with no explicit stacking context lets a negative-z-index descendant's
+ *     stacking resolve against a much higher ancestor instead (here, that
+ *     silently put the accent under the white outer frame). `isolate` forces
+ *     the panel to own its stacking context, so `-z-10` means what it looks
+ *     like it means: behind this panel's black background, in front of
+ *     nothing above it.
  */
 export function TestimonialCard({
   testimonial,
@@ -55,10 +87,34 @@ export function TestimonialCard({
     >
       <div
         className={cn(
-          "relative flex h-full flex-col items-center overflow-hidden rounded-[var(--radius-card)] bg-black",
+          // `isolate` forces this panel to establish its own stacking context,
+          // so the accent's `-z-10` below is guaranteed to resolve against
+          // THIS element's own background — not against whatever the nearest
+          // ancestor that happens to establish a stacking context is, which
+          // without `isolate` could be several levels up (e.g. the white
+          // outer frame), silently painting the accent underneath it instead
+          // of just behind this panel's own black background.
+          "relative isolate flex h-full flex-col items-center overflow-hidden rounded-[var(--radius-card)] bg-black",
           compact ? "p-9" : "p-10",
         )}
       >
+        {/* Decorative only — see the file-level note above for why this is
+            inset near a corner at moderate opacity rather than centred. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-6 right-6 -z-10 size-48 opacity-35"
+          style={{ filter: "url(#gst-emerald)" }}
+        >
+          <Picture
+            source={testimonial.illustration}
+            alt=""
+            width={1360}
+            height={1360}
+            sizes="240px"
+            className="size-full object-contain"
+          />
+        </div>
+
         <StarRating rating={testimonial.rating} />
 
         <div className="flex flex-col items-center gap-5 pt-6 text-center">
