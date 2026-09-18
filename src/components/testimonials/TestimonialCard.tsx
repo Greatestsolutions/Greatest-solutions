@@ -8,73 +8,55 @@ import type { Testimonial } from "@/data/testimonials";
  * ## No photo
  *
  * The card used to lead with a circular portrait plus the same image blown up
- * and blurred behind it as a colour bleed — measured at 232x232 for the
- * avatar, blurred at 416x613 behind it. Neither client supplied a photograph,
- * and reusing the template's stock portraits for real client quotes would be
- * exactly the fabrication this rewrite exists to remove — a real quote sitting
- * under a photo of someone who never said it.
+ * and blurred behind it as a colour bleed. Neither client supplied a
+ * photograph, and reusing the template's stock portraits for real client
+ * quotes would be exactly the fabrication this rewrite exists to remove — a
+ * real quote sitting under a photo of someone who never said it.
  *
- * The rating replaces the photo as the card's visual anchor instead: real
- * data every review actually carries, drawn large enough to hold the same
- * visual weight the portrait used to. Removing the avatar also freed the
- * height budget the blurred bleed and the 232px circle used to spend, which
- * is what makes room for these quotes — real testimonials, not the one-line
- * placeholder the fixed-height card was tuned around.
- *
- * ## Layout
+ * ## Layout — back to a clean stack, illustration in its own slot
  *
  * ```
  *   card          360x557                     (354x551 compact)
  *     frame       padding 4 · radius 24 · white · --shadow-float-soft
  *       panel     352x549 · padding 40 · radius 20 · #000 · overflow hidden
- *         accent  decorative illustration, a large blurred wash behind the
- *                 top two-thirds of the panel
- *         stars   5 marks, filled per `rating`
- *         content padding-top 24 · gap 20
- *           h3    Fraunces 24 / 28 / −0.04em · white          (the quote)
- *           rule  1px · rgba(255,255,255,0.1)
+ *         stars       5 marks, filled per `rating`
+ *         illustration  size-40 (160px), its own space, no overlap
+ *         content     padding-top 24 · gap 20
+ *           h3        Fraunces 24 / 28 / −0.04em · white       (the quote)
+ *           rule      1px · rgba(255,255,255,0.1)
  *           attribution  Inter 16 / 500 / 24 · white
  * ```
  *
- * The compact variant only changes panel padding (36 vs 40) and card size, so
- * it stays a prop rather than a second component — unchanged from before.
+ * This went through three shapes before landing here, worth recording because
+ * the middle one looked fine in isolation and was still wrong:
  *
- * ## The accent — three iterations to get here
+ *   1. rating only, no illustration at all — legible but bare.
+ *   2. a large, heavily blurred illustration BEHIND everything, standing in for
+ *      the old avatar's "visual anchor" role. This read fine as a single card,
+ *      but a background wash sitting under the quote text was never actually
+ *      what a "photo slot" means — the photo occupied its OWN region of the
+ *      card, above the quote, not a tint behind it.
+ *   3. this — the illustration back in its own normal-flow slot between the
+ *      stars and the quote, sized to have real presence (160px, not shrunk to
+ *      an icon) but never touching the quote's own box. Nothing renders behind
+ *      the quote any more, which is also why the `isolate`/`-z-10` stacking
+ *      machinery the background version needed is gone: there is nothing left
+ *      for it to stack against.
  *
- * **v1 — small, sharp, inset near a corner.** Technically visible, but it read
- * as debris: a hard-edged shape sitting directly behind specific words mid
- * sentence ("strong combination", "Muhammad was nice") rather than a
- * considered background element. A small sharp shape competes with the text
- * it happens to overlap; a large soft one does not, which is the actual fix
- * below, not just "bigger".
+ * `object-contain` inside a plain square rather than a circular mask — these
+ * illustrations are off-centre sculpts on their own square canvas (confirmed
+ * by rendering one full-size while building the background version), and a
+ * circular crop would cut an asymmetric shape at an arbitrary, ugly edge. The
+ * site's own other uses of this art (hero, service cards) never mask it to a
+ * circle either; a square box is the established convention, not a shortcut.
  *
- * **v2 — this one — large, centred, heavily blurred.** `size-110` (440px) is
- * well past the ~352-360px panel width on every side, `blur-3xl` (64px)
- * removes every hard edge the shape itself has, and it is anchored `-top-16`
- * so it sits behind the stars and fades down into the upper two-thirds of the
- * panel rather than being a discrete positioned box. The combination is what
- * the hero and the `/services` intro's own illustration treatment already
- * rely on for the same reason: a shape this size, blurred this much, reads as
- * ambient presence rather than as a thing with edges — there is no longer a
- * single point where one word sits on a hard boundary between "shape" and
- * "no shape".
+ * Full opacity, no blur: in its own bounded slot with clean air on every side,
+ * this doesn't need to hide the way the background version did — it can just
+ * be shown, the same clarity `EmeraldFilter`'s other consumers already use.
  *
- * `filter: url(#gst-emerald)` is tuned for the WARM page background these
- * illustrations normally sit on — its ramp deliberately maps the artwork's own
- * near-white halo back to near-white, so the halo disappears into a light
- * page. On this card's black panel that halo does the opposite: it is the
- * brightest thing in the frame rather than invisible, which is exactly why it
- * still needs a real opacity value (30%) rather than the near-invisible one
- * (12%) the very first attempt used — measured directly against flat black
- * and confirmed not to read as anything at that level.
- *
- * `isolate` on the panel is unchanged from the previous pass and still load-
- * bearing at this size: without it, `-z-10` does not reliably mean "behind
- * this element's own background" — a `position:relative` element with no
- * explicit stacking context lets a negative-z-index descendant's stacking
- * resolve against a much higher ancestor instead, which is what silently
- * painted the accent under the white outer frame the first time this was
- * built. Re-confirmed at the new size rather than assumed to still hold.
+ * The compact variant only changes panel padding (36 vs 40), card size and the
+ * illustration box (144px vs 160px), so it stays a prop rather than a second
+ * component — unchanged from before.
  */
 export function TestimonialCard({
   testimonial,
@@ -95,23 +77,21 @@ export function TestimonialCard({
     >
       <div
         className={cn(
-          // `isolate` forces this panel to establish its own stacking context,
-          // so the accent's `-z-10` below is guaranteed to resolve against
-          // THIS element's own background — not against whatever the nearest
-          // ancestor that happens to establish a stacking context is, which
-          // without `isolate` could be several levels up (e.g. the white
-          // outer frame), silently painting the accent underneath it instead
-          // of just behind this panel's own black background.
-          "relative isolate flex h-full flex-col items-center overflow-hidden rounded-[var(--radius-card)] bg-black",
+          "flex h-full flex-col items-center overflow-hidden rounded-[var(--radius-card)] bg-black",
           compact ? "p-9" : "p-10",
         )}
       >
-        {/* Decorative only — see the file-level note above for why this is a
-            large, heavily blurred wash rather than the small sharp shape the
-            first pass at this used. */}
+        <StarRating rating={testimonial.rating} />
+
+        {/*
+          The illustration's own slot — a fixed box in normal flow, not
+          positioned or layered against anything. `mt-6`/`mb-2` give it real
+          air above and below so it reads as a distinct region rather than
+          crowding the stars or the quote that follows it.
+        */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-16 left-1/2 -z-10 size-110 -translate-x-1/2 opacity-30 blur-3xl"
+          className={cn("mt-6 mb-2 shrink-0", compact ? "size-36" : "size-40")}
           style={{ filter: "url(#gst-emerald)" }}
         >
           <Picture
@@ -119,14 +99,12 @@ export function TestimonialCard({
             alt=""
             width={1360}
             height={1360}
-            sizes="440px"
+            sizes="160px"
             className="size-full object-contain"
           />
         </div>
 
-        <StarRating rating={testimonial.rating} />
-
-        <div className="flex flex-col items-center gap-5 pt-6 text-center">
+        <div className="flex flex-col items-center gap-5 text-center">
           {/*
             `h3` under the section's `h2`. The reference uses `h6`, which skips
             three levels; the type is reproduced, the heading order is not.
