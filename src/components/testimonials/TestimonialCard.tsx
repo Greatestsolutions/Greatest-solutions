@@ -27,7 +27,8 @@ import type { Testimonial } from "@/data/testimonials";
  *   card          360x557                     (354x551 compact)
  *     frame       padding 4 · radius 24 · white · --shadow-float-soft
  *       panel     352x549 · padding 40 · radius 20 · #000 · overflow hidden
- *         accent  decorative illustration, inset near the top-right corner
+ *         accent  decorative illustration, a large blurred wash behind the
+ *                 top two-thirds of the panel
  *         stars   5 marks, filled per `rating`
  *         content padding-top 24 · gap 20
  *           h3    Fraunces 24 / 28 / −0.04em · white          (the quote)
@@ -38,35 +39,42 @@ import type { Testimonial } from "@/data/testimonials";
  * The compact variant only changes panel padding (36 vs 40) and card size, so
  * it stays a prop rather than a second component — unchanged from before.
  *
- * ## The corner accent
+ * ## The accent — three iterations to get here
+ *
+ * **v1 — small, sharp, inset near a corner.** Technically visible, but it read
+ * as debris: a hard-edged shape sitting directly behind specific words mid
+ * sentence ("strong combination", "Muhammad was nice") rather than a
+ * considered background element. A small sharp shape competes with the text
+ * it happens to overlap; a large soft one does not, which is the actual fix
+ * below, not just "bigger".
+ *
+ * **v2 — this one — large, centred, heavily blurred.** `size-110` (440px) is
+ * well past the ~352-360px panel width on every side, `blur-3xl` (64px)
+ * removes every hard edge the shape itself has, and it is anchored `-top-16`
+ * so it sits behind the stars and fades down into the upper two-thirds of the
+ * panel rather than being a discrete positioned box. The combination is what
+ * the hero and the `/services` intro's own illustration treatment already
+ * rely on for the same reason: a shape this size, blurred this much, reads as
+ * ambient presence rather than as a thing with edges — there is no longer a
+ * single point where one word sits on a hard boundary between "shape" and
+ * "no shape".
  *
  * `filter: url(#gst-emerald)` is tuned for the WARM page background these
  * illustrations normally sit on — its ramp deliberately maps the artwork's own
  * near-white halo back to near-white, so the halo disappears into a light
  * page. On this card's black panel that halo does the opposite: it is the
- * brightest thing in the frame rather than invisible. Three adjustments make
- * that work here instead of fighting the panel:
+ * brightest thing in the frame rather than invisible, which is exactly why it
+ * still needs a real opacity value (30%) rather than the near-invisible one
+ * (12%) the very first attempt used — measured directly against flat black
+ * and confirmed not to read as anything at that level.
  *
- *   - moderate opacity (35%) — low enough to sit behind the white quote text
- *     without eating its contrast, high enough that it actually reads as a
- *     shape rather than vanishing the way an even lower value did when this
- *     was first tried (measured directly: at 12% it was not visibly
- *     different from flat black in a pixel-level check);
- *   - INSET from the corner, not bled past the edge. Every one of these
- *     illustrations is a small sculpted form on a mostly-transparent square,
- *     off-centre within it — bleeding the box two-thirds off the panel (as
- *     first tried) put the visible window over the transparent margin around
- *     the shape, not the shape itself, which is why nothing showed up despite
- *     the maths otherwise looking right. Keeping the whole square inside the
- *     panel guarantees whatever the asset actually contains is on-card;
- *   - `isolate` on the panel. `-z-10` on its own does not reliably mean
- *     "behind this element's own background" — a `position:relative` element
- *     with no explicit stacking context lets a negative-z-index descendant's
- *     stacking resolve against a much higher ancestor instead (here, that
- *     silently put the accent under the white outer frame). `isolate` forces
- *     the panel to own its stacking context, so `-z-10` means what it looks
- *     like it means: behind this panel's black background, in front of
- *     nothing above it.
+ * `isolate` on the panel is unchanged from the previous pass and still load-
+ * bearing at this size: without it, `-z-10` does not reliably mean "behind
+ * this element's own background" — a `position:relative` element with no
+ * explicit stacking context lets a negative-z-index descendant's stacking
+ * resolve against a much higher ancestor instead, which is what silently
+ * painted the accent under the white outer frame the first time this was
+ * built. Re-confirmed at the new size rather than assumed to still hold.
  */
 export function TestimonialCard({
   testimonial,
@@ -98,11 +106,12 @@ export function TestimonialCard({
           compact ? "p-9" : "p-10",
         )}
       >
-        {/* Decorative only — see the file-level note above for why this is
-            inset near a corner at moderate opacity rather than centred. */}
+        {/* Decorative only — see the file-level note above for why this is a
+            large, heavily blurred wash rather than the small sharp shape the
+            first pass at this used. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-6 right-6 -z-10 size-48 opacity-35"
+          className="pointer-events-none absolute -top-16 left-1/2 -z-10 size-110 -translate-x-1/2 opacity-30 blur-3xl"
           style={{ filter: "url(#gst-emerald)" }}
         >
           <Picture
@@ -110,7 +119,7 @@ export function TestimonialCard({
             alt=""
             width={1360}
             height={1360}
-            sizes="240px"
+            sizes="440px"
             className="size-full object-contain"
           />
         </div>
