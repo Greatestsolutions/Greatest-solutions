@@ -4,35 +4,54 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { TestimonialCard } from "@/components/testimonials/TestimonialCard";
 import { TestimonialsFan } from "@/components/testimonials/TestimonialsFan";
 import { CountUp } from "@/components/testimonials/CountUp";
-import { stats, testimonials, testimonialsEyebrow, testimonialsTitle } from "@/data/testimonials";
+import {
+  stats,
+  testimonials,
+  testimonialsEyebrow,
+  testimonialsSupportingLine,
+  testimonialsTitle,
+} from "@/data/testimonials";
 
 /**
- * Client voices — three testimonials and a stats strip.
+ * Client voices — two real testimonials and a stats strip.
  *
- * **It is not a carousel on desktop, and the carousel it does have is broken.**
- * Both statements are measured; see TESTIMONIALS-SECTION.md §3–§4.
+ * ## Two cards, not three
+ *
+ * The reference (and every earlier pass of this rebuild) held three slots —
+ * first three fabricated endorsements, then three literal placeholders once
+ * those were removed. Real testimonials replace the placeholders now, and
+ * there are exactly two of them: padding to three with an invented third
+ * quote would have been the same fabrication this whole rewrite exists to
+ * remove, just one card later. See `data/testimonials.ts` for the source of
+ * both and the reasoning behind each excerpt and attribution.
+ *
+ * **It is not a carousel on desktop, and the carousel it does have is broken —
+ * that part of the original build's diagnosis carries over unchanged.**
  *
  * ```
- *   ≥1200   three 360x557 cards in a 1100 row, gap 10, fanned −14° / 0° / +10°
- *           and overlapping. The outer two animate in as the block arrives.
+ *   ≥1200   two 360x557 cards, side by side, tilted a matching −6°/+6° away
+ *           from centre and straightening on hover — both animate in as the
+ *           block arrives, reusing TestimonialsFan's entrance unchanged.
  *   <1200   ONE 354x551 card centred, the next peeking past the section edge
  * ```
  *
- * Below 1200 the reference builds a 1062px track behind a 354px window and then
- * ships no way to move it: no arrows, no dots, no autoplay (sampled 14s), no
- * keyboard. A real 600px drag moves the track 132px and it springs straight back
- * — measured with both mouse and touch. Testimonials 2 and 3 are unreachable.
+ * The tilt is deliberately gentler than the reference's three-card fan
+ * (−14°/+10°, asymmetric because a static centre card anchored the
+ * composition). Two cards have no centre card to anchor against, and at the
+ * original angles a symmetric pair without one read as leaning rather than
+ * fanned — the reduced, matched angle keeps the "a considered pair" reading
+ * the brief asked for without a third card propping the composition up.
  *
- * That is content the visitor cannot get to, so this build makes the same
- * composition work with a native scroll-snap track: swipe, trackpad, drag on the
- * scrollbar, and arrow keys once focused all advance it, and it costs **zero
- * JavaScript**. The resting layout is unchanged — same card, same size, same
- * position, same peek — so visual parity holds while the section stops hiding
- * two thirds of its content. Recorded as an intentional difference.
+ * Below 1200 the reference builds a track behind a narrow window and ships no
+ * way to move it: no arrows, no dots, no autoplay, no keyboard. This build
+ * makes the same composition work with a native scroll-snap track instead:
+ * swipe, trackpad, drag on the scrollbar, and arrow keys once focused all
+ * advance it, and it costs **zero JavaScript**. Unchanged by the count drop
+ * to two — the track already maps over `testimonials` generically rather than
+ * assuming three.
  *
- * The stats strip reads "0+ / 0% / 0+" in the reference and never counts up.
- * Reproduced exactly and flagged in `data/testimonials.ts`; those need real
- * numbers before launch.
+ * The stats strip below the cards is unrelated content, out of scope for this
+ * pass, and untouched; see the note in `data/testimonials.ts`.
  */
 export function Testimonials() {
   return (
@@ -57,6 +76,7 @@ export function Testimonials() {
               <br className="max-tablet:hidden" /> {testimonialsTitle[1]}
             </>
           }
+          description={testimonialsSupportingLine}
         />
 
         {/* ── ≥1200: the fan ────────────────────────────────────────────────── */}
@@ -83,9 +103,16 @@ export function Testimonials() {
               "group-data-[state=out]/fan:opacity-0"
             }
           />
-          <ul className="flex w-[1100px] items-center gap-2.5">
+          {/*
+            No fixed 1100px row: that width existed to host three overlapping,
+            rotated cards in exactly the reference's measured space. Two cards
+            with real gap between them (rather than overlap — see the fan[]
+            note below) have no equivalent reference to match, so this sizes
+            to its content instead of a number tuned for a different count.
+          */}
+          <ul className="flex items-center gap-8">
             {testimonials.map((testimonial, i) => (
-              <li key={testimonial.name} className={fan[i]}>
+              <li key={testimonial.attribution} className={fan[i]}>
                 <TestimonialCard testimonial={testimonial} />
               </li>
             ))}
@@ -117,7 +144,7 @@ export function Testimonials() {
             }
           >
             {testimonials.map((testimonial) => (
-              <li key={testimonial.name} className="snap-center">
+              <li key={testimonial.attribution} className="snap-center">
                 <TestimonialCard testimonial={testimonial} compact />
               </li>
             ))}
@@ -154,23 +181,31 @@ export function Testimonials() {
 }
 
 /**
- * The desktop fan, per slot.
+ * The desktop pair, per slot.
  *
- * Rotation is about a point near each outer card's INNER edge — measured
- * transform-origins of 338.4px and 25.2px on a 360px card, i.e. 94% and 7%, both
- * at 45% of the height. That is what makes them splay outward from the centre
- * card rather than pinwheel about their own middles.
+ * Two cards, tilted a matching −6°/+6° away from a shared centre point between
+ * them, rather than the reference's three-card fan (−14°/+10°, asymmetric,
+ * splayed around a static, unrotated middle card). With no middle card to
+ * anchor against, the original angles read as the pair leaning rather than
+ * fanning; halving them roughly and making them symmetric keeps the "outward"
+ * reading without a static third card holding the composition together.
  *
- * The `group-data-[state=out]` values are the measured start of the entrance:
- * −9° at (32, 32) and +5° at (−32, 32). Written as literal class strings because
- * Tailwind reads them at build time.
+ * Rotation is still about each card's INNER edge (94% / 7%, both at 45% of the
+ * height) — the same transform-origins the reference's outer cards used, kept
+ * because it is still exactly the right pivot: the point nearest the OTHER
+ * card, so the pair still splays apart from between them rather than each
+ * card spinning about its own middle.
+ *
+ * The entrance keeps the same shape as before — start closer to flat and
+ * closer together, spread out to the resting tilt as the block arrives —
+ * scaled to the smaller resting angle rather than reusing the original's
+ * absolute offsets, which were tuned for a −14°/+10° rest position.
  */
 const fan = [
-  "origin-[94%_45%] rotate-[-14deg] transition-transform duration-[var(--duration-entrance)] ease-[var(--ease-entrance)] " +
-    "group-data-[state=out]/fan:rotate-[-9deg] group-data-[state=out]/fan:translate-x-8 group-data-[state=out]/fan:translate-y-8 " +
+  "origin-[94%_45%] rotate-[-6deg] transition-transform duration-[var(--duration-entrance)] ease-[var(--ease-entrance)] " +
+    "group-data-[state=out]/fan:rotate-[-3deg] group-data-[state=out]/fan:translate-x-6 group-data-[state=out]/fan:translate-y-6 " +
     "motion-reduce:transition-none",
-  "",
-  "origin-[7%_45%] rotate-[10deg] transition-transform duration-[var(--duration-entrance)] ease-[var(--ease-entrance)] " +
-    "group-data-[state=out]/fan:rotate-[5deg] group-data-[state=out]/fan:-translate-x-8 group-data-[state=out]/fan:translate-y-8 " +
+  "origin-[7%_45%] rotate-[6deg] transition-transform duration-[var(--duration-entrance)] ease-[var(--ease-entrance)] " +
+    "group-data-[state=out]/fan:rotate-[3deg] group-data-[state=out]/fan:-translate-x-6 group-data-[state=out]/fan:translate-y-6 " +
     "motion-reduce:transition-none",
 ];

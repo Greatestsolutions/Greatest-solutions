@@ -1,109 +1,97 @@
-import type { ImageSource } from "@/types/media";
-
 /**
  * Client testimonials — `Section - Client` in the reference (the export gives that
  * name to BOTH this block and the logo strip; this is the lower of the two).
  *
- * Three testimonials and a three-figure stats row. Copy is transcribed from the
- * reference, with one deliberate substitution — see `quote` below.
+ * ## What used to be here
+ *
+ * This held three fabricated endorsements transcribed from the template
+ * (Daniel Carter of NovaTech, Ethan Walker of Lumina Labs, Marcus Rivera of
+ * Horizon Collective), removed for the same reason the fake clients and fake
+ * pricing were: attributing invented praise to invented people is the least
+ * defensible content a business site can ship. It was then replaced with
+ * three literal placeholder slots ("Client quote goes here…" / "Client name" /
+ * "Role · Company") specifically so the section's mechanics — the fan, the
+ * carousel, the entrance animation — kept running without claiming a customer
+ * who does not exist, on the understanding that real testimonials would
+ * eventually replace them rather than get invented to fill the gap.
+ *
+ * ## What is here now
+ *
+ * Two real client reviews, both 5.0/5. Real testimonials, not photographs of
+ * the clients who wrote them — no photo of either person exists in this
+ * project, so nothing stands in for one; see `TestimonialCard` for how the
+ * card replaces a portrait with the rating itself as its visual anchor.
+ *
+ * The first review is excerpted, not reproduced in full — the source is a
+ * six-paragraph review, far past what a pull-quote card can hold, and the
+ * hard rule for an excerpt is the same as everywhere else on this site:
+ * whatever is quoted is quoted verbatim, nothing paraphrased or added. The
+ * sentence below is a single unmodified sentence lifted from the middle of
+ * that review, not a combination of fragments.
+ *
+ * Attribution is exactly as honest as the source: the first reviewer's name
+ * was never given, only the project ("AITube"), so the card says that and
+ * nothing more specific. The second reviewer gave neither a name nor a
+ * project, so it is attributed as a verified client review — not a company,
+ * not a role, because neither exists to attribute it to.
  */
 export interface Testimonial {
+  /** A verbatim quote or excerpt — never paraphrased, never combined from
+   *  non-adjacent sentences. */
   quote: string;
-  name: string;
-  /** Role and company, as one line, exactly as the reference renders it. */
-  role: string;
-  avatar: ImageSource;
-  /** Intrinsic pixels of the source file, for the `Picture` contract. */
-  width: number;
-  height: number;
+  /** Whatever can honestly be said about who wrote it — a name, a project, or
+   *  "Verified client" when neither exists. Never invented beyond the source. */
+  attribution: string;
+  /** Out of 5. Both reviews this data currently holds are a perfect score;
+   *  the field is a number rather than a hardcoded "5.0" string so a future
+   *  review with a different score needs no component change. */
+  rating: number;
 }
 
-
-/**
- * **Two of these quotes name "Orionix" in the reference** — the template's own
- * brand, which this project exists to replace. Reproducing that verbatim would
- * put a competitor's name in our clients' mouths, so the brand token is swapped
- * and nothing else is touched:
- *
- *   "Orionix transformed our brand and website into a powerful growth engine."
- *   "Orionix helped us clarify our brand and launch confidently."
- *
- * The names, roles and companies are the template's invented ones. They are
- * plausible-looking fiction, not real clients, and **must be replaced with real
- * testimonials before launch** — flagged here rather than quietly shipped.
- */
-/**
- * EMPTY. This held three fabricated endorsements — Daniel Carter of NovaTech,
- * Ethan Walker of Lumina Labs, Marcus Rivera of Horizon Collective — transcribed
- * from the template. Attributing invented praise to invented people at invented
- * companies is the least defensible content on a business site, so the records
- * are gone rather than dormant.
- *
- * Real, attributed testimonials go here; the fan, its entrance animation and the
- * hairlines behind it are all still in place.
- */
-const avatar = (slug: string): ImageSource => ({
-  avif: `/testimonials/${slug}.avif`,
-  webp: `/testimonials/${slug}.webp`,
-  fallback: `/testimonials/${slug}.png`,
-});
-
-/**
- * PLACEHOLDER ENTRIES — the section's mechanics, not its content.
- *
- * This previously held three fabricated endorsements (Daniel Carter of NovaTech,
- * Ethan Walker of Lumina Labs, Marcus Rivera of Horizon Collective) transcribed
- * from the template, which is why they were removed in task 4.3.
- *
- * The section is restored here so the fan entrance, the hairlines, the carousel
- * and the count-up all run again — but the names and quotes are explicitly
- * placeholders rather than invented people, so nothing on the page claims a
- * customer who does not exist. Replacing them is an edit to this array alone;
- * the components need no changes.
- *
- * The avatar images are the template's generic portrait renders, reused as
- * neutral placeholder art. Swap them with real photographs alongside the copy.
- */
 export const testimonials: Testimonial[] = [
   {
-    quote: "Client quote goes here — what the project was, and what changed once it shipped.",
-    name: "Client name",
-    role: "Role · Company",
-    avatar: avatar("daniel-carter"),
-    width: 232,
-    height: 232,
+    /* One sentence from the middle of a six-paragraph review of work on
+       "AITube" (an AI video platform) — the full text describes prompt
+       engineering, cinematic style and revision quality in more depth than a
+       card can hold. This sentence was picked over the review's closing
+       recommendation (also a strong standalone candidate — see the redo
+       report) for reading as a complete, self-contained claim on its own. */
+    quote:
+      "He proved to be a highly skilled AI content creator with a strong combination of technical expertise and creative storytelling ability.",
+    attribution: "Client, AITube",
+    rating: 5.0,
   },
   {
-    quote: "Client quote goes here — what the project was, and what changed once it shipped.",
-    name: "Client name",
-    role: "Role · Company",
-    avatar: avatar("ethan-walker"),
-    width: 232,
-    height: 232,
-  },
-  {
-    quote: "Client quote goes here — what the project was, and what changed once it shipped.",
-    name: "Client name",
-    role: "Role · Company",
-    avatar: avatar("marcus-rivera"),
-    width: 232,
-    height: 232,
+    /* Used in full — the entire review is already the length of a pull-quote,
+       so there was nothing to excerpt. */
+    quote: "Working with Muhammad was nice. Great communication, good ai work and matching deadlines. Thanks Muhammad.",
+    attribution: "Verified client",
+    rating: 5.0,
   },
 ];
 
+/**
+ * A small supporting line under the section heading — real aggregate data
+ * (endorsement counts across every completed job on the review platform),
+ * not a third invented voice. Deliberately just a sentence in the header's
+ * existing `description` slot rather than a rendered count or a chart: the
+ * two cards below are the actual evidence, this is one line of context
+ * above them, and forcing the raw per-tag counts (Committed to Quality 6,
+ * Reliable 6, Collaborative 5, …) into the heading would read as a bolted-on
+ * stats widget competing with the real stats strip already under the cards.
+ */
+export const testimonialsSupportingLine = "Rated 5.0 across every completed project.";
 
 /**
- * The stats strip under the cards.
+ * The stats strip under the cards. Unrelated to the testimonial content above
+ * and out of scope for this rewrite — values, labels and layout all untouched.
  *
- * **Every value in the reference is zero** — "0+ Projects Delivered",
- * "0% Industries Impacted", "0+ Years of Experience". Verified by scrolling the
- * row into the middle of the viewport and sampling for 5 seconds: nothing counts
- * up, and both stacked digit layers read "0". These are unconfigured template
- * placeholders, the same class of residue as the repeated FAQ answer.
- *
- * Reproduced exactly so the layout matches, and flagged: **real numbers are
- * needed before launch.** The suffixes are the reference's own, including the
- * odd "%" on a count of industries.
+ * The reference's own copy of this row reads "0+ / 0% / 0+" and never counts
+ * up — unconfigured template placeholders. These three values were filled in
+ * at some point after that was first documented; whether they are the
+ * business's real, confirmed figures or still provisional is a separate
+ * question from the testimonials task this file was touched for, so it is
+ * left exactly as found.
  */
 export interface Stat {
   value: number;
