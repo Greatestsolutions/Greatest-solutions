@@ -35,20 +35,44 @@ import { projects, type Project } from "@/data/works";
 /**
  * The quick-search keywords.
  *
- * Every one is a real value from the works data, and every one returns more than
- * one project — the only four in the set that do:
+ * Rebuilt from scratch once the six placeholder/sample entries (PriceWatch,
+ * DocChat AI, PolicAI, LinkedIn Job Scraper, FlipSense, ComixHub) were
+ * retired — the previous set (Python, RAG, Web Scraping, Automation) was
+ * built entirely around tags and technologies belonging to those six, and
+ * none of it survives them: a click on any of the four would have returned
+ * either zero results or, worse, real projects that were never actually
+ * tagged with the term.
  *
- *   Python        3   PriceWatch · LinkedIn Job Scraper · FlipSense
- *   RAG           2   DocChat AI · PolicAI
- *   Web Scraping  2   PriceWatch · LinkedIn Job Scraper
- *   Automation    2   PriceWatch · LinkedIn Job Scraper
+ * Same principle as before — a real `tags[]` value that matches 2+ projects,
+ * `technologies[]` checked too but empty on every current entry — with one
+ * addition: preferring values that don't just restate a bigger chip. Three
+ * qualify:
  *
- * There is no fifth worth adding. The only value that would widen coverage is
- * "Front-end", which reaches exactly one project (ComixHub) — a one-result chip
- * advertises a filter that barely filters, so it is left out rather than padded
- * to five. Revisit once the portfolio grows.
+ *   App Design      9   Cryptocurrency App · Cricket Live App · Accounting
+ *                       Desktop App · Food Delivery Branding · Streaming
+ *                       Service Identity · Trading Platform · Automotive
+ *                       Services · Accounting Mobile App · E-commerce Store
+ *   Brand Identity  7   Eyewear Campaign Identity · Fitness Product Branding
+ *                       · Playful Toy Branding · Skincare Identity Design ·
+ *                       Food Delivery Branding · Streaming Service Identity
+ *                       · Digital Design Agency
+ *   Web Design      2   Real Estate Website · Digital Design Agency
+ *
+ * Three more real values clear the 2+ bar — "Fintech UI" (Cryptocurrency App,
+ * Trading Platform), "Financial Tools" (the two Accounting entries) and
+ * "Packaging" (the two branding-with-packaging entries) — but each is a pure
+ * subset of a chip already above it: every project either would match, App
+ * Design or Brand Identity already surfaces. A chip that never adds a result
+ * the bigger one didn't already give is the same "barely filters" problem
+ * the old one-result "Front-end" value was left out for, so these are left
+ * out too rather than padded on to hit five. "Web Design" clears the same bar
+ * cleanly: neither of its two projects carries "App Design" or "Brand
+ * Identity", so it is the one addition that actually widens coverage.
+ *
+ * Three chips, not the four this replaces — the honest count once forcing a
+ * fourth meant picking a value that duplicates one already there.
  */
-const KEYWORDS = ["Python", "RAG", "Web Scraping", "Automation"] as const;
+const KEYWORDS = ["App Design", "Brand Identity", "Web Design"] as const;
 
 /**
  * One lowercase haystack per project, built once.
@@ -223,7 +247,7 @@ export function WorksIndex() {
                   pressing this will actually do. An `sr-only` child rather than
                   an `aria-label` prop, because `ButtonProps` is a closed list and
                   widening the shared component for one caller is the wrong trade. */}
-              <span className="sr-only"> projects — {hidden} remaining</span>
+              <span className="sr-only"> projects, {hidden} remaining</span>
             </Button>
           </div>
         ) : null}
@@ -243,9 +267,9 @@ function EmptyState({ query, onClear }: { query: string; onClear: () => void }) 
         No matches
       </p>
       <p className="max-w-[56ch] text-body-lg text-body">
-        Nothing in the work matches “{query}”. The portfolio is six projects deep, so a
-        narrow term will often come back empty — try a broader one, or clear the search to
-        see everything.
+        Nothing in the work matches “{query}”. The portfolio is {projects.length} projects deep,
+        so a narrow term will often come back empty. Try a broader one, or clear the search
+        to see everything.
       </p>
       <button
         type="button"

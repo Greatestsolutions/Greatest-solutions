@@ -100,9 +100,9 @@ export const services: Service[] = [
     illustration: illustration("web-development"),
     timeline: "21-day rollout",
     problem:
-      "Missed calls are missed revenue. Front desks can't answer every call, especially after hours or during rushes — and the businesses that feel this hardest lose bookings to whichever competitor picks up first.",
+      "Missed calls are missed revenue. Front desks can't answer every call, especially after hours or during rushes, and the businesses that feel this hardest lose bookings to whichever competitor picks up first.",
     build:
-      "A custom-scripted AI voice agent that answers, qualifies, and books directly into your calendar — built around your actual call flow, not a generic script.",
+      "A custom-scripted AI voice agent that answers, qualifies, and books directly into your calendar, built around your actual call flow, not a generic script.",
     roadmap: [
       { name: "Discovery & Call Mapping", days: "Days 1–3", items: ["Audit current call flow", "Identify FAQs & edge cases", "Map booking logic"] },
       { name: "Agent Strategy & Persona", days: "Days 4–7", items: ["Voice & tone design", "Conversation structure", "Escalation rules"] },
@@ -135,7 +135,7 @@ export const services: Service[] = [
       { label: "After-hours response", before: 15, after: 85 },
     ],
     support:
-      "Your Account Manager reviews real call transcripts weekly for the first month, then monthly after that — tuning responses as your business evolves.",
+      "Your Account Manager reviews real call transcripts weekly for the first month, then monthly after that, tuning responses as your business evolves.",
   },
   {
     slug: "vertical-automation",
@@ -146,9 +146,9 @@ export const services: Service[] = [
     illustration: illustration("digital-marketing"),
     timeline: "28-day rollout",
     problem:
-      "Off-the-shelf automation tools assume every business works the same way. Generic automation breaks the moment it hits real operational complexity — legal intake isn't dental scheduling.",
+      "Off-the-shelf automation tools assume every business works the same way. Generic automation breaks the moment it hits real operational complexity: legal intake isn't dental scheduling.",
     build:
-      "A custom-built automation system covering intake, follow-up, handoffs, and reporting — architected around your industry's specific rules, not a template.",
+      "A custom-built automation system covering intake, follow-up, handoffs, and reporting, architected around your industry's specific rules, not a template.",
     roadmap: [
       { name: "Workflow Audit", days: "Days 1–5", items: ["Map manual steps", "Identify handoffs", "Flag reporting gaps"] },
       { name: "System Architecture", days: "Days 6–10", items: ["Design around industry rules", "Compliance mapping", "Integration plan"] },
@@ -186,14 +186,14 @@ export const services: Service[] = [
     slug: "ai-lead-generation",
     title: "AI Lead Generation",
     description:
-      "Every lead followed up in minutes, not days — managed by a real growth team.",
+      "Every lead followed up in minutes, not days, managed by a real growth team.",
     tags: ["Multi-channel", "Follow-up", "CRM"],
     illustration: illustration("social-content"),
     timeline: "30-day rollout",
     problem:
       "Most businesses lose 60–70% of leads simply through slow or inconsistent follow-up. By the time a rep calls back, the prospect has already booked with someone else.",
     build:
-      "A multi-channel follow-up system — SMS, email, and voice — timed to industry-specific buying behavior, connected directly into your CRM.",
+      "A multi-channel follow-up system (SMS, email, and voice) timed to industry-specific buying behavior, connected directly into your CRM.",
     roadmap: [
       { name: "Lead Flow Audit", days: "Days 1–4", items: ["Source mapping", "Response-time baseline", "CRM review"] },
       { name: "Follow-Up Architecture", days: "Days 5–8", items: ["Channel sequencing", "Message strategy", "Qualification logic"] },
@@ -230,12 +230,12 @@ export const services: Service[] = [
     slug: "ai-content-social",
     title: "AI Content & Social",
     description:
-      "Consistent, on-brand content across every platform — directed by a real content team.",
+      "Consistent, on-brand content across every platform, directed by a real content team.",
     tags: ["Content Calendar", "Social", "Human Review"],
     illustration: illustration("product-design"),
     timeline: "Ongoing, weekly batches",
     problem:
-      "Consistent content production is one of the biggest time drains for growing businesses — and inconsistency kills algorithmic reach and brand trust alike.",
+      "Consistent content production is one of the biggest time drains for growing businesses, and inconsistency kills algorithmic reach and brand trust alike.",
     build:
       "A monthly content calendar and platform-native posts, drafted with AI assistance and edited, fact-checked, and approved by a human before publishing.",
     roadmap: [
@@ -267,7 +267,7 @@ export const services: Service[] = [
       { label: "Monthly content output", before: 25, after: 75 },
     ],
     support:
-      "Your Content Strategist reviews what's resonating every month and adjusts the calendar — no static plan running on autopilot.",
+      "Your Content Strategist reviews what's resonating every month and adjusts the calendar: no static plan running on autopilot.",
   },
   {
     slug: "ai-video-ugc",
@@ -278,7 +278,7 @@ export const services: Service[] = [
     illustration: illustration("brand-identity"),
     timeline: "20-day cycle",
     problem:
-      "Video is the highest-converting content format, but traditional production — crews, editors, weeks-long turnaround — is slow and expensive.",
+      "Video is the highest-converting content format, but traditional production (crews, editors, weeks-long turnaround) is slow and expensive.",
     build:
       "A batch of platform-ready videos, scripted by a human copywriter and finished by a human editor, with AI accelerating generation and first-pass editing.",
     roadmap: [
@@ -309,7 +309,7 @@ export const services: Service[] = [
       { label: "Monthly video output", before: 20, after: 70 },
     ],
     support:
-      "Two revision rounds are included on every batch — your Creative Producer stays involved through final delivery, not just the brief.",
+      "Two revision rounds are included on every batch, and your Creative Producer stays involved through final delivery, not just the brief.",
   },
   {
     slug: "ai-copy-sales-pages",
@@ -320,7 +320,7 @@ export const services: Service[] = [
     illustration: illustration("web-development"),
     timeline: "15-day cycle",
     problem:
-      "Weak copy is one of the most common — and most fixable — reasons offers underperform. Most businesses either write it themselves without conversion expertise, or hire freelancers with inconsistent quality.",
+      "Weak copy is one of the most common, and most fixable, reasons offers underperform. Most businesses either write it themselves without conversion expertise, or hire freelancers with inconsistent quality.",
     build:
       "Full sales or landing page copy, researched and structured by a dedicated copywriter, with AI used to rapidly test angles and headlines.",
     roadmap: [
@@ -359,7 +359,7 @@ export const services: Service[] = [
     illustration: illustration("digital-marketing"),
     timeline: "3–6 month retainer",
     problem:
-      "SEO content requires consistent volume and quality over months to work — a combination most businesses can't sustain in-house, and most cheap AI content mills fail at.",
+      "SEO content requires consistent volume and quality over months to work, a combination most businesses can't sustain in-house, and most cheap AI content mills fail at.",
     build:
       "A keyword-driven content calendar and human-edited, SEO-optimized articles published on a consistent weekly cadence.",
     roadmap: [
@@ -389,13 +389,13 @@ export const services: Service[] = [
       { label: "Organic visibility (6mo)", before: 20, after: 65 },
     ],
     support:
-      "This is a compounding retainer, not a one-time build — the objective is growing organic visibility and qualified traffic over time, not an overnight ranking jump.",
+      "This is a compounding retainer, not a one-time build: the objective is growing organic visibility and qualified traffic over time, not an overnight ranking jump.",
   },
   {
-    slug: "ai-websites",
-    title: "AI Websites",
+    slug: "web-development",
+    title: "Web Development",
     description:
-      "Fast, professional websites — designed by a real team and built with AI-accelerated development.",
+      "Fast, professional websites, designed by a real team and built with AI-accelerated development.",
     tags: ["Web Design", "Responsive Build", "UX & QA"],
     illustration: illustration("social-content"),
     timeline: "28-day build",
@@ -430,7 +430,7 @@ export const services: Service[] = [
       { label: "Build turnaround", before: 90, after: 30 },
     ],
     support:
-      "A 30-day post-launch support window is included — after that, an optional monthly care plan covers updates, backups, and small changes.",
+      "A 30-day post-launch support window is included. After that, an optional monthly care plan covers updates, backups, and small changes.",
   },
   {
     slug: "ai-email-brand",
@@ -441,7 +441,7 @@ export const services: Service[] = [
     illustration: illustration("product-design"),
     timeline: "19-day build",
     problem:
-      "Most businesses either neglect email entirely or send generic, inconsistent messaging that doesn't reflect their brand — leaving one of the highest-ROI channels underused.",
+      "Most businesses either neglect email entirely or send generic, inconsistent messaging that doesn't reflect their brand, leaving one of the highest-ROI channels underused.",
     build:
       "Documented brand voice plus built-out welcome, nurture, and campaign email sequences, drafted with AI and finalized by a human copywriter.",
     roadmap: [
@@ -473,7 +473,7 @@ export const services: Service[] = [
       { label: "Click-through rate", before: 30, after: 68 },
     ],
     support:
-      "Your Brand Strategist reviews open and click data monthly and refines messaging — the sequences aren't static once they launch.",
+      "Your Brand Strategist reviews open and click data monthly and refines messaging: the sequences aren't static once they launch.",
   },
   {
     slug: "pitch-decks",
@@ -484,9 +484,9 @@ export const services: Service[] = [
     illustration: illustration("brand-identity"),
     timeline: "17-day build",
     problem:
-      "A weak deck can kill a strong business — whether pitching investors, closing enterprise clients, or presenting internally.",
+      "A weak deck can kill a strong business, whether pitching investors, closing enterprise clients, or presenting internally.",
     build:
-      "A fully designed, narrative-driven pitch deck — story arc built by a strategist, copy drafted with AI assistance, visuals finished by a designer.",
+      "A fully designed, narrative-driven pitch deck: story arc built by a strategist, copy drafted with AI assistance, visuals finished by a designer.",
     roadmap: [
       { name: "Narrative Strategy", days: "Days 1–4", items: ["Story arc", "Problem → solution → ask"] },
       { name: "Content Draft", days: "Days 5–7", items: ["AI-assisted drafting", "Structure refinement"] },

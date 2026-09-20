@@ -30,7 +30,7 @@ export default function ContactPage() {
       <PageHeader
         eyebrow="Contact"
         title="Tell us what you are building"
-        description="Send us the shape of the problem — timeline, stack, what it has to work with — and we will reply with how we would approach it."
+        description="Send us the shape of the problem: timeline, stack, what it has to work with. We'll reply with how we'd approach it."
       />
 
       <Section spacing="compact">
@@ -55,7 +55,7 @@ export default function ContactPage() {
                 What to expect
               </h2>
               <ul className="flex flex-col gap-2 text-body-lg text-body">
-                <li>We read every enquiry ourselves — no intake form routing.</li>
+                <li>We read every enquiry ourselves: no intake form routing.</li>
                 <li>You get a reply with how we would approach it, not a brochure.</li>
                 <li>If we are not the right fit, we will say so.</li>
               </ul>

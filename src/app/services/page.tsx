@@ -85,7 +85,7 @@ export default function ServicesPage() {
             </Pill>
             <h2 className="text-heading-lg text-ink">AI solutions built around your business</h2>
             <p className="text-body-lg text-body">
-              We use AI to make businesses smarter, faster, and more efficient — without losing the
+              We use AI to make businesses smarter, faster, and more efficient, without losing the
               human thinking behind every decision.
             </p>
             <p className="text-body-lg text-body">
@@ -127,14 +127,10 @@ export default function ServicesPage() {
             column use.
 
             `filter: url(#gst-emerald)` WITHOUT rendering `<EmeraldFilter />`
-            here: that SVG lives once per document by id, and
-            `<ServicesCarousel />` below already renders it on this exact
-            page (replacing the arc-scroller `<Services />`, which used to be
-            the one that provided it). SVG filter references resolve by id
-            regardless of where in the DOM they sit, so this works — but it
-            is a real dependency on that element existing somewhere on the
-            page, not an accident. Rendering a second copy here would
-            collide on the same `id="gst-emerald"` instead.
+            here: that SVG now lives once per document, in `PageShell`, so
+            every route gets the definition regardless of which sections it
+            renders. Rendering a second copy here would collide on the same
+            `id="gst-emerald"` instead.
 
             Centred in an OUTER `flex-1 justify-center` wrapper, not centred
             by construction of the row itself. The row is `text (auto width) +
@@ -155,9 +151,8 @@ export default function ServicesPage() {
               name.
 
               `ServiceArt` deliberately does NOT render `<EmeraldFilter />`. That
-              SVG lives once per document by id, and `<ServicesCarousel />` below
-              already renders it on this page; a second copy would collide on
-              `id="gst-emerald"`.
+              SVG lives once per document, in `PageShell`; a second copy here
+              would collide on `id="gst-emerald"`.
             */}
             <ServiceArt
               source={introArt}

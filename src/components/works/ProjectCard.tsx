@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
+import { PlayButton } from "@/components/works/PlayButton";
 import { THUMB_HEIGHT, THUMB_WIDTH, type Project } from "@/data/works";
 
 /**
@@ -165,6 +166,18 @@ export function ProjectCard({
               </div>
             )}
           </div>
+
+          {/* A real video: the play button is the primary reason to visit
+              this card, so it sits centred and always visible rather than
+              behind the same hover-only reveal as "View details" below.
+              `z-20` for the same reason the second action below needs it —
+              above the stretched link's `z-10`, and a sibling of it rather
+              than nested inside it, so the click can only ever reach one. */}
+          {project.media?.type === "video" && (
+            <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center">
+              <PlayButton project={project} className="pointer-events-auto" />
+            </div>
+          )}
         </div>
 
         {/*

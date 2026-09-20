@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist_Mono, Inter } from "next/font/google";
 import { ContactModalProvider } from "@/components/contact/ContactModal";
+import { VideoModalProvider } from "@/components/works/VideoModal";
 import { site, siteUrl } from "@/config/site";
 import "./globals.css";
 
@@ -36,7 +37,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const title = `${site.name} — ${site.tagline}`;
+const title = `${site.name} · ${site.tagline}`;
 
 /**
  * Metadata is derived from `config/site.ts` rather than written inline. The
@@ -102,7 +103,9 @@ export default function RootLayout({
           cards. The provider renders nothing until something opens it; the dialog
           itself is portalled to <body>, above everything including the nav.
         */}
-        <ContactModalProvider>{children}</ContactModalProvider>
+        <ContactModalProvider>
+          <VideoModalProvider>{children}</VideoModalProvider>
+        </ContactModalProvider>
       </body>
     </html>
   );

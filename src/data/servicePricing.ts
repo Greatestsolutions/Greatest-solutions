@@ -360,7 +360,7 @@ export const servicePricing: Record<string, PricingPlan[]> = {
     },
   ],
 
-  "ai-websites": [
+  "web-development": [
     {
       name: "Website Build",
       description: "A custom-designed, mobile-responsive website, from discovery through launch.",
@@ -398,7 +398,7 @@ export const servicePricing: Record<string, PricingPlan[]> = {
          reworded for the sake of being different. Only the last bullet is
          specific to this service, from its own 30-day post-launch window. */
       name: "Support & Maintenance",
-      description: "Keeping an existing site healthy — updates, monitoring and small improvements.",
+      description: "Keeping an existing site healthy: updates, monitoring and small improvements.",
       benefits: [
         "Dependency & security updates",
         "Monitoring and fixes",
@@ -473,7 +473,7 @@ export const servicePricing: Record<string, PricingPlan[]> = {
          monthly retainer. */
       name: "Deck Refresh & Iteration",
       description:
-        "For decks that need to evolve as your traction, metrics or ask change — a lighter engagement than a full rebuild.",
+        "For decks that need to evolve as your traction, metrics or ask change: a lighter engagement than a full rebuild.",
       benefits: [
         "Narrative & metrics updated for a new raise or audience",
         "Existing visual system reused, not rebuilt from scratch",

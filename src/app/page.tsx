@@ -1,7 +1,5 @@
 import { PageShell } from "@/components/layout/PageShell";
-import { Blog } from "@/components/sections/Blog";
 import { FAQ } from "@/components/sections/FAQ";
-import { LogoStrip } from "@/components/sections/LogoStrip";
 import { Hero } from "@/components/sections/Hero";
 import { Process } from "@/components/sections/Process";
 import { Services } from "@/components/sections/Services";
@@ -22,17 +20,30 @@ import { Works } from "@/components/sections/Works";
  * unreferenced, the same treatment `Blog`'s removal from the nav got.
  */
 /*
- * LogoStrip and Testimonials are both restored. Their content is the template's,
- * not Greatest Solutions' — see the notes in clients.ts and testimonials.ts.
+ * LogoStrip is off the page. `clientRows` in `data/clients.ts` held eight of
+ * the template's own company names under "Trusted by world-leading
+ * enterprises" — a claim about those companies as well as about Greatest
+ * Solutions, and unsupportable either way. That array has now been emptied
+ * twice; see its own file for why a second pass was needed and why the names
+ * themselves aren't repeated here either. The component, `Marquee` and the
+ * measured row/cell/ticker geometry are all untouched on disk — restoring the
+ * section is re-adding one `<LogoStrip />` line here once real client logos
+ * exist.
  *
- * LogoStrip presented template companies under "Trusted by world-leading
- * enterprises", and Testimonials carried three invented people at invented
- * companies plus a 54+/96%/12+ stats strip. All of it is a claim about Greatest
- * Solutions that cannot be supported, so it is off the page rather than reworded.
+ * Testimonials, unlike LogoStrip, stays on the page: `data/testimonials.ts`
+ * no longer carries the template's three invented people — it holds two real,
+ * attributed client reviews. The stats strip beneath the cards (54+/96%/12+)
+ * is a separate question a prior pass flagged as unconfirmed and deliberately
+ * left alone; see that file's own comment rather than this one for its status.
  *
- * Both components, their data files and their animations are untouched on disk —
- * restoring either is re-adding one line here once real logos or real, attributed
- * testimonials exist.
+ * `Blog` (the "Notes" section — eyebrow "Notes", "Notes from our work and
+ * thinking") is also gone from here, same treatment: no articles exist yet, and
+ * a "Coming soon" panel on the homepage itself reads as unfinished rather than
+ * as the honest empty state it is one level down. `/blog` is untouched — the
+ * route, `Blog.tsx` and `data/blog.ts` are all still there, and the route
+ * renders that same component (`showHeader={false} showCta={false}`) with its
+ * own "Coming soon" state intact for anyone who visits it directly. Restoring
+ * this is re-adding one `<Blog />` line here once real posts exist.
  */
 export default function Home() {
   return (
@@ -48,7 +59,6 @@ export default function Home() {
      */
     <PageShell>
         <Hero />
-        <LogoStrip />
         <Showreel />
         {/* The homepage cards carry the second "Start this service" action; the
             /works listing renders the same section without it. */}
@@ -56,7 +66,6 @@ export default function Home() {
         <Services />
         <Process />
         <Testimonials />
-        <Blog />
         <FAQ />
     </PageShell>
   );

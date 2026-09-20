@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { ConnectorArrowhead } from "@/components/ui/ConnectorArrowhead";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { DeliverablesList } from "@/components/services/DeliverablesList";
-import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { OutcomeChart } from "@/components/services/OutcomeChart";
 import { PageShell } from "@/components/layout/PageShell";
 import { ServiceArt } from "@/components/services/ServiceArt";
@@ -113,8 +112,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
   return (
     <PageShell>
-      {/* The emerald ramp the masthead and CTA artwork are painted through. */}
-      <EmeraldFilter />
+      {/* The emerald ramp the masthead and CTA artwork are painted through —
+          `<EmeraldFilter />` now renders once, globally, in `PageShell`. */}
 
       {/*
         Scroll reveals are `whileInView`, which means motion renders their hidden
@@ -428,7 +427,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                     here and read as a bare arrow with no visible surface — a
                     link, not a second action — beside a solid primary pill.
                     `tone="light"` is the site's own secondary-button pattern
-                    (the works cards' "View roadmap", `/services`'s own "All
+                    (the service cards' "View roadmap", `/services`'s own "All
                     services") and restoring it is what makes this read as two
                     real actions rather than one button and some loose text.
                   */}

@@ -11,6 +11,13 @@
  * space once per repeat, which is what stops all three rows sharing a rhythm.
  */
 
+/**
+ * Intrinsic widths are the authored ones; all share a 40px height. Names are
+ * read off the rendered wordmark, not hidden behind an empty `alt` the way the
+ * reference does it — "trusted by world-leading enterprises" is exactly the
+ * claim a screen-reader user should be able to check, once a real name is
+ * here to check it against.
+ */
 export interface ClientLogo {
   src: string;
   width: number;
@@ -19,65 +26,34 @@ export interface ClientLogo {
   name?: string;
 }
 
-
 /**
- * Intrinsic widths are the authored ones; all share a 40px height.
+ * EMPTY. This held eight of the template's own company names, displayed under
+ * "Trusted by world-leading enterprises". None are Greatest Solutions clients,
+ * and naming another company as a client is a claim about them as well as
+ * about us, so the names are removed from the repository rather than left
+ * dormant in a data file. Deliberately not listed here either, for the same
+ * reason a removed name doesn't belong in a `git log` message about it — this
+ * comment shouldn't be the one remaining place the eight names still appear.
  *
- * Names are read off the rendered wordmarks. The reference ships these with an
- * empty `alt`, i.e. decorative — but the logos plainly say who the clients are,
- * and "trusted by world-leading enterprises" is exactly the claim a screen-reader
- * user should be able to check, so they are named rather than hidden.
+ * **This is the second time this array has been emptied.** A prior pass wrote
+ * a note to that effect, then a later one — chasing visual parity with the
+ * reference's measured row/name composition (see `LogoStrip.tsx`'s own
+ * docblock) — reintroduced the template's names as "recovered" content,
+ * apparently conflating "restore the layout" with "restore the data." The
+ * layout and the data are independent: `LogoStrip` and `Marquee` render
+ * whatever `clientRows` holds, empty or not, so matching the reference's
+ * row/cell/ticker geometry never required matching its company names too. If
+ * this section is rebuilt again, restore the MEASUREMENTS (`CELL_WIDTH`,
+ * `ROW_3_LEAD`, `TICKER_PX_PER_SECOND`, all still below and still correct)
+ * without also restoring the names that go with them.
+ *
+ * The `ClientLogo` shape and the `LogoStrip` component are intact; supplying
+ * real logos here — `{ src: "/logos/<file>.svg", width, height: 40, name }`
+ * per row, `public/logos/` recreated to hold the files — and re-adding one
+ * line to the home page (`<LogoStrip />`, removed from `app/page.tsx`)
+ * restores the section.
  */
-/**
- * EMPTY. These were the template's client logos — Convergence, PictelAI, Ikigai
- * Labs, Warpspeed and the rest — displayed under "Trusted by world-leading
- * enterprises". They are not Greatest Solutions clients, and naming another
- * company as a client is a claim about them as well as about us, so the names
- * are removed from the repository rather than left dormant in a data file.
- *
- * The `ClientLogo` shape and the LogoStrip component are intact; supplying real
- * logos here and re-adding one line to the home page restores the section.
- */
-const logo = (file: string, width: number, name: string): ClientLogo => ({
-  src: `/logos/${file}.svg`,
-  width,
-  height: 40,
-  name,
-});
-
-/**
- * Restored to the composition measured in Task 1 and documented in
- * CLIENTS-SECTION.md §3. Recovered from three independent sources that agree:
- *
- *   - the row/name table in CLIENTS-SECTION.md
- *   - occurrence order of each asset id in the reference export
- *   - each SVG's own intrinsic width at its native height of 40
- *
- * Four widths were already known from the previous implementation (Convergence
- * 174, PictelAI 137, Ikigai Labs 164, Warpspeed 167) and all four match the file
- * headers, which is what confirms the id → name mapping rather than assuming it.
- * Shutterframe appearing in both row 1 and row 3 is the reference's own repeat.
- *
- * These are the TEMPLATE's companies, not Greatest Solutions clients — see the
- * heading note below.
- */
-export const clientRows: ClientLogo[][] = [
-  [
-    logo("rCopHS45uFREtoJVdUllJ4U", 179, "Shutterframe"),
-    logo("kkZ9hCpkQW7znCXdCnsTymdu9g", 174, "Convergence"),
-    logo("wfME2VRv8qA8gBIF57Qko4bmV4", 137, "PictelAI"),
-  ],
-  [
-    logo("fi4CTiZZfE9JIXfc9wQk1COOzJU", 164, "Ikigai Labs"),
-    logo("WRz0JN1ddTj3lNIUxdaXIpM9wY", 121, "CoreOS"),
-    logo("ubr3DSYHDjwEKEceUmDwvXcixU", 167, "Warpspeed"),
-  ],
-  [
-    logo("rCopHS45uFREtoJVdUllJ4U", 179, "Shutterframe"),
-    logo("4hKgBUYdZ0ToaWulMQ6PhY8", 109, "Layers"),
-    logo("TfJFy0iJtiu7qvVoLcaONayCIIo", 170, "Visionwork"),
-  ],
-];
+export const clientRows: ClientLogo[][] = [];
 
 
 /** Cell width, measured centre-to-centre: 315 from 810 up, 262 below. */

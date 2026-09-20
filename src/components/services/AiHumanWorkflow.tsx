@@ -55,6 +55,18 @@ import { ConnectorArrowhead } from "@/components/ui/ConnectorArrowhead";
  * them; a number in the corner of every card added nothing and, once the
  * connector line ran close beside it, competed with it for the same small
  * corner of space.
+ *
+ * ## `activeIndex` (optional)
+ *
+ * Every existing caller renders `<AiHumanWorkflow />` with no props, and nine
+ * of the ten `/services/[slug]` pages plus every other current usage must
+ * keep looking and behaving exactly as before. `activeIndex` defaults to
+ * `null`, in which case no card renders any differently than it always has —
+ * the prop only exists for a caller that wants to externally emphasise one
+ * step (the About page ties it to scroll position via a wrapper of its own,
+ * `ScrollSyncedWorkflow`, rather than this component tracking scroll itself).
+ * The card's own hover styling already transitions `box-shadow`/`transform`,
+ * so the active state reuses that same transition rather than adding one.
  */
 const STEPS = [
   { title: "Human strategy", sub: "A specialist scopes the problem and the plan", led: "Human" },
@@ -81,7 +93,14 @@ const draw = (index: number) => ({
   },
 });
 
-export function AiHumanWorkflow() {
+export function AiHumanWorkflow({
+  activeIndex = null,
+}: {
+  /** Externally-driven "currently emphasised" step. `null` (the default,
+   *  and what every existing caller gets) renders every card identically to
+   *  before this prop existed. */
+  activeIndex?: number | null;
+} = {}) {
   const reduced = useReducedMotion();
 
   return (
@@ -132,14 +151,21 @@ export function AiHumanWorkflow() {
               )}
 
               <div
-                className={
-                  "group/step relative flex h-full flex-col gap-2 overflow-hidden " +
-                  "rounded-[var(--radius-lg)] p-5 shadow-card " +
-                  "transition-[transform,box-shadow] duration-[var(--duration-quick)] " +
-                  "ease-[var(--ease-brand)] hover:-translate-y-0.5 hover:shadow-float " +
-                  "motion-reduce:transition-none motion-reduce:hover:translate-y-0 " +
-                  (human ? "bg-brand-emerald/[0.07]" : "bg-surface")
-                }
+                className={cn(
+                  "group/step relative flex h-full flex-col gap-2 overflow-hidden",
+                  "rounded-[var(--radius-lg)] p-5 shadow-card",
+                  "transition-[transform,box-shadow] duration-[var(--duration-quick)]",
+                  "ease-[var(--ease-brand)] hover:-translate-y-0.5 hover:shadow-float",
+                  "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+                  human ? "bg-brand-emerald/[0.07]" : "bg-surface",
+                  /* Externally-driven emphasis — reuses the card's own hover
+                     transition rather than adding a second one, so an
+                     "active" card looks like the same lift/shadow a hover
+                     would give it, just driven by scroll instead of a
+                     pointer. `null` on every existing caller, so this branch
+                     never fires anywhere but the About page's wrapper. */
+                  activeIndex === i && "-translate-y-0.5 shadow-float ring-2 ring-brand-emerald/40 ring-offset-2 ring-offset-background",
+                )}
               >
                 {/* The edge rule — the loudest of the three channels. */}
                 <span

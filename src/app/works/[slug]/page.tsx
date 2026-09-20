@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PageShell } from "@/components/layout/PageShell";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
+import { PlayButton } from "@/components/works/PlayButton";
 import { Section } from "@/components/layout/Section";
 import { services } from "@/data/services";
 import { site } from "@/config/site";
@@ -78,6 +79,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                 height={THUMB_HEIGHT}
                 className="size-full object-cover"
               />
+
+              {/* A real video: the same play-button + modal-player mechanism the
+                  works cards use, not a second implementation. Centred and
+                  always visible, same reasoning as `ProjectCard`'s — see
+                  `PlayButton`'s own docblock. */}
+              {project.media?.type === "video" && (
+                <div className="pointer-events-none absolute inset-0 grid place-items-center">
+                  <PlayButton project={project} className="pointer-events-auto" />
+                </div>
+              )}
             </div>
           </div>
         </Section>

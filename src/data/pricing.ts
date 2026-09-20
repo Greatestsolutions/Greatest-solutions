@@ -71,7 +71,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: "Support & Maintenance",
     description:
-      "Keeping an existing system healthy — updates, monitoring and small improvements.",
+      "Keeping an existing system healthy: updates, monitoring and small improvements.",
     benefits: [
       "Dependency and security updates",
       "Monitoring and fixes",

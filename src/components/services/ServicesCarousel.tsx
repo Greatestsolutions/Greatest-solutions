@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ContactButton } from "@/components/contact/ContactButton";
-import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { Button } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
@@ -201,12 +200,8 @@ export function ServicesCarousel({ services }: { services: Service[] }) {
         dragging ? "cursor-grabbing" : "cursor-grab",
       )}
     >
-      {/* The emerald ramp the illustrations are painted through. `/services`
-          no longer renders the arc-scroller `<Services />`, which used to be
-          this page's only source of `<EmeraldFilter />` — this replaces it,
-          same as `WorksGrid` does for `/works`. */}
-      <EmeraldFilter />
-
+      {/* The emerald ramp the illustrations are painted through —
+          `<EmeraldFilter />` now renders once, globally, in `PageShell`. */}
       <div className="relative h-[300px] tablet:h-[320px] desktop:h-[360px]">
         {services.map((service, i) => {
           const d = offsetOf(i);

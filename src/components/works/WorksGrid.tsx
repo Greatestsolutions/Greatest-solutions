@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { ContactButton } from "@/components/contact/ContactButton";
-import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { Button } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
+import { PlayButton } from "@/components/works/PlayButton";
 import type { ImageSource } from "@/types/media";
 import type { Project } from "@/data/works";
 
@@ -34,20 +34,23 @@ import type { Project } from "@/data/works";
  */
 
 /*
- * Placeholder artwork — reasoning unchanged from the carousel.
+ * Placeholder artwork for projects with no real screenshot — reasoning
+ * unchanged from the carousel. Every current entry has a real
+ * `project.thumbnail` (see `data/works.ts`) and the render below prefers it,
+ * so this doesn't currently fire for anything; it stays in place for the day
+ * a real project — internal, personal or client — genuinely has no
+ * screenshot yet.
  *
- * None of the six projects has a screenshot. These are the abstract service
- * renders, cycled, already in `public/services` and already through
- * `npm run assets:images`.
+ * These are the abstract service renders, cycled, already in `public/services`
+ * and already through `npm run assets:images`.
  *
- * Deliberately NOT `public/works/*.png`: those are the Orionix template's own
- * project screenshots (axn, fluxa, nova, river, rivermark, season), and showing
- * a template's dashboard under the title "PriceWatch" would read as a screenshot
- * of our work — the same invention as a fake client. Abstract sculpture cannot
- * be mistaken for a product screenshot.
- *
- * `placeholderArt` is still exactly what a real `project.thumbnail` replaces
- * once one exists.
+ * Deliberately NOT the Orionix template's own leftover project screenshots
+ * (axn, fluxa, nova, river, rivermark, season — still sitting unused in
+ * `public/works/`, alongside the real client thumbnails now sharing that
+ * directory): showing a template's dashboard under a real project's own
+ * title would read as a screenshot of our work — the same invention as a
+ * fake client. Abstract sculpture cannot be mistaken for a product
+ * screenshot.
  */
 const PLACEHOLDERS = [
   "web-development",
@@ -218,10 +221,8 @@ export function WorksGrid({ projects }: { projects: Project[] }) {
 
   return (
     <>
-      {/* The emerald luminance ramp the card artwork is filtered through. Defined
-          once for the whole grid — it is a <defs> sheet, not a visual element. */}
-      <EmeraldFilter />
-
+      {/* The emerald luminance ramp the card artwork is filtered through —
+          `<EmeraldFilter />` now renders once, globally, in `PageShell`. */}
       {/*
         1 / 2 / 3 columns on the project's own breakpoints — `tablet` is 810px and
         `desktop` is 1200px, both already in the @theme block, so the widths named
@@ -242,7 +243,12 @@ export function WorksGrid({ projects }: { projects: Project[] }) {
         className="grid grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-3"
       >
         {projects.map((project, i) => (
-          <ProjectGridCard key={project.slug} project={project} art={placeholderArt(i)} />
+          <ProjectGridCard
+            key={project.slug}
+            project={project}
+            art={project.thumbnail ?? placeholderArt(i)}
+            isPlaceholder={!project.thumbnail}
+          />
         ))}
       </ul>
     </>
@@ -264,7 +270,17 @@ export function WorksGrid({ projects }: { projects: Project[] }) {
  * wrapper become the grid item instead would put the border, the rounding and
  * the hover pop on a box one level away from the one being sized.
  */
-function ProjectGridCard({ project, art }: { project: Project; art: ImageSource }) {
+function ProjectGridCard({
+  project,
+  art,
+  isPlaceholder,
+}: {
+  project: Project;
+  art: ImageSource;
+  /** True when `art` is the cycled abstract illustration, not a real
+   *  `project.thumbnail` — only the placeholder gets the emerald ramp. */
+  isPlaceholder: boolean;
+}) {
   return (
     <li className="contents">
       <article
@@ -312,11 +328,18 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
       >
         {/* ---- top 60%: artwork + overlaid actions -------------------------- */}
         <div className="relative h-[60%] shrink-0 overflow-hidden bg-background">
-          <div style={{ filter: "url(#gst-emerald)" }} className="absolute inset-0">
+          {/*
+            The emerald ramp only belongs on the abstract placeholder — it
+            collapses colour to luminance and remaps it onto green, which is
+            right for colourless sculpture and wrong for a real screenshot's
+            actual colours. A real `project.thumbnail` renders unfiltered.
+          */}
+          <div style={isPlaceholder ? { filter: "url(#gst-emerald)" } : undefined} className="absolute inset-0">
             <Picture
               source={art}
-              /* Decorative: the title and category below say what this is, and the
-                 image is a placeholder that describes nothing about the project. */
+              /* Decorative either way: the title and category below say what
+                 this is. A placeholder describes nothing about the project; a
+                 real thumbnail is still supporting art, not information. */
               alt=""
               width={1024}
               height={1024}
@@ -326,6 +349,14 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
               className="size-full scale-110 object-cover"
             />
           </div>
+
+          {/* A real video: same `z-20`, always-visible play affordance as
+              `ProjectCard`'s — see there for why it isn't hover-only. */}
+          {project.media?.type === "video" && (
+            <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center">
+              <PlayButton project={project} className="pointer-events-auto" />
+            </div>
+          )}
 
           {/* Long and weak rather than short and strong — the placeholder renders
               are near-white, and a tight ramp read as a grey band pasted across
@@ -339,7 +370,7 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
             `pointer-events-none` on the bar, `auto` on the controls.
 
             The bar is a full-width strip, so without this it swallows every click
-            that lands in its padding or in the empty space beside "View roadmap":
+            that lands in its padding or in the empty space beside "View details":
             such a click hits this div, which has no handler, and the card simply
             does nothing. Only the two buttons should intercept; everywhere else in
             the strip belongs to the card's own link underneath.
@@ -347,7 +378,7 @@ function ProjectGridCard({ project, art }: { project: Project; art: ImageSource 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-wrap gap-2 p-3 tablet:p-4 [&>*]:pointer-events-auto">
             <ContactButton size="md">Start this project</ContactButton>
             <Button href={`/works/${project.slug}`} tone="light" size="md">
-              View roadmap
+              View details
             </Button>
           </div>
         </div>

@@ -29,16 +29,25 @@ export const site = {
   url: siteUrl,
 } as const;
 
-/**
- * Outbound links. Kept here rather than inline so the security policy for
- * external navigation (noopener/noreferrer) can be applied in one component
- * rather than remembered at every call site.
- */
-export const socialLinks = [
-  { label: "X", href: "https://x.com/" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/" },
-  { label: "Behance", href: "https://www.behance.net/" },
-  { label: "Dribbble", href: "https://dribbble.com/" },
-] as const;
+export interface SocialLink {
+  /** Matches a key in `SocialIcon`. */
+  key: string;
+  label: string;
+  href: string;
+  /** No real account yet: rendered as a non-interactive label, not a link. */
+  pending?: boolean;
+}
 
-export type SocialLink = (typeof socialLinks)[number];
+/**
+ * The real accounts. Kept here — the site's single source of truth for
+ * identity — rather than inline or duplicated per component, so a link only
+ * ever needs to change in one place. Previously lived as a second, unused
+ * copy here (still pointing at platform roots) alongside `Footer`'s own
+ * hardcoded, `pending`-flagged array; the two have been merged into this one.
+ */
+export const socialLinks: SocialLink[] = [
+  { key: "instagram", label: "Instagram", href: "https://www.instagram.com/greatestsolutions/" },
+  { key: "facebook", label: "Facebook", href: "https://www.facebook.com/profile.php?id=61592415582377" },
+  { key: "x", label: "X (Twitter)", href: "https://x.com/G_Solutions_" },
+  { key: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/greatest-solutions/" },
+];

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ContactButton } from "@/components/contact/ContactButton";
 import { SocialIcon } from "@/components/footer/SocialIcon";
-import { site } from "@/config/site";
-import { footerCopyright, footerCta, footerVideo, socialLinks } from "@/data/footer";
+import { site, socialLinks } from "@/config/site";
+import { footerCopyright, footerCta, footerVideo } from "@/data/footer";
 
 /**
  * Footer + CTA — one block, as in the reference, where it sits **outside** the
@@ -52,7 +52,7 @@ export function Footer() {
             no such line.
           */}
           <video
-            className="pointer-events-none absolute top-0 right-0 h-[833px] w-[350px] object-cover [mask-image:linear-gradient(to_right,transparent,black_40%)] [mask-mode:alpha] tablet:h-full tablet:w-[407px] desktop:w-[691px]"
+            className="pointer-events-none absolute top-0 right-0 h-[833px] w-[350px] object-cover [filter:url(#gst-emerald)_saturate(1.05)] [mask-image:linear-gradient(to_right,transparent,black_40%)] [mask-mode:alpha] tablet:h-full tablet:w-[407px] desktop:w-[691px]"
             src={footerVideo.src}
             width={footerVideo.width}
             height={footerVideo.height}
@@ -110,7 +110,7 @@ export function Footer() {
                       title="Coming soon"
                       className="flex cursor-default items-center gap-1.5 font-mono text-body-sm tracking-[var(--tracking-label)] text-white/64 uppercase"
                     >
-                      <span aria-hidden="true" className="[&_svg]:size-5 tablet:[&_svg]:size-4">
+                      <span aria-hidden="true" className="[&_svg]:size-8 tablet:[&_svg]:size-6">
                         <SocialIcon name={social.key} />
                       </span>
                       <span className="max-tablet:sr-only">{social.label}</span>
@@ -134,7 +134,7 @@ export function Footer() {
                         desktop, and this was hiding the icon above tablet, so the
                         row rendered as bare text. Label collapses to sr-only on
                         phone, where there is no room for both. */}
-                    <span aria-hidden="true" className="[&_svg]:size-5 tablet:[&_svg]:size-4">
+                    <span aria-hidden="true" className="[&_svg]:size-8 tablet:[&_svg]:size-6">
                       <SocialIcon name={social.key} />
                     </span>
                     <span className="max-tablet:sr-only">{social.label}</span>

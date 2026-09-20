@@ -11,6 +11,17 @@ import type { ImageSource } from "@/types/media";
  * Icons are the reference's 3D renders, downloaded once and served from `/icons`
  * — see `scripts/build-image-assets.mjs`. They restate the step name and carry no
  * information the heading does not, so they render with an empty `alt`.
+ *
+ * The three steps were rewritten from the reference's generic "Discovery /
+ * Design & Architecture / Build & Ship" software-delivery language, which
+ * described the site's earlier positioning as a general dev agency and now
+ * contradicts the AI-services model established everywhere else. They compress
+ * the same six-step human+AI loop `AiHumanWorkflow` runs on every service page
+ * (human strategy → AI-assisted production → human review & QA → client
+ * approval → implementation → optimization) into three broader phases sized
+ * for a homepage summary rather than restate the fuller version — same model,
+ * same claims, coarser grain. No timeline, team size or metric is stated here
+ * that isn't already established elsewhere on the site.
  */
 export interface ProcessStep {
   title: string;
@@ -31,23 +42,23 @@ const icon = (name: string, formats: ("avif" | "webp")[]): ImageSource => ({
 
 export const processSteps: ProcessStep[] = [
   {
-    title: "Discovery",
+    title: "Strategy & Scope",
     description:
-      "Understanding the problem, requirements, constraints and systems involved before development begins.",
+      "A specialist maps the problem, defines the plan, and sets what AI will and won't touch before any work begins.",
     icon: icon("discovery", ["avif", "webp"]),
     iconSize: 144,
   },
   {
-    title: "Design & Architecture",
+    title: "AI-Powered Build",
     description:
-      "Planning interfaces, user experiences and technical foundations before building the product.",
+      "AI accelerates drafting and production while a specialist directs the work throughout, not just at the end.",
     icon: icon("strategy", ["avif", "webp"]),
     iconSize: 184,
   },
   {
-    title: "Build & Ship",
+    title: "Human QA & Launch",
     description:
-      "Developing, testing and delivering software in reviewable increments with documentation and support.",
+      "Every output is checked for accuracy, quality and brand fit, then approved by you before it ships, with monitoring after launch.",
     // webp came out larger than the png for this one and was dropped.
     icon: icon("design", ["avif"]),
     iconSize: 184,

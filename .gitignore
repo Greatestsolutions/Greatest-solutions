@@ -44,3 +44,10 @@ next-env.d.ts
 *.md
 !README.md
 *.txt
+
+# raw source footage, staged for scripts/build-*-assets.mjs — not served by
+# Next.js (lives outside public/), and individual files here run well past
+# GitHub's 100MB per-file push limit (one is 388MB, five others exceed
+# 100MB). The processed, web-ready output this is the source of already
+# lives in public/works/video/ and is committed normally.
+/vedios/

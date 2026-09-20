@@ -23,7 +23,7 @@ export default function WorksPage() {
       <PageHeader
         eyebrow="Work"
         title="Projects we have shipped"
-        description="A selection of the work. Search by tool, technique or name — every project links through to a short summary."
+        description="A selection of the work. Search by tool, technique or name. Every project links through to a short summary."
       />
       <WorksIndex />
     </PageShell>

@@ -217,7 +217,7 @@ function Wordmark({ className }: { className?: string }) {
     <Link
       href="/"
       className={cn("group/logo flex shrink-0 items-center", className)}
-      aria-label={`${site.name} — home`}
+      aria-label={`${site.name} home`}
     >
       <EmblemIcon />
     </Link>

@@ -261,8 +261,8 @@ export function ContactModalProvider({ children }: { children: ReactNode }) {
                     Tell us what you are building
                   </h2>
                   <p id={descId} className="text-body-lg text-body">
-                    Send us the shape of the problem — timeline, stack, what it has to work with — and
-                    we will reply with how we would approach it.
+                    Send us the shape of the problem: timeline, stack, what it has to work with. We&apos;ll
+                    reply with how we&apos;d approach it.
                   </p>
                 </div>
 

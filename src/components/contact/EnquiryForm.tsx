@@ -68,7 +68,7 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
       .filter(Boolean)
       .join("\n");
 
-    const subject = `Project enquiry — ${get("name") || "New enquiry"}`;
+    const subject = `Project enquiry: ${get("name") || "New enquiry"}`;
     window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
@@ -120,7 +120,7 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
           name="message"
           rows={5}
           required
-          placeholder="Tell us what you need built — the problem, any deadlines, and what it has to work with."
+          placeholder="Tell us what you need built: the problem, any deadlines, and what it has to work with."
           className={cn("resize-y p-3", fieldBase)}
         />
       </div>
@@ -131,7 +131,7 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
         </Button>
         {/* aria-live so the confirmation is announced, not just shown. */}
         <p aria-live="polite" className="text-body-md text-body">
-          {sent ? "Opening your email app — send the message to reach us." : ""}
+          {sent ? "Opening your email app. Send the message to reach us." : ""}
         </p>
       </div>
 

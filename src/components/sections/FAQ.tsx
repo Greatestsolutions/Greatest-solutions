@@ -1,13 +1,14 @@
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
-import { FaqItem } from "@/components/faq/FaqItem";
-import { faqEntries, faqEyebrow, faqTitle } from "@/data/faq";
+import { FaqList } from "@/components/faq/FaqList";
+import { faqEyebrow, faqTitle } from "@/data/faq";
 
 /**
  * FAQ — a header beside a list of toggling questions.
  *
- * A Server Component, and the whole section ships **zero client JavaScript**:
- * the accordion is `<details>`/`<summary>` with a CSS height transition. See
+ * The section itself stays a Server Component; only {@link FaqList} — the
+ * initial-five-plus-"View more" reveal — needs client state. Each row's
+ * accordion is still `<details>`/`<summary>` with a CSS height transition. See
  * `FaqItem` for why that is the right primitive here rather than React state.
  *
  * Measured layout (3.2d pass):
@@ -61,13 +62,7 @@ export function FAQ() {
 
         {/* 44px of lead-in above the first row, so it sits level with the
             heading's second line rather than its cap height. */}
-        <ul className="flex flex-col gap-6 tablet:pt-11">
-          {faqEntries.map((entry, i) => (
-            <li key={entry.question}>
-              <FaqItem entry={entry} index={i} />
-            </li>
-          ))}
-        </ul>
+        <FaqList />
       </div>
     </Section>
   );

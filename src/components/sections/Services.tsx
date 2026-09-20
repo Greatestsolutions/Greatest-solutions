@@ -1,7 +1,6 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { ProgressDial } from "@/components/services/ProgressDial";
-import { EmeraldFilter } from "@/components/services/EmeraldFilter";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { ServiceScroller } from "@/components/services/ServiceScroller";
 import { Picture } from "@/components/ui/Picture";
@@ -43,7 +42,8 @@ export function Services() {
       // here is what turns that into a bleed rather than a horizontal scrollbar.
       className="overflow-clip"
     >
-      <EmeraldFilter />
+      {/* The emerald ramp the dial and illustration are painted through —
+          `<EmeraldFilter />` now renders once, globally, in `PageShell`. */}
       <ServiceScroller count={services.length}>
         <Container>
           <div className="grid grid-cols-1 gap-3 tablet:grid-cols-8 desktop:grid-cols-12">

@@ -22,8 +22,8 @@ const routes: Array<{
   { path: "/about", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.8 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
-  // /privacy and /terms are deliberately absent: both are noindex until the real
-  // text is published, and a sitemap entry contradicts that.
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   ...projects.map((p) => ({ path: `/works/${p.slug}`, changeFrequency: "monthly" as const, priority: 0.6 })),
   ...services.map((s) => ({ path: `/services/${s.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
 ];
