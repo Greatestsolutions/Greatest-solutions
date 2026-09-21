@@ -24,7 +24,7 @@ export const site = {
   /* Stored lower-case. The hero control uppercases it with `text-transform`,
      so the display casing is a style choice and the value stays copyable and
      mailto-safe. */
-  email: "greatestsolutions@gmail.com",
+  email: "www.greatestsolutions@gmail.com",
   locale: "en",
   url: siteUrl,
 } as const;
