@@ -166,16 +166,30 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
           {status === "loading" ? "Sending…" : "Send enquiry"}
         </Button>
         {/* aria-live so the confirmation is announced, not just shown. */}
-        <p aria-live="polite" className="text-body-md text-body">
-          {status === "success" && "Message sent — we'll be in touch soon."}
+        <p aria-live="polite" className="text-body-md flex items-center gap-1.5">
+          {status === "success" && (
+            <span className="flex items-center gap-1.5 text-brand-green">
+              <svg viewBox="0 0 20 20" className="size-4 shrink-0" aria-hidden="true" focusable="false">
+                <path
+                  d="M4 10.5l4 4 8-9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Successfully sent — we&apos;ll be in touch soon.
+            </span>
+          )}
           {status === "error" && (
-            <>
+            <span className="text-body">
               Couldn&apos;t send that. Email us directly at{" "}
               <a href={`mailto:${site.email}`} className="text-ink underline underline-offset-4">
                 {site.email}
               </a>
               .
-            </>
+            </span>
           )}
         </p>
       </div>
