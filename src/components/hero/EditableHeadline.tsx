@@ -156,44 +156,22 @@ export function EditableHeadline({ lines }: { lines: readonly (readonly Headline
   const activeColor = COLORS.find((c) => c.id === format.color) ?? COLORS[0];
 
   /*
-   * Close on outside pointerdown or Escape — the only two ways out besides the
-   * pencil itself. The listener is scoped to the whole editor root, so every
-   * formatting control is "inside" by construction: clicking Bold, a swatch or
-   * H2 can never close the toolbar, which was an explicit requirement.
+   * The toolbar itself now closes only from the pencil — explicitly requested:
+   * an outside click or Escape no longer dismisses it, only toggling the
+   * pencil does. What's left here is just the inner size/color popover
+   * (`openMenu`), a separate, smaller layer on top of the toolbar: an outside
+   * click or Escape still closes THAT alone, leaving the toolbar itself open,
+   * the same way a dropdown closes without dismissing the menu it lives in.
    */
   useEffect(() => {
-    if (!open) return;
+    if (!open || !openMenu) return;
     const onDown = (e: PointerEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
         setOpenMenu(null);
       }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      // Escape unwinds one layer at a time: an open popover first, then the bar.
-      if (openMenu) {
-        setOpenMenu(null);
-        return;
-      }
-      /*
-       * Only RECLAIM focus if this editor had it to begin with.
-       *
-       * This listener is on `document`, so it fires for every Escape on the page,
-       * and the toolbar is open by default — so an unconditional `focus()` here
-       * hijacked focus from whatever the visitor was actually dismissing. Pressing
-       * Escape to close the navbar's Services panel landed focus on this pencil
-       * instead of back on the Services trigger, and the same happened from any
-       * other control on the page.
-       *
-       * `activeElement` is read BEFORE the state change, so it still reports where
-       * focus was when the key was pressed. When focus is elsewhere the bar still
-       * closes — that behaviour predates this fix — but focus is left exactly
-       * where the visitor put it, and the handler that owns it can do its job.
-       */
-      const hadFocus = rootRef.current?.contains(document.activeElement) ?? false;
-      setOpen(false);
-      if (hadFocus) pencilRef.current?.focus();
+      if (e.key === "Escape") setOpenMenu(null);
     };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
@@ -238,7 +216,7 @@ export function EditableHeadline({ lines }: { lines: readonly (readonly Headline
                   activeColor={activeColor}
                   open={open}
                   /* Every keyword opens the SAME editor. Not a toggle: the
-                     documented ways to close are the pencil, outside and Escape. */
+                     only way to close it is the pencil. */
                   onActivate={() => setOpen(true)}
                 />
               ) : (

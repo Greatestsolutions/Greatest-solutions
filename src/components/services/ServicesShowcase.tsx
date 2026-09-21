@@ -74,12 +74,13 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
                   shown or hidden by exactly the same rule as the card it
                   belongs to, no extra slot and no extra index required.
                 */}
-                <div className="flex w-full flex-col items-center gap-6 desktop:items-start">
+                <div className="flex w-full flex-col items-center gap-6">
                   <ServiceCard service={service} />
                   {hidden > 0 && i === visible.length - 1 && (
                     <Button
                       onClick={() => setRevealed((count) => count + hidden)}
                       tone="light"
+                      className="mt-6"
                     >
                       Show more services
                       <span className="sr-only"> — {hidden} more</span>
