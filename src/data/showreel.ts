@@ -7,10 +7,12 @@
  * compatibility, the same discipline already applied to every Works video.
  *
  * Unlike the placeholder, this file carries real audio (AAC LC, mastered to
- * -0.9 dB peak — not an empty/silent track) meant to be heard, so the
- * section is click-to-play with sound rather than muted-autoplay-loop; see
- * `Showreel.tsx`'s doc comment for the reasoning. `poster` is the frame this
- * needs for that: extracted 5s in, not frame zero.
+ * -0.9 dB peak — not an empty/silent track). The section plays it back
+ * autoplay/muted/loop regardless — explicitly requested: automatic,
+ * infinite, no play/stop control — so that audio is never actually heard.
+ * `poster` (extracted 5s in, not frame zero) is set as the native `<video
+ * poster>`, shown only for the moment before the file has buffered enough
+ * to paint its own first frame.
  *
  * **Filenames carry a content hash** (first 10 hex chars of each file's own
  * SHA-256) rather than a plain `showreel.mp4`. This asset sits behind

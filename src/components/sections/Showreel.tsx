@@ -1,7 +1,6 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Marquee } from "@/components/ui/Marquee";
-import { ShowreelPlayer } from "@/components/sections/ShowreelPlayer";
 import { showreel } from "@/data/showreel";
 
 /**
@@ -40,9 +39,12 @@ import { showreel } from "@/data/showreel";
  * direction lower down: 216 at 810 where 246 was needed, and 99 at 390 where 112
  * was. Reserving the space with a real element removes the class of bug entirely.
  *
- * The foreground video is click-to-play with sound (the real reel has real
- * audio to hear); the reflection below it stays autoplay/muted/loop, since it
- * is decorative and never audible either way. See the notes on each below.
+ * Both the foreground video and its reflection are autoplay/muted/loop —
+ * explicitly requested: play automatically, forever, no play/stop control.
+ * `muted` isn't a design choice here, it's what makes the `autoPlay` part
+ * possible at all — every browser silently blocks audible autoplay, so an
+ * unmuted `autoPlay` would just never start. The real reel does carry real
+ * audio (see `showreel.ts`), it just isn't heard in this treatment.
  */
 export function Showreel() {
   return (
@@ -96,25 +98,29 @@ export function Showreel() {
             {/*
               The video sits above the type and fills the aspect box.
 
-              **No longer autoplay-muted-loop.** That pattern (measured off a
-              reference, Task 3.5) was only ever right for the placeholder clip
-              it was built around — ambient B-roll with nothing to listen to.
-              The real reel carries mastered narration/score (AAC, peaking at
-              -0.9 dB — genuine signal, not an empty track), so silently looping
-              it would throw away the one thing that makes it a reel rather than
-              wallpaper. `ShowreelPlayer` is click-to-play with sound instead,
-              the same play-button affordance Works already uses for its own
-              videos with audio — one interaction pattern for "this video has
-              something to hear," not two.
+              Plays itself: `autoplay`, `loop`, `muted`, `playsInline`, no
+              controls and no play button anywhere in the section — explicitly
+              requested, in place of the click-to-play-with-sound treatment
+              this had briefly. `preload="auto"` matches that: the file starts
+              downloading on arrival rather than on demand, which is the
+              honest cost autoplay-from-load always carries (17.3 MB here).
 
-              This also buys back the client boundary the muted version paid to
-              avoid: `ShowreelPlayer` is the one client component this section
-              needs (play/pause state), same "thin wrapper" shape as `PlayButton`
-              — everything else here, including the reflection below, stays
-              server-rendered.
+              No client component needed for this: with no click handler
+              there is no state, so this stays a plain Server Component.
             */}
             <div className="relative z-10 size-full overflow-hidden rounded-[32px] bg-brand-forest">
-              <ShowreelPlayer />
+              <video
+                className="size-full rounded-[32px] object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                poster={showreel.poster.fallback}
+                aria-label={showreel.videoLabel}
+              >
+                <source src={showreel.src} type="video/mp4" />
+              </video>
             </div>
           </div>
 
@@ -133,13 +139,11 @@ export function Showreel() {
             not do. Same `src`, so this is a cache hit rather than a second
             download; the cost is a second decode of an already-resident file.
 
-            Untouched by the foreground's move to click-to-play: `muted` here
-            means the real reel's audio never conflicts with anything, so this
-            can keep autoplaying on its own loop as pure ambient motion whether
-            or not the foreground has been played yet. It runs on its own clock
-            rather than the foreground's — the two aren't frame-synced — but at
-            30% opacity through a 6px blur, both desaturated, that was never
-            perceptible enough to be worth a shared-state fix.
+            Both elements autoplay independently from page load, so they are
+            not frame-synced to each other — two separate `<video>` elements
+            each running their own clock. At 30% opacity through a 6px blur,
+            both desaturated, that was never perceptible enough to be worth a
+            shared-state fix.
 
             `saturate-0` keeps the neutral grey established earlier (the old
             `bg-brand-forest` panel averaged rgb(205 214 206) against the
