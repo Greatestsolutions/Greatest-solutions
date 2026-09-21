@@ -16,14 +16,16 @@ import { cn } from "@/lib/cn";
  * a submit. Field set and pairing are the same; only the styling is ours and the
  * service options come from `services.ts` rather than being hardcoded.
  *
- * **It has no backend, and it does not pretend to.** No email or form provider is
- * configured, so on submit it composes a `mailto:` with the fields filled in and
- * hands off to the user's mail client. That is a real action that genuinely
- * delivers the enquiry — unlike a POST to nowhere, which would silently discard
- * it. When a provider is chosen (Resend, Formspree, a route handler), `onSubmit`
- * is the single place that changes.
+ * **Sends for real.** POSTs to `/api/enquiry`, which delivers through Gmail SMTP
+ * (see that route for the sending side). This replaced an earlier `mailto:`
+ * version — genuine at the time (no provider was configured), but a visitor's
+ * own mail client popping up mid-enquiry was never the intended experience, only
+ * the honest fallback for not having one yet. The `mailto:` link below still
+ * exists, now only as the error state's backup if the real send fails.
  *
- * Native `required` and `type="email"` do the validation; no library.
+ * Native `required` and `type="email"` give instant client-side feedback; the
+ * route re-validates everything server-side regardless, since a request can
+ * always arrive without having gone through this form at all.
  */
 /**
  * `card` — the standalone form with its own panel, as the /contact page uses it.
@@ -31,8 +33,10 @@ import { cn } from "@/lib/cn";
  */
 export type EnquiryFormVariant = "card" | "bare";
 
+type SendStatus = "idle" | "loading" | "success" | "error";
+
 export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant } = {}) {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<SendStatus>("idle");
   /*
    * Field ids are namespaced per instance. The dialog can be opened while the
    * /contact page is rendered behind it, which would otherwise put two `id="name"`
@@ -42,10 +46,14 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
    */
   const uid = useId();
   const fid = (key: string) => `${key}-${uid}`;
+  const honeypotName = "website";
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    if (status === "loading") return;
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const get = (key: string) => String(data.get(key) ?? "").trim();
 
     /*
@@ -57,20 +65,29 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
      */
     const chosen = services.find((s) => s.slug === get("service"));
 
-    const body = [
-      `Name: ${get("name")}`,
-      `Email: ${get("email")}`,
-      get("company") && `Company: ${get("company")}`,
-      `Service: ${chosen ? `${chosen.title} (${chosen.slug})` : get("service")}`,
-      "",
-      get("message"),
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const subject = `Project enquiry: ${get("name") || "New enquiry"}`;
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setStatus("loading");
+    try {
+      const response = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: get("name"),
+          email: get("email"),
+          company: get("company"),
+          service: chosen ? `${chosen.title} (${chosen.slug})` : get("service"),
+          message: get("message"),
+          // Honeypot — real visitors never see this field, so a non-empty
+          // value means whatever submitted the form is a bot filling in
+          // every input it can find.
+          website: get(honeypotName),
+        }),
+      });
+      if (!response.ok) throw new Error("send failed");
+      setStatus("success");
+      form.reset();
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
@@ -125,19 +142,46 @@ export function EnquiryForm({ variant = "card" }: { variant?: EnquiryFormVariant
         />
       </div>
 
+      {/*
+        Honeypot. Visually gone (off-screen, zero size) rather than
+        `display:none` or `hidden` — some bots specifically skip fields a
+        stylesheet hides, so this stays a real, laid-out input a screen
+        reader also never lands on (`aria-hidden`, `tabIndex={-1}`, and
+        `autoComplete="off"` so no browser offers to fill it for a human
+        tabbing past). A real visitor's copy of this field is always empty;
+        the route rejects — silently, with a fake success — anything where
+        it isn't.
+      */}
+      <input
+        type="text"
+        name={honeypotName}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute h-0 w-0 overflow-hidden opacity-0"
+      />
+
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" size="lg">
-          Send enquiry
+        <Button type="submit" size="lg" disabled={status === "loading"}>
+          {status === "loading" ? "Sending…" : "Send enquiry"}
         </Button>
         {/* aria-live so the confirmation is announced, not just shown. */}
         <p aria-live="polite" className="text-body-md text-body">
-          {sent ? "Opening your email app. Send the message to reach us." : ""}
+          {status === "success" && "Message sent — we'll be in touch soon."}
+          {status === "error" && (
+            <>
+              Couldn&apos;t send that. Email us directly at{" "}
+              <a href={`mailto:${site.email}`} className="text-ink underline underline-offset-4">
+                {site.email}
+              </a>
+              .
+            </>
+          )}
         </p>
       </div>
 
       <p className="text-body-sm text-muted">
-        This form opens your email app with the details filled in. Prefer to write directly?
-        Email <span className="break-all text-ink">{site.email}</span>.
+        Prefer to write directly? Email <span className="break-all text-ink">{site.email}</span>.
       </p>
     </form>
   );

@@ -64,6 +64,9 @@ export type ButtonProps = {
   tone?: ButtonTone;
   /** Route not built yet: renders non-interactive instead of linking to a 404. */
   pending?: boolean;
+  /** Only meaningful without `href` — e.g. a form's submit button mid-send.
+   *  Blocks activation and the hover label-swap without hiding the button. */
+  disabled?: boolean;
   /** Decorative leading or trailing element. */
   icon?: ReactNode;
   className?: string;
@@ -77,6 +80,7 @@ export function Button({
   size = "md",
   tone = "dark",
   pending,
+  disabled,
   icon,
   className,
 }: ButtonProps) {
@@ -87,6 +91,12 @@ export function Button({
     // The press scale lives in `sizes` — it differs by size, measured. See there.
     sizes[size],
     tones[tone],
+    // `disabled:` is a real pseudo-class variant, so it reliably overrides the
+    // plain `hover:scale-*` in `sizes` regardless of class string order — `cn`
+    // here is a plain joiner (see its own doc comment), not tailwind-merge, so
+    // a later plain utility class competing on the same property would not be
+    // guaranteed to win.
+    "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100",
     className,
   );
 
@@ -138,7 +148,7 @@ export function Button({
   // link cannot submit a form. Same classes, same label animation.
   if (!href) {
     return (
-      <button type={type ?? "button"} onClick={onClick} className={classes}>
+      <button type={type ?? "button"} onClick={onClick} disabled={disabled} className={classes}>
         {content}
       </button>
     );
