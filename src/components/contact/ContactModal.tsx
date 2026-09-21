@@ -11,8 +11,19 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { EnquiryForm } from "@/components/contact/EnquiryForm";
-import { site } from "@/config/site";
+import nextDynamic from "next/dynamic";
+
+/**
+ * The dialog's own content (heading, email block, `EnquiryForm`) is code-split
+ * out — see the doc comment on `ContactDialogContent` for the full reasoning.
+ * `ssr: false` is safe rather than a compromise: the branch this renders in
+ * (`open ? createPortal(...) : null`, below) never evaluates during SSR or
+ * hydration regardless, since `open` starts `false` and can only become `true`
+ * from a click. There is no server-rendered version of this to lose.
+ */
+const ContactDialogContent = nextDynamic(() => import("@/components/contact/ContactDialogContent"), {
+  ssr: false,
+});
 
 /**
  * The contact dialog, and the one piece of shared UI state on the site.
@@ -215,76 +226,7 @@ export function ContactModalProvider({ children }: { children: ReactNode }) {
               */
               onPointerDown={(event) => event.stopPropagation()}
             >
-              <div
-                ref={card}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                aria-describedby={descId}
-                tabIndex={-1}
-                className={
-                  "relative flex max-h-full w-full max-w-[560px] flex-col gap-8 overflow-y-auto " +
-                  "rounded-[var(--radius-md)] border border-black/8 bg-surface p-6 shadow-card " +
-                  "tablet:rounded-[var(--radius-lg)] tablet:p-10 " +
-                  "motion-safe:animate-[rise-in_260ms_var(--ease-brand)]"
-                }
-              >
-                <button
-                  type="button"
-                  onClick={close}
-                  aria-label="Close"
-                  className={
-                    "absolute top-4 right-4 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full " +
-                    "border border-hairline-strong bg-surface text-body " +
-                    "transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] " +
-                    "hover:bg-scrim-06 hover:text-ink focus-visible:ring-2 focus-visible:ring-brand-green/40 focus-visible:outline-none"
-                  }
-                >
-                  <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true" focusable="false">
-                    <path
-                      d="M4 4l8 8M12 4l-8 8"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-
-                {/* Heading and intro carried over from the /contact page, so the
-                    two surfaces say the same thing in the same voice. */}
-                <div className="flex flex-col gap-3 pr-12">
-                  <p className="font-mono text-body-sm tracking-[var(--tracking-label)] text-muted uppercase">
-                    Contact
-                  </p>
-                  <h2 id={titleId} className="text-heading-lg text-ink">
-                    Tell us what you are building
-                  </h2>
-                  <p id={descId} className="text-body-lg text-body">
-                    Send us the shape of the problem: timeline, stack, what it has to work with. We&apos;ll
-                    reply with how we&apos;d approach it.
-                  </p>
-                </div>
-
-                {/* The address, stated outright rather than hidden behind a link
-                    label. It is the one channel that genuinely works, so it gets
-                    the same prominence the full page gives it. */}
-                <div className="flex flex-col gap-2 rounded-[var(--radius-sm)] border border-hairline-strong bg-background p-4">
-                  <p className="font-mono text-body-sm tracking-[var(--tracking-label)] text-muted uppercase">
-                    Email
-                  </p>
-                  <a
-                    href={`mailto:${site.email}`}
-                    className="text-heading-sm break-all text-ink underline-offset-4 transition-colors duration-[var(--duration-quick)] hover:underline"
-                  >
-                    {site.email}
-                  </a>
-                </div>
-
-                {/* The same component the /contact page renders — same fields,
-                    same mailto composition, same confirmation. */}
-                <EnquiryForm variant="bare" />
-              </div>
+              <ContactDialogContent card={card} titleId={titleId} descId={descId} close={close} />
             </div>,
             document.body,
           )

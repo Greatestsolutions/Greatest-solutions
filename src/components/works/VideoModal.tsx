@@ -11,7 +11,18 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import nextDynamic from "next/dynamic";
 import type { Project } from "@/data/works";
+
+/**
+ * Code-split for the same reason `ContactModal` splits its own dialog
+ * content — see `VideoDialogContent`'s doc comment. `ssr: false` is safe: the
+ * branch this renders in never evaluates during SSR or hydration regardless,
+ * since `project` starts `null` and can only become set from a click.
+ */
+const VideoDialogContent = nextDynamic(() => import("@/components/works/VideoDialogContent"), {
+  ssr: false,
+});
 
 /**
  * The video player dialog for Works cards with a real `media`.
@@ -138,82 +149,7 @@ export function VideoModalProvider({ children }: { children: ReactNode }) {
               }}
               onPointerDown={(event) => event.stopPropagation()}
             >
-              <div
-                ref={card}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                tabIndex={-1}
-                className={
-                  "relative flex w-full max-w-[960px] flex-col gap-4 " +
-                  "motion-safe:animate-[rise-in_260ms_var(--ease-brand)]"
-                }
-              >
-                <h2 id={titleId} className="sr-only">
-                  {project.title}
-                </h2>
-
-                <button
-                  type="button"
-                  onClick={close}
-                  aria-label="Close"
-                  className={
-                    "absolute -top-12 right-0 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full " +
-                    "border border-white/20 bg-white/10 text-white " +
-                    "transition-colors duration-[var(--duration-quick)] ease-[var(--ease-brand)] " +
-                    "hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none"
-                  }
-                >
-                  <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true" focusable="false">
-                    <path
-                      d="M4 4l8 8M12 4l-8 8"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-
-                <div className="overflow-hidden rounded-[var(--radius-md)] bg-black shadow-card">
-                  {/* Real playback with sound — not muted, not autoplaying until the
-                      visitor has explicitly asked for this specific video via the
-                      play button. `key` forces a fresh element per project, so
-                      switching videos without unmounting the dialog can't leave the
-                      previous source paused mid-frame underneath the new poster.
-
-                      `preload="metadata"` rather than the default (browser-chosen,
-                      commonly "auto" — the whole file starts downloading the moment
-                      this element exists): the dialog only mounts the video at all
-                      once the visitor has pressed play, so by then metadata-only is
-                      the right amount of head start — enough to know duration/
-                      dimensions before `autoPlay` fires, not a second full prefetch
-                      on top of the click that already asked for this specific file.
-
-                      `width`/`height` are the source's own intrinsic pixel size
-                      (1920x1080 for every current video but one at 1280x720 — CSS
-                      still renders every video at `aspect-video w-full` regardless,
-                      so a mismatched intrinsic ratio here only affects layout-shift
-                      reservation before the real metadata loads, never the visible
-                      size). Explicit dimensions on a `<video>` are what let the
-                      browser reserve its box before that metadata arrives, same
-                      reasoning `Picture` already requires them for. */}
-                  <video
-                    key={project.media?.src}
-                    src={project.media?.src}
-                    poster={project.media?.poster?.fallback}
-                    width={1920}
-                    height={1080}
-                    controls
-                    autoPlay
-                    playsInline
-                    preload="metadata"
-                    className="aspect-video w-full"
-                  >
-                    Your browser doesn&apos;t support embedded video.
-                  </video>
-                </div>
-              </div>
+              <VideoDialogContent project={project} card={card} titleId={titleId} close={close} />
             </div>,
             document.body,
           )
