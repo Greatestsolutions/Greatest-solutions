@@ -1,6 +1,7 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Marquee } from "@/components/ui/Marquee";
+import { ShowreelPlayer } from "@/components/sections/ShowreelPlayer";
 import { showreel } from "@/data/showreel";
 
 /**
@@ -11,17 +12,21 @@ import { showreel } from "@/data/showreel";
  *
  * ```
  *            section = padding + block          block = video + reflection
- *   ≥1280      881.73 = 160 + 721.73            721.73 = 475.73 + 246
- *   1024       865.73 = 144 + 721.73
- *   810        802.67 = 144 + 658.67            658.67 = 412.67 + 246
- *   ≤809       506.45 = 192 + 314.45            314.45 = 202.45 + 112
+ *   ≥1280      889.75 = 160 + 729.75            729.75 = 483.75 + 246
+ *   1024       873.75 = 144 + 729.75
+ *   810        810.67 = 144 + 666.67            666.67 = 420.67 + 246
+ *   ≤809       514.45 = 192 + 322.45            322.45 = 210.45 + 112
  * ```
  *
- * Three constants fall out, and all three were wrong before this pass:
+ * Two of these are unchanged; one moved with the swap to the real reel:
  *
- * 1. **The video is `1920/1062`, not 16:9.** Every width measures a ratio of
- *    1.8077–1.8079; 16:9 would be 1.7778. At 860 wide that is 475.73, not 483.75.
- * 2. **The reflection is a fixed 246px (≥810) or 112px (≤809)** — not a ratio.
+ * 1. **The video is now genuinely `16/9`** (the real file is 1280×720) rather
+ *    than the placeholder's idiosyncratic `1920/1062` (ratio 1.8078). At 860
+ *    wide that is 483.75, not 475.73 — an 8px difference in the video's own
+ *    height, absorbed entirely by `aspect-video` below; nothing else in this
+ *    file's geometry depends on the exact ratio.
+ * 2. **The reflection is a fixed 246px (≥810) or 112px (≤809)** — not a ratio,
+ *    so it is untouched by the video's own height changing.
  * 3. **Phone padding is 192px total**, against the shared scale's 128.
  *
  * ### The bug this replaced
@@ -35,9 +40,9 @@ import { showreel } from "@/data/showreel";
  * direction lower down: 216 at 810 where 246 was needed, and 99 at 390 where 112
  * was. Reserving the space with a real element removes the class of bug entirely.
  *
- * The video autoplays, loops and is muted — measured from the reference in Task
- * 3.5, which also has no play button at all. See the note on the <video> below
- * for the 5.2 MB cost that buys.
+ * The foreground video is click-to-play with sound (the real reel has real
+ * audio to hear); the reflection below it stays autoplay/muted/loop, since it
+ * is decorative and never audible either way. See the notes on each below.
  */
 export function Showreel() {
   return (
@@ -62,7 +67,7 @@ export function Showreel() {
           of 366 and the section lands 13.29px short.
         */}
         <div className="mx-auto w-full max-w-[1200px] max-tablet:-mx-3 max-tablet:w-auto">
-          <div className="relative mx-auto aspect-[1920/1062] w-full max-w-[860px]">
+          <div className="relative mx-auto aspect-video w-full max-w-[860px]">
             {/*
               Giant type, behind the video. Pulled far outside the column so it
               runs the full width of the page; the Section clips it. `aria-hidden`
@@ -91,32 +96,25 @@ export function Showreel() {
             {/*
               The video sits above the type and fills the aspect box.
 
-              **It plays itself.** Task 3.5 measured the reference: `autoplay`,
-              `loop`, `muted`, `playsInline`, `controls: false`, and **no play
-              button anywhere in the section**. Ours required a click, which was
-              a genuine interaction mismatch, not a performance choice.
+              **No longer autoplay-muted-loop.** That pattern (measured off a
+              reference, Task 3.5) was only ever right for the placeholder clip
+              it was built around — ambient B-roll with nothing to listen to.
+              The real reel carries mastered narration/score (AAC, peaking at
+              -0.9 dB — genuine signal, not an empty track), so silently looping
+              it would throw away the one thing that makes it a reel rather than
+              wallpaper. `ShowreelPlayer` is click-to-play with sound instead,
+              the same play-button affordance Works already uses for its own
+              videos with audio — one interaction pattern for "this video has
+              something to hear," not two.
 
-              `muted` is what makes autoplay permitted — every browser blocks
-              audible autoplay — and it is what the reference relies on too.
-
-              The cost is honest and worth stating: the 5.2 MB file now loads on
-              arrival rather than on demand. That is the reference's own
-              behaviour. It is the section's only real weight, and it buys back a
-              client component — with no click handler there is no state, so this
-              is now a Server Component and ships no JavaScript at all.
+              This also buys back the client boundary the muted version paid to
+              avoid: `ShowreelPlayer` is the one client component this section
+              needs (play/pause state), same "thin wrapper" shape as `PlayButton`
+              — everything else here, including the reflection below, stays
+              server-rendered.
             */}
             <div className="relative z-10 size-full overflow-hidden rounded-[32px] bg-brand-forest">
-              <video
-                className="size-full rounded-[32px] object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                aria-label={showreel.videoLabel}
-              >
-                <source src={showreel.src} type="video/mp4" />
-              </video>
+              <ShowreelPlayer />
             </div>
           </div>
 
@@ -134,6 +132,14 @@ export function Showreel() {
             blank while the reel played, which is the one thing a reflection must
             not do. Same `src`, so this is a cache hit rather than a second
             download; the cost is a second decode of an already-resident file.
+
+            Untouched by the foreground's move to click-to-play: `muted` here
+            means the real reel's audio never conflicts with anything, so this
+            can keep autoplaying on its own loop as pure ambient motion whether
+            or not the foreground has been played yet. It runs on its own clock
+            rather than the foreground's — the two aren't frame-synced — but at
+            30% opacity through a 6px blur, both desaturated, that was never
+            perceptible enough to be worth a shared-state fix.
 
             `saturate-0` keeps the neutral grey established earlier (the old
             `bg-brand-forest` panel averaged rgb(205 214 206) against the

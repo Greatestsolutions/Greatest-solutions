@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
-const DIRS = ["services", "icons", "blog", "works", "works/video", "testimonials"];
+const DIRS = ["services", "icons", "blog", "works", "works/video", "testimonials", "video"];
 
 // Smooth greyscale renders on transparency: banding is the failure mode, not
 // detail loss, so quality can sit low while `4:4:4` keeps the gradients clean.
