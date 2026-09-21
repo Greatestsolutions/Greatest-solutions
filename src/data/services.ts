@@ -518,6 +518,8 @@ export const services: Service[] = [
 ];
 
 export const servicesLabel = "Services";
+export const servicesEyebrow = "Services";
+export const servicesTitle = "What we can build for you";
 
 /**
  * Dial geometry, measured from the reference (SERVICES-SECTION.md §3).
