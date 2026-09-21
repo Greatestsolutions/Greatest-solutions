@@ -60,9 +60,7 @@ export default function Home() {
     <PageShell>
         <Hero />
         <Showreel />
-        {/* The homepage cards carry the second "Start this service" action; the
-            /works listing renders the same section without it. */}
-        <Works showContactCta />
+        <Works />
         <Services />
         <Process />
         <Testimonials />

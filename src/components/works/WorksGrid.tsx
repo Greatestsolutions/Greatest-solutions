@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ContactButton } from "@/components/contact/ContactButton";
 import { Button } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
@@ -367,16 +366,15 @@ function ProjectGridCard({
           />
 
           {/*
-            `pointer-events-none` on the bar, `auto` on the controls.
+            `pointer-events-none` on the bar, `auto` on the control.
 
             The bar is a full-width strip, so without this it swallows every click
             that lands in its padding or in the empty space beside "View details":
             such a click hits this div, which has no handler, and the card simply
-            does nothing. Only the two buttons should intercept; everywhere else in
-            the strip belongs to the card's own link underneath.
+            does nothing. Only the button should intercept; everywhere else in the
+            strip belongs to the card's own link underneath.
           */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-wrap gap-2 p-3 tablet:p-4 [&>*]:pointer-events-auto">
-            <ContactButton size="md">Start this project</ContactButton>
             <Button href={`/works/${project.slug}`} tone="light" size="md">
               View details
             </Button>

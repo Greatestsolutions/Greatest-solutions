@@ -318,7 +318,7 @@ function CarouselCard({
         />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-wrap gap-2 p-3 tablet:p-4 [&>*]:pointer-events-auto">
-          <ContactButton size="md">Start this project</ContactButton>
+          <ContactButton size="md">Start this service</ContactButton>
           <Button href={`/services/${service.slug}`} tone="light" size="md">
             View roadmap
           </Button>

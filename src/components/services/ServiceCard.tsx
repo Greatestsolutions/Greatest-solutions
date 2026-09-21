@@ -97,7 +97,7 @@ export function ServiceCard({ service }: { service: Service }) {
         block.
       */}
       <div className="-mt-2 flex flex-wrap justify-center gap-3 desktop:justify-start">
-        <ContactButton>Start this project</ContactButton>
+        <ContactButton>Start this service</ContactButton>
         {/* Each service's OWN slug — the `-2` placeholders link to their own
             pages, not back to the entry they duplicate. */}
         <Button href={`/services/${service.slug}`} tone="light">

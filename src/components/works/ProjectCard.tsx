@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { ContactButton } from "@/components/contact/ContactButton";
 import { Picture } from "@/components/ui/Picture";
 import { Pill } from "@/components/ui/Pill";
 import { PlayButton } from "@/components/works/PlayButton";
@@ -49,16 +48,9 @@ import { THUMB_HEIGHT, THUMB_WIDTH, type Project } from "@/data/works";
 export function ProjectCard({
   project,
   className,
-  showContactCta = false,
 }: {
   project: Project;
   className?: string;
-  /**
-   * Adds the "Start this service" action. Opt-in because this card is shared:
-   * the same component builds both the homepage section and the `/works`
-   * listing, and only the homepage asks for the second action.
-   */
-  showContactCta?: boolean;
 }) {
   return (
     /*
@@ -76,8 +68,9 @@ export function ProjectCard({
 
       `group/card` moves here from the link, since the styled parts are no longer
       its descendants. Hover is unchanged — the link covered the same box. Focus
-      is expressed as `group-has-[a:focus-visible]`, which fires for the card link
-      only: focusing the CTA must not make "View details" appear.
+      is expressed as `group-has-[a:focus-visible]` rather than a plain `:focus`
+      on the link, since the ring it reveals lives on a sibling span, not
+      inside the link itself.
     */
     <li
       data-project={project.slug}
@@ -170,9 +163,9 @@ export function ProjectCard({
           {/* A real video: the play button is the primary reason to visit
               this card, so it sits centred and always visible rather than
               behind the same hover-only reveal as "View details" below.
-              `z-20` for the same reason the second action below needs it —
-              above the stretched link's `z-10`, and a sibling of it rather
-              than nested inside it, so the click can only ever reach one. */}
+              `z-20` puts it above the stretched link's `z-10`, and it is a
+              sibling of that link rather than nested inside it, so a click
+              can only ever reach one. */}
           {project.media?.type === "video" && (
             <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center">
               <PlayButton project={project} className="pointer-events-auto" />
@@ -237,26 +230,7 @@ export function ProjectCard({
             </Pill>
           ))}
         </ul>
-
-        {/*
-          The second action. `relative z-20` lifts it above the stretched link's
-          z-10, so a click here lands on the button and never on the link — the
-          two are siblings, not nested, so the card's navigation is not merely
-          suppressed, it is never in the event's path at all.
-
-          Deliberately always visible, unlike the hover-only "View details" ring:
-          that one is a redundant hint for an action the whole card already
-          performs, whereas this is a different action, so it has to be reachable
-          on touch and by keyboard. `self-start` keeps it to its own width rather
-          than stretching across the card.
-        */}
-        {showContactCta && (
-          <ContactButton size="md" tone="dark" className="relative z-20 self-start">
-            Start this service
-          </ContactButton>
-        )}
       </div>
-
     </li>
   );
 }

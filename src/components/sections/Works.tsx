@@ -72,11 +72,8 @@ const FEATURED_COUNT = 4;
 
 export function Works({
   showHeader = true,
-  showContactCta = false,
 }: {
   showHeader?: boolean;
-  /** Adds "Start this service" to every card. Off by default. */
-  showContactCta?: boolean;
 } = {}) {
   /*
    * Real projects first, `-2` duplicates last, then take the first
@@ -165,7 +162,6 @@ export function Works({
                 key={project.slug}
                 project={project}
                 className={placements[i] ?? fallbackPlacement}
-                showContactCta={showContactCta}
               />
             ))}
           </ul>
