@@ -55,8 +55,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "That email address doesn't look valid." }, { status: 400 });
   }
 
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+  const gmailUser = process.env.GMAIL_USER?.trim();
+  /*
+   * Google's own UI displays an App Password in four space-separated groups
+   * ("abcd efgh ijkl mnop") purely for readability — the real 16-character
+   * secret has no spaces in it. Copy-pasting the displayed form verbatim is
+   * the single most common way to end up with a password Gmail's SMTP
+   * rejects outright (535-5.7.8), since the literal 19-character string
+   * (with spaces) is not the credential. Stripping all whitespace here means
+   * either form works, permanently — not just for this value, but for
+   * whatever gets pasted in after the next password rotation too.
+   */
+  const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
   if (!gmailUser || !gmailPass) {
     console.error("GMAIL_USER / GMAIL_APP_PASSWORD not configured");
     return NextResponse.json({ ok: false, error: "Email sending isn't configured." }, { status: 500 });
