@@ -75,7 +75,14 @@ const nextConfig: NextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
       {
-        source: "/:path*.{mp4,webm,avif,webp,png,jpg,jpeg,svg,ico,woff2}",
+        // Regex alternation, not a brace-list: `{a,b}` in a Next.js header
+        // `source` is path-to-regexp's repeat-count syntax, not a glob — it
+        // silently matched nothing, which is why the first version of this
+        // rule shipped and changed no response headers at all in production
+        // (confirmed directly: re-curled after deploy, cta.mp4 still came
+        // back `max-age=0, must-revalidate`). This is the syntax Next's own
+        // docs use for extension matching.
+        source: "/:path*.(mp4|webm|avif|webp|png|jpg|jpeg|svg|ico|woff2)",
         headers: staticAssetCacheHeaders,
       },
     ];
