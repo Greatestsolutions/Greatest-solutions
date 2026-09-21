@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
@@ -12,6 +12,32 @@ import type { Service } from "@/data/services";
 /** How many services show before "Show more". One press reveals the rest —
  *  unlike `/works`'s batched reveal, there's nothing to page through twice. */
 const INITIAL_COUNT = 5;
+
+/** Matches `--breakpoint-desktop` in globals.css exactly — this has to be
+ *  the same 1200px cutoff the CSS itself uses, not a separately-chosen
+ *  value that could quietly drift from it later. */
+const DESKTOP_QUERY = "(min-width: 1200px)";
+
+/**
+ * `matchMedia` is an external store (the browser's own viewport state), and
+ * `useSyncExternalStore` is React's own mechanism for subscribing to one of
+ * those — not a `useEffect` calling `setState`, which the project's lint
+ * rules correctly reject here: that pattern causes an extra, avoidable
+ * render on top of the one React already does to reconcile the subscription.
+ */
+function subscribeToDesktopQuery(callback: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+function getIsDesktop() {
+  return window.matchMedia(DESKTOP_QUERY).matches;
+}
+/** SSR has no viewport to check — see the doc comment below for why `false`
+ *  (show everything) is the correct default to render on the server. */
+function getIsDesktopServerSnapshot() {
+  return false;
+}
 
 /**
  * The scroll-tracked dial/track/illustration, plus how many services are
@@ -25,10 +51,28 @@ const INITIAL_COUNT = 5;
  * (see its own effect's dependency array) — it was already built to handle
  * the item set changing size, so passing `visible.length` instead of a fixed
  * `services.length` is the entire integration; nothing there needed touching.
+ *
+ * The 5-then-"Show more" behaviour is desktop-only. Below that, all ten
+ * render — explicitly requested, in place of trying to position "Show more"
+ * correctly on phone and tablet: the card's own content (title, description,
+ * tags, two buttons, a large illustration) can easily need more height than
+ * a short browser window actually gives it — DevTools' own responsive panel
+ * at 390×513 measured this directly — and no reachable position for the
+ * button is guaranteed to exist below a card whose own height can exceed the
+ * viewport it's supposed to fit in. Showing everything removes the
+ * requirement to place anything into space that might not exist, rather
+ * than trying to patch around it. The server snapshot below is `false`
+ * (`matchMedia` doesn't exist during SSR) — a desktop visitor briefly sees
+ * all ten before hydration confirms the real width and narrows it to five,
+ * the same "renders sensibly before JS runs, then corrects" trade-off
+ * `ServiceScroller`'s own `--parallax: 0.5` default already accepts.
  */
 export function ServicesShowcase({ services }: { services: Service[] }) {
+  const isDesktop = useSyncExternalStore(subscribeToDesktopQuery, getIsDesktop, getIsDesktopServerSnapshot);
+
   const [revealed, setRevealed] = useState(Math.min(INITIAL_COUNT, services.length));
-  const visible = services.slice(0, revealed);
+  const visibleCount = isDesktop ? revealed : services.length;
+  const visible = services.slice(0, visibleCount);
   const hidden = services.length - visible.length;
 
   /*
@@ -116,14 +160,7 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
                   data-state={i === 0 ? "active" : "inactive"}
                   className={[
                     "relative flex min-h-svh tablet:items-center tablet:py-[90px]",
-                    /* `flex-col` only matters for the special item, which is
-                       the only one with two direct children (card, button) —
-                       without it they render side by side in the default row
-                       direction on phone, where the button stays in normal
-                       flow instead of becoming `absolute` (that only kicks in
-                       from `tablet:`). Harmless for every other item, which
-                       only ever has the one child ServiceCard. */
-                    "max-tablet:flex-col max-tablet:items-start max-tablet:pt-[230px]",
+                    "max-tablet:items-start max-tablet:pt-[230px]",
                     "max-tablet:sticky max-tablet:top-0 max-tablet:h-svh",
                     "transition-[opacity,filter] duration-[var(--duration-spring)] ease-[var(--ease-spring)]",
                     "tablet:data-[state=inactive]:opacity-50 tablet:data-[state=inactive]:blur-[4px]",
@@ -132,19 +169,14 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
                   ].join(" ")}
                 >
                   {/*
-                    A dedicated `min-h-svh` slot for "Show more" — the first
-                    attempt — doesn't work: the active-index math never counts
-                    past `visible.length - 1`, so on phone (where every item is
-                    `sticky top-0 h-svh` and only the active one is opaque) the
-                    last card never receives `data-state="inactive"` and never
-                    releases, permanently covering a separate slot beneath it.
-                    Measured, not assumed — a real overlapping-content
-                    screenshot at 390 caught it.
-
-                    The card itself renders exactly like every other item's —
-                    `ref={cardRef}` on the wrapper is the only addition, purely
-                    for the button's measurement above. Its own position is
-                    untouched, matching every other card's.
+                    `isLastWithMore` can only be true when the real viewport
+                    is already at the desktop breakpoint (`hidden` is always
+                    0 below it — see `isDesktop` above), so this whole branch,
+                    including the button below, only ever renders there. The
+                    card itself renders exactly like every other item's —
+                    `ref={cardRef}` on the wrapper is the only addition,
+                    purely for the button's measurement below. Its own
+                    position is untouched, matching every other card's.
                   */}
                   {isLastWithMore ? (
                     <div ref={cardRef}>
@@ -156,19 +188,15 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
 
                   {isLastWithMore && (
                     /*
-                      `top` is the measured midpoint; unset (server-rendered
-                      and for the one frame before the effect above runs) it
-                      falls back to sitting right after the card — the same
-                      "renders sensibly before JS runs" fallback
-                      `WorksParallax`'s own `--parallax: 0.5` default follows.
-                      `tablet:absolute` is what makes `top` apply at all —
-                      phone stays a plain margin-top below the card, the
-                      layout that was already confirmed working there and has
-                      no equivalent "space before the next section" to centre
-                      within (the box is exactly one phone viewport, pinned).
+                      `top` is the measured midpoint from the effect above;
+                      unset (server-rendered, and for the one frame before
+                      that effect runs) it falls back to sitting right after
+                      the card — the same "renders sensibly before JS runs"
+                      trade-off `WorksParallax`'s own `--parallax: 0.5`
+                      default already accepts.
                     */
                     <div
-                      className="mt-10 flex w-full justify-center tablet:absolute tablet:inset-x-0 tablet:mt-0 tablet:-translate-y-1/2"
+                      className="absolute inset-x-0 flex justify-center -translate-y-1/2"
                       style={buttonTop !== null ? { top: `${buttonTop}px` } : undefined}
                     >
                       <Button onClick={() => setRevealed((count) => count + hidden)} tone="light">
