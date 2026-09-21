@@ -46,49 +46,76 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
             data-service-track
             className="col-start-1 row-start-1 max-tablet:pb-9 tablet:col-span-5 tablet:col-start-4 desktop:col-span-6 desktop:col-start-5 desktop:max-w-[540px]"
           >
-            {visible.map((service, i) => (
-              <div
-                key={service.slug}
-                data-service-item
-                data-state={i === 0 ? "active" : "inactive"}
-                className={[
-                  "flex min-h-svh tablet:items-center tablet:py-[90px]",
-                  "max-tablet:items-start max-tablet:pt-[230px]",
-                  "max-tablet:sticky max-tablet:top-0 max-tablet:h-svh",
-                  "transition-[opacity,filter] duration-[var(--duration-spring)] ease-[var(--ease-spring)]",
-                  "tablet:data-[state=inactive]:opacity-50 tablet:data-[state=inactive]:blur-[4px]",
-                  "max-tablet:data-[state=inactive]:not-focus-within:pointer-events-none",
-                  "max-tablet:data-[state=inactive]:not-focus-within:opacity-0",
-                ].join(" ")}
-              >
-                {/*
-                  A dedicated `min-h-svh` slot for "Show more" — the first
-                  attempt — doesn't work: the active-index math never counts
-                  past `visible.length - 1`, so on phone (where every item is
-                  `sticky top-0 h-svh` and only the active one is opaque) the
-                  last card never receives `data-state="inactive"` and never
-                  releases, permanently covering a separate slot beneath it.
-                  Measured, not assumed — a real overlapping-content screenshot
-                  at 390 caught it. Attaching the button to the last visible
-                  card's own content sidesteps the problem entirely: it is
-                  shown or hidden by exactly the same rule as the card it
-                  belongs to, no extra slot and no extra index required.
-                */}
-                <div className="flex w-full flex-col items-center gap-6">
-                  <ServiceCard service={service} />
-                  {hidden > 0 && i === visible.length - 1 && (
-                    <Button
-                      onClick={() => setRevealed((count) => count + hidden)}
-                      tone="light"
-                      className="mt-6"
-                    >
-                      Show more services
-                      <span className="sr-only"> — {hidden} more</span>
-                    </Button>
+            {visible.map((service, i) => {
+              const isLastWithMore = hidden > 0 && i === visible.length - 1;
+              return (
+                <div
+                  key={service.slug}
+                  data-service-item
+                  data-state={i === 0 ? "active" : "inactive"}
+                  className={[
+                    "flex min-h-svh tablet:items-center tablet:py-[90px]",
+                    "max-tablet:items-start max-tablet:pt-[230px]",
+                    "max-tablet:sticky max-tablet:top-0 max-tablet:h-svh",
+                    "transition-[opacity,filter] duration-[var(--duration-spring)] ease-[var(--ease-spring)]",
+                    "tablet:data-[state=inactive]:opacity-50 tablet:data-[state=inactive]:blur-[4px]",
+                    "max-tablet:data-[state=inactive]:not-focus-within:pointer-events-none",
+                    "max-tablet:data-[state=inactive]:not-focus-within:opacity-0",
+                  ].join(" ")}
+                >
+                  {/*
+                    A dedicated `min-h-svh` slot for "Show more" — the first
+                    attempt — doesn't work: the active-index math never counts
+                    past `visible.length - 1`, so on phone (where every item is
+                    `sticky top-0 h-svh` and only the active one is opaque) the
+                    last card never receives `data-state="inactive"` and never
+                    releases, permanently covering a separate slot beneath it.
+                    Measured, not assumed — a real overlapping-content
+                    screenshot at 390 caught it. Attaching the button to the
+                    last visible card's own content sidesteps that: it is
+                    shown or hidden by exactly the same rule as the card it
+                    belongs to, no extra slot and no extra index required.
+
+                    Centred between the card and whatever comes after this
+                    section (not just nudged down with a margin) — explicitly
+                    requested, and a fixed margin can't do it correctly since
+                    card height varies per service. `self-stretch` makes this
+                    wrapper fill the item box's full cross-axis extent (its
+                    `min-h-svh`, minus the outer box's own padding) — `h-full`
+                    was tried first and doesn't reliably do the same thing: a
+                    flex item's percentage height needs the container's own
+                    used height resolved first, which a `min-height`-only
+                    parent doesn't reliably give it, whereas `self-stretch`
+                    sizes the item to the container's cross-axis directly,
+                    with no percentage involved. Two `flex-1` regions then
+                    split that real height evenly: the card centres in the
+                    top half, the button in the bottom half, correct for any
+                    card height without measuring anything in JS. Phone falls
+                    back to the original simple stack — the split has no
+                    phone equivalent, since that layout pins one card at a
+                    fixed offset rather than centring within a tall box.
+                  */}
+                  {isLastWithMore ? (
+                    <div className="flex w-full flex-col items-center self-stretch max-tablet:gap-6 max-tablet:self-auto">
+                      <div className="flex w-full flex-1 items-center justify-center max-tablet:flex-none">
+                        <ServiceCard service={service} />
+                      </div>
+                      <div className="flex w-full flex-1 items-center justify-center max-tablet:flex-none">
+                        <Button
+                          onClick={() => setRevealed((count) => count + hidden)}
+                          tone="light"
+                        >
+                          Show more services
+                          <span className="sr-only"> — {hidden} more</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <ServiceCard service={service} />
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div
