@@ -1,6 +1,7 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Marquee } from "@/components/ui/Marquee";
+import { ShowreelSound } from "@/components/sections/ShowreelSound";
 import { showreel } from "@/data/showreel";
 
 /**
@@ -43,8 +44,10 @@ import { showreel } from "@/data/showreel";
  * explicitly requested: play automatically, forever, no play/stop control.
  * `muted` isn't a design choice here, it's what makes the `autoPlay` part
  * possible at all — every browser silently blocks audible autoplay, so an
- * unmuted `autoPlay` would just never start. The real reel does carry real
- * audio (see `showreel.ts`), it just isn't heard in this treatment.
+ * unmuted `autoPlay` would just never start. The foreground's real audio
+ * is reachable through a small unmute toggle (`ShowreelSound`) rather than
+ * lost entirely — see its own doc comment for why that one click is
+ * unavoidable. The reflection stays permanently muted; it is decorative.
  */
 export function Showreel() {
   return (
@@ -99,28 +102,18 @@ export function Showreel() {
               The video sits above the type and fills the aspect box.
 
               Plays itself: `autoplay`, `loop`, `muted`, `playsInline`, no
-              controls and no play button anywhere in the section — explicitly
-              requested, in place of the click-to-play-with-sound treatment
-              this had briefly. `preload="auto"` matches that: the file starts
-              downloading on arrival rather than on demand, which is the
-              honest cost autoplay-from-load always carries (17.3 MB here).
+              controls and no play/pause button anywhere in the section.
+              `preload="auto"` matches that: the file starts downloading on
+              arrival rather than on demand, the honest cost autoplay-from-
+              load always carries (17.3 MB here).
 
-              No client component needed for this: with no click handler
-              there is no state, so this stays a plain Server Component.
+              `ShowreelSound` is the one client boundary this needs — not a
+              play control, a mute toggle, since the real reel does carry
+              real audio and a way to actually hear it was asked for. See its
+              own doc comment for why unmuting can't happen without a click.
             */}
             <div className="relative z-10 size-full overflow-hidden rounded-[32px] bg-brand-forest">
-              <video
-                className="size-full rounded-[32px] object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                poster={showreel.poster.fallback}
-                aria-label={showreel.videoLabel}
-              >
-                <source src={showreel.src} type="video/mp4" />
-              </video>
+              <ShowreelSound />
             </div>
           </div>
 
