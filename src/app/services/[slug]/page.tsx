@@ -13,12 +13,10 @@ import { ServiceArt } from "@/components/services/ServiceArt";
 import { RoadmapTimeline } from "@/components/services/RoadmapTimeline";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionLabel } from "@/components/services/SectionLabel";
-import { ServicePricingTiers } from "@/components/services/ServicePricingTiers";
 import { StackGroups } from "@/components/services/StackGroups";
 import { TeamRoles } from "@/components/services/TeamRoles";
 import { cn } from "@/lib/cn";
 import { services } from "@/data/services";
-import { servicePricing } from "@/data/servicePricing";
 
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -108,7 +106,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const service = services.find((s) => s.slug === slug);
   if (!service) notFound();
-  const pricingTiers = servicePricing[service.slug];
 
   return (
     <PageShell>
@@ -215,9 +212,21 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               cost the header more than it gave it.
             */}
             <div className="hidden shrink-0 desktop:flex desktop:flex-1 desktop:items-center desktop:justify-center">
+              {/* Real client photo, not the abstract placeholder —
+                  unfiltered, `fit="cover"` so it fills the box with no blank
+                  margin, and `objectPosition` from the data so the crop
+                  lands off the subject. The box itself moved from square to
+                  4:3 (still not a full 16:9 match — this is also the canvas
+                  the rotation and glow were tuned against) to shrink how
+                  much `cover` needs to crop in the first place. */}
               <ServiceArt
                 source={service.illustration}
-                className="desktop:size-[clamp(320px,26vw,420px)]"
+                filtered={false}
+                fit="cover"
+                objectPosition={service.focalPoint}
+                rounded
+                alt={`${service.title} service thumbnail`}
+                className="desktop:w-[clamp(320px,26vw,420px)] desktop:aspect-4/3"
                 sizes="(min-width: 1200px) 26vw, 420px"
               />
             </div>
@@ -367,26 +376,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </Band>
       )}
 
-      {/* ---- pricing ------------------------------------------------------ */}
-      {/* Right before the closing CTA, on purpose: it is the last question a
-          reader has ("what does this cost?") before the page asks them to act,
-          so it belongs immediately upstream of that ask rather than earlier in
-          the page's more explanatory middle. `tone="panel"` continues the same
-          alternation every other section on this page already follows.
-
-          Guarded the same way `outcomes` is below: every one of the ten real
-          services has tiers in `servicePricing`, but a service added later
-          without an entry there should render nothing rather than an empty
-          heading over an empty grid. */}
-      {pricingTiers && pricingTiers.length > 0 && (
-        <Band tone="panel">
-          <div className={BLOCK}>
-            <SectionLabel>Pricing</SectionLabel>
-            <ServicePricingTiers plans={pricingTiers} />
-          </div>
-        </Band>
-      )}
-
       {/* ---- ongoing support + CTA --------------------------------------- */}
       <Band>
         {/*
@@ -450,7 +439,12 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <div className="hidden shrink-0 desktop:flex desktop:flex-1 desktop:items-center desktop:justify-center">
                 <ServiceArt
                   source={service.illustration}
-                  className="desktop:size-[clamp(320px,26vw,420px)]"
+                  filtered={false}
+                  fit="cover"
+                  objectPosition={service.focalPoint}
+                  rounded
+                  alt={`${service.title} service thumbnail`}
+                  className="desktop:w-[clamp(320px,26vw,420px)] desktop:aspect-4/3"
                   sizes="(min-width: 1200px) 26vw, 420px"
                 />
               </div>

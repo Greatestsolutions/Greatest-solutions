@@ -23,6 +23,10 @@ export type PictureProps = {
   sizes?: string;
   loading?: "eager" | "lazy";
   fetchPriority?: "high" | "low" | "auto";
+  /** CSS `object-position`, e.g. `"35% 50%"`. Only meaningful alongside
+   *  `object-cover`/`object-contain` — left unset, the browser default
+   *  (`50% 50%`) applies. */
+  objectPosition?: string;
 };
 
 export function Picture({
@@ -34,6 +38,7 @@ export function Picture({
   sizes,
   loading = "lazy",
   fetchPriority,
+  objectPosition,
 }: PictureProps) {
   return (
     <picture>
@@ -47,6 +52,7 @@ export function Picture({
         loading={loading}
         fetchPriority={fetchPriority}
         decoding="async"
+        style={objectPosition ? { objectPosition } : undefined}
         className={cn("block", className)}
       />
     </picture>

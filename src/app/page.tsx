@@ -3,21 +3,31 @@ import { FAQ } from "@/components/sections/FAQ";
 import { Hero } from "@/components/sections/Hero";
 import { Process } from "@/components/sections/Process";
 import { Services } from "@/components/sections/Services";
+import { Solutions } from "@/components/sections/Solutions";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Showreel } from "@/components/sections/Showreel";
-import { Works } from "@/components/sections/Works";
 
 /**
  * Home page. Composes sections and nothing else — layout, copy and behaviour all
  * belong to the sections themselves, so adding one is a single import here.
  *
- * The standalone Pricing section is deliberately gone: each of the ten
- * services now carries its own three pricing tiers on its own `/services/[slug]`
- * page, which made one generic homepage section redundant rather than
- * complementary. `sections/Pricing.tsx` and `data/pricing.ts` are untouched on
- * disk — `PricingCard`, `PlanIcon` and `BenefitIcon` are exactly what the new
- * per-service tiers are built from, and the homepage section itself is simply
+ * The standalone Pricing section is deliberately gone from here — simply
  * unreferenced, the same treatment `Blog`'s removal from the nav got.
+ * `sections/Pricing.tsx`, `data/pricing.ts` and `PricingCard` are untouched on
+ * disk; each service briefly carried its own three pricing tiers on its own
+ * `/services/[slug]` page too (built from those same `PricingCard`/
+ * `PricingPlan` pieces), but that was removed as its own task — see
+ * `services/[slug]/page.tsx`'s history rather than this file for that.
+ *
+ * `Solutions` replaces what used to be `Works` here — the old "Featured
+ * Work" masonry teaser, repurposed to show the service catalog instead of
+ * Works entries (`Works.tsx`, `ProjectCard` and `WorksParallax` are deleted,
+ * not just unreferenced — none of the three had any other caller). It sits
+ * in `Works`' exact old slot, directly before `Services` — a services-focused
+ * section right next to the existing `Services` carousel was flagged as a
+ * possible redundancy and briefly moved lower the page to avoid it, but the
+ * site owner decided against that and asked for this exact position back.
+ * Final call; not open for re-litigating.
  */
 /*
  * LogoStrip is off the page. `clientRows` in `data/clients.ts` held eight of
@@ -60,7 +70,7 @@ export default function Home() {
     <PageShell>
         <Hero />
         <Showreel />
-        <Works />
+        <Solutions />
         <Services />
         <Process />
         <Testimonials />

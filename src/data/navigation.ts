@@ -45,11 +45,10 @@ export interface NavItem {
  *
  * **Solutions and Pricing have no entry at all**, same reasoning as Blog, one
  * step further: both routes were deleted outright (`/solutions` with
- * `data/solutions.ts`; `/pricing` with the homepage's Pricing section, once
- * each service grew its own three tiers on its own detail page), so there is
- * no route to link to and nothing to mark `pending`. `data/pricing.ts` and
- * `PricingCard` are not part of that deletion — they are what the per-service
- * tiers on `/services/[slug]` are built from.
+ * `data/solutions.ts`; `/pricing` with the homepage's Pricing section), so
+ * there is no route to link to and nothing to mark `pending`. `data/pricing.ts`
+ * and `PricingCard` are not part of that deletion — `sections/Pricing.tsx`
+ * still imports both directly, just isn't rendered from any route anymore.
  */
 export const navItems: NavItem[] = [
   { label: "Works", href: "/works" },

@@ -68,6 +68,28 @@ export interface Service {
   /** Short capability labels. Rendered in order, wrapping when the column is narrow. */
   tags: string[];
   illustration: ImageSource;
+  /**
+   * The original abstract-illustration render — one of the site's 5 cycled
+   * "1360px greyscale renders" (see `illustration()` below) — kept alongside
+   * `illustration` (the real client photo) once the two fields' consumers
+   * diverged: `ServicesCarousel` and `ServiceArt` show the real photo,
+   * unfiltered; the homepage's `ServicesShowcase`/`ServiceCard` show this
+   * one, through `EmeraldFilter`, exactly as every service did before real
+   * photos existed. Two fields rather than one that changes meaning by
+   * caller — that was tried implicitly for a while and is exactly the
+   * "which treatment does this field's caller expect" ambiguity a second,
+   * explicitly-named field avoids.
+   */
+  abstractIllustration: ImageSource;
+  /**
+   * CSS `object-position` for `illustration` when it's cover-cropped — the
+   * real thumbnail photos are 16:9 landscape shots of a robot figure whose
+   * horizontal position varies photo to photo (left-of-centre in most, right
+   * of centre in a few), so a single shared position would cut through the
+   * subject on some of them. Horizontal-only (paired with a fixed vertical
+   * value per render site); omitted, the browser default (`50% 50%`) applies.
+   */
+  focalPoint?: string;
   /** Headline duration, e.g. "21-day rollout". */
   timeline: string;
   /** The pain point this service addresses. */
@@ -97,7 +119,9 @@ export const services: Service[] = [
     description:
       "24/7 customer communication, scripted by your team and supervised by an Account Manager.",
     tags: ["Voice AI", "Call Handling", "CRM Integration"],
-    illustration: illustration("web-development"),
+    illustration: illustration("ai-voice-agents"),
+    abstractIllustration: illustration("web-development"),
+    focalPoint: "38% 50%",
     timeline: "21-day rollout",
     problem:
       "Missed calls are missed revenue. Front desks can't answer every call, especially after hours or during rushes, and the businesses that feel this hardest lose bookings to whichever competitor picks up first.",
@@ -143,7 +167,9 @@ export const services: Service[] = [
     description:
       "Industry-specific automation systems built around how your business actually runs.",
     tags: ["Workflow Design", "Integrations", "Reporting"],
-    illustration: illustration("digital-marketing"),
+    illustration: illustration("vertical-automation"),
+    abstractIllustration: illustration("digital-marketing"),
+    focalPoint: "35% 50%",
     timeline: "28-day rollout",
     problem:
       "Off-the-shelf automation tools assume every business works the same way. Generic automation breaks the moment it hits real operational complexity: legal intake isn't dental scheduling.",
@@ -188,7 +214,9 @@ export const services: Service[] = [
     description:
       "Every lead followed up in minutes, not days, managed by a real growth team.",
     tags: ["Multi-channel", "Follow-up", "CRM"],
-    illustration: illustration("social-content"),
+    illustration: illustration("ai-lead-generation"),
+    abstractIllustration: illustration("social-content"),
+    focalPoint: "42% 50%",
     timeline: "30-day rollout",
     problem:
       "Most businesses lose 60–70% of leads simply through slow or inconsistent follow-up. By the time a rep calls back, the prospect has already booked with someone else.",
@@ -232,7 +260,9 @@ export const services: Service[] = [
     description:
       "Consistent, on-brand content across every platform, directed by a real content team.",
     tags: ["Content Calendar", "Social", "Human Review"],
-    illustration: illustration("product-design"),
+    illustration: illustration("ai-content-social"),
+    abstractIllustration: illustration("product-design"),
+    focalPoint: "28% 50%",
     timeline: "Ongoing, weekly batches",
     problem:
       "Consistent content production is one of the biggest time drains for growing businesses, and inconsistency kills algorithmic reach and brand trust alike.",
@@ -275,7 +305,9 @@ export const services: Service[] = [
     description:
       "Scroll-stopping video, directed by real creative producers, produced at AI-assisted speed.",
     tags: ["Short-form Video", "Scripting", "Editing"],
-    illustration: illustration("brand-identity"),
+    illustration: illustration("ai-video-ugc"),
+    abstractIllustration: illustration("brand-identity"),
+    focalPoint: "55% 50%",
     timeline: "20-day cycle",
     problem:
       "Video is the highest-converting content format, but traditional production (crews, editors, weeks-long turnaround) is slow and expensive.",
@@ -317,7 +349,9 @@ export const services: Service[] = [
     description:
       "Conversion-focused copy, written by real copywriters and stress-tested with AI iteration.",
     tags: ["Copywriting", "Landing Pages", "Conversion"],
-    illustration: illustration("web-development"),
+    illustration: illustration("ai-copy-sales-pages"),
+    abstractIllustration: illustration("web-development"),
+    focalPoint: "32% 50%",
     timeline: "15-day cycle",
     problem:
       "Weak copy is one of the most common, and most fixable, reasons offers underperform. Most businesses either write it themselves without conversion expertise, or hire freelancers with inconsistent quality.",
@@ -356,7 +390,9 @@ export const services: Service[] = [
     description:
       "Search-optimized content built on real keyword strategy, produced at scale with human review.",
     tags: ["Keyword Strategy", "Editorial", "Publishing Cadence"],
-    illustration: illustration("digital-marketing"),
+    illustration: illustration("ai-seo-content"),
+    abstractIllustration: illustration("digital-marketing"),
+    focalPoint: "35% 50%",
     timeline: "3–6 month retainer",
     problem:
       "SEO content requires consistent volume and quality over months to work, a combination most businesses can't sustain in-house, and most cheap AI content mills fail at.",
@@ -397,7 +433,9 @@ export const services: Service[] = [
     description:
       "Fast, professional websites, designed by a real team and built with AI-accelerated development.",
     tags: ["Web Design", "Responsive Build", "UX & QA"],
-    illustration: illustration("social-content"),
+    illustration: illustration("ai-humanized-websites"),
+    abstractIllustration: illustration("social-content"),
+    focalPoint: "58% 50%",
     timeline: "28-day build",
     problem:
       "Traditional web builds take months and cost tens of thousands; DIY builders produce generic, slow, poorly-converting sites.",
@@ -438,7 +476,9 @@ export const services: Service[] = [
     description:
       "Email systems and brand messaging that actually sound like you.",
     tags: ["Email Sequences", "Brand Voice", "Lifecycle"],
-    illustration: illustration("product-design"),
+    illustration: illustration("ai-email-brand"),
+    abstractIllustration: illustration("product-design"),
+    focalPoint: "36% 50%",
     timeline: "19-day build",
     problem:
       "Most businesses either neglect email entirely or send generic, inconsistent messaging that doesn't reflect their brand, leaving one of the highest-ROI channels underused.",
@@ -481,7 +521,9 @@ export const services: Service[] = [
     description:
       "Investor- and client-ready decks, strategized by real deck specialists.",
     tags: ["Narrative", "Deck Design", "Investor Ready"],
-    illustration: illustration("brand-identity"),
+    illustration: illustration("pitch-decks"),
+    abstractIllustration: illustration("brand-identity"),
+    focalPoint: "55% 50%",
     timeline: "17-day build",
     problem:
       "A weak deck can kill a strong business, whether pitching investors, closing enterprise clients, or presenting internally.",
@@ -520,6 +562,25 @@ export const services: Service[] = [
 export const servicesLabel = "Services";
 export const servicesEyebrow = "Services";
 export const servicesTitle = "What we can build for you";
+
+/**
+ * Copy for the homepage's "Solutions" section (`sections/Solutions.tsx`) —
+ * the former "Featured Work" masonry teaser, repurposed to link into the
+ * service catalog instead of showing Works entries. Distinct from
+ * `servicesEyebrow`/`servicesTitle` above, which label the homepage's other,
+ * separate `ServicesShowcase` section.
+ *
+ * `solutionsDescription` is grounded only in facts already established
+ * elsewhere on the site (the 10-service catalog, and the human strategy → AI
+ * execution → human QA delivery model `AiHumanWorkflow` already describes) —
+ * confirmed as final copy, "Solutions" (plural) and all.
+ */
+export const solutionsLabel = "Solutions";
+export const solutionsEyebrow = "Solutions";
+export const solutionsTitle = "Solutions";
+export const solutionsDescription =
+  "Ten AI-powered solutions, each one built by a human strategist, executed with AI, and checked by a human before it ships.";
+export const solutionsCta = "Book an intro call";
 
 /**
  * Dial geometry, measured from the reference (SERVICES-SECTION.md §3).

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { WorksGrid } from "@/components/works/WorksGrid";
 import { projects, type Project } from "@/data/works";
+import { services } from "@/data/services";
 
 /**
  * The `/works` index.
@@ -33,58 +34,60 @@ import { projects, type Project } from "@/data/works";
  */
 
 /**
- * The quick-search keywords.
+ * The quick-search keywords — real service names, not Baytix's own `tags[]`
+ * values (the previous set: "App Design", "Brand Identity", "Web Design").
  *
- * Rebuilt from scratch once the six placeholder/sample entries (PriceWatch,
- * DocChat AI, PolicAI, LinkedIn Job Scraper, FlipSense, ComixHub) were
- * retired — the previous set (Python, RAG, Web Scraping, Automation) was
- * built entirely around tags and technologies belonging to those six, and
- * none of it survives them: a click on any of the four would have returned
- * either zero results or, worse, real projects that were never actually
- * tagged with the term.
+ * Rebuilt again because the site owner wants these chips to browse the
+ * portfolio BY SERVICE rather than by Baytix's own design-discipline tags.
+ * Cross-referencing all 29 works (14 videos + 15 Baytix) against the real
+ * 10-service catalog the same way `services[]` was mapped on the video
+ * works — a real, specific, evident connection only, never a guess — found
+ * genuine coverage for exactly two:
  *
- * Same principle as before — a real `tags[]` value that matches 2+ projects,
- * `technologies[]` checked too but empty on every current entry — with one
- * addition: preferring values that don't just restate a bigger chip. Three
- * qualify:
+ *   AI Video / UGC    14   every video work — each one is literally an
+ *                          AI-produced video, which is what this service is
+ *   Web Development    2   Real Estate Website, Digital Design Agency —
+ *                          the only two Baytix entries actually categorised
+ *                          "Website" rather than an app/branding system
  *
- *   App Design      9   Cryptocurrency App · Cricket Live App · Accounting
- *                       Desktop App · Food Delivery Branding · Streaming
- *                       Service Identity · Trading Platform · Automotive
- *                       Services · Accounting Mobile App · E-commerce Store
- *   Brand Identity  7   Eyewear Campaign Identity · Fitness Product Branding
- *                       · Playful Toy Branding · Skincare Identity Design ·
- *                       Food Delivery Branding · Streaming Service Identity
- *                       · Digital Design Agency
- *   Web Design      2   Real Estate Website · Digital Design Agency
+ * The other 8 services (AI Voice Agents, Vertical Automation, AI Lead
+ * Generation, AI Content & Social, AI Copy & Sales Pages, AI SEO Content, AI
+ * Email & Brand, Pitch Decks) have zero genuine matches — nothing currently
+ * in the portfolio evidently demonstrates them, and forcing a match would be
+ * exactly the fabrication this site has repeatedly removed elsewhere. Two
+ * chips, confirmed with the site owner, rather than stretching to a bigger
+ * number or shipping one that returns zero/near-zero results.
  *
- * Three more real values clear the 2+ bar — "Fintech UI" (Cryptocurrency App,
- * Trading Platform), "Financial Tools" (the two Accounting entries) and
- * "Packaging" (the two branding-with-packaging entries) — but each is a pure
- * subset of a chip already above it: every project either would match, App
- * Design or Brand Identity already surfaces. A chip that never adds a result
- * the bigger one didn't already give is the same "barely filters" problem
- * the old one-result "Front-end" value was left out for, so these are left
- * out too rather than padded on to hit five. "Web Design" clears the same bar
- * cleanly: neither of its two projects carries "App Design" or "Brand
- * Identity", so it is the one addition that actually widens coverage.
- *
- * Three chips, not the four this replaces — the honest count once forcing a
- * fourth meant picking a value that duplicates one already there.
+ * Sourced from `Project.serviceTags` (real service slugs, see `data/works.ts`
+ * for why that's a separate field from `services[]`), resolved to each
+ * service's own real title below — never a free-form label.
  */
-const KEYWORDS = ["App Design", "Brand Identity", "Web Design"] as const;
+const KEYWORDS = ["ai-video-ugc", "web-development"] as const;
+const serviceTitle = new Map(services.map((s) => [s.slug, s.title]));
+const KEYWORD_LABELS = KEYWORDS.map((slug) => serviceTitle.get(slug) ?? slug);
 
 /**
  * One lowercase haystack per project, built once.
  *
- * Covers title, description, category, tags and technologies — the fields a
- * visitor would plausibly type. `type` rides along too, so "personal" or
+ * Covers title, description, category, tags, technologies and — resolved
+ * from `serviceTags`' slugs to their real titles — the service names a
+ * chip click searches for. `type` rides along too, so "personal" or
  * "internal" also finds things. `fullDescription` is deliberately excluded: it is
  * a paragraph of prose, and searching it makes short queries match almost
  * everything, which reads as a broken filter rather than a generous one.
  */
 const haystack = (p: Project) =>
-  [p.title, p.description, p.category, p.type, ...p.tags, ...p.technologies].join(" ").toLowerCase();
+  [
+    p.title,
+    p.description,
+    p.category,
+    p.type,
+    ...p.tags,
+    ...p.technologies,
+    ...(p.serviceTags ?? []).map((slug) => serviceTitle.get(slug) ?? slug),
+  ]
+    .join(" ")
+    .toLowerCase();
 
 const INDEX = new Map(projects.map((p) => [p.slug, haystack(p)]));
 
@@ -178,7 +181,7 @@ export function WorksIndex() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
-            {KEYWORDS.map((keyword) => (
+            {KEYWORD_LABELS.map((keyword) => (
               <FilterPill
                 key={keyword}
                 pressed={pressed(keyword)}

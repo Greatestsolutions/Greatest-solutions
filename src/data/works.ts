@@ -10,6 +10,23 @@ import type { ImageSource } from "@/types/media";
  * own case-study text, same no-forced-`services[]` reasoning). See each
  * group's own comment below for specifics.
  *
+ * `priority` 1–29 deliberately INTERLEAVES the 14 video entries and 15 Baytix
+ * entries rather than grouping them into two blocks — the client wants the
+ * `/works` grid to read as one mixed body of work, not "videos, then web
+ * apps." Positions 1–6 are a specific hand-picked sequence (Work 1, Work 2,
+ * one Baytix entry, Work 3, a second Baytix entry, Work 4) matching the
+ * "View more" batch size, so that's exactly what a visitor sees before ever
+ * clicking it. Positions 7–29 mix the remaining 10 videos and 13 Baytix
+ * entries in a fixed, deliberately-chosen order — genuinely mixed (no run
+ * longer than two of the same type) but NOT re-randomized per request: a
+ * `/works` page whose order changes between page loads (or between the
+ * initial load and a "View more" click) fights Next.js's static rendering
+ * and can duplicate or drop entries from the paginated view. This is a
+ * one-time deliberate shuffle, not an algorithm — reordering the mix further
+ * is a matter of editing these numbers directly, the same as any other
+ * priority value on this array. See `Works.tsx` for why the homepage's own
+ * featured selection does NOT simply take the first 4 of this order.
+ *
  * `Internal Project` and `Personal Project` remain valid `ProjectType` values
  * for exactly the case they were built for — real, uncommissioned work with
  * no client to name — but nothing currently uses them. The six placeholder
@@ -30,8 +47,7 @@ export interface ProjectImage {
 
 /**
  * A real video attached to a project's card. Drives the play-button overlay
- * and {@link VideoModal} on both card surfaces — see `WorksGrid.tsx` and
- * `ProjectCard.tsx`.
+ * and {@link VideoModal} — see `WorksGrid.tsx`.
  */
 export interface ProjectVideo {
   type: "video";
@@ -60,6 +76,21 @@ export interface Project {
   fullDescription: string;
   /** Slugs from `services.ts`. Drives the "Services provided" section. */
   services: string[];
+  /**
+   * Slugs from `services.ts`, for `/works`' quick-search chips
+   * (`WorksIndex.tsx`) — deliberately separate from `services` above rather
+   * than reusing it. `services` is a formal "this work was delivered as an
+   * instance of that packaged service" claim, which is why it's empty on
+   * every video work (portfolio/demo pieces, not commissioned engagements —
+   * see that field's own history). `serviceTags` is a looser browsing
+   * category — "a visitor clicking this service's name would reasonably
+   * expect to find this work" — so it can be populated more broadly (e.g.
+   * every AI-produced video work tagged `ai-video-ugc`) without also
+   * retroactively claiming those were paid `ai-video-ugc` engagements.
+   * Still real matches only, never a loose thematic guess: omitted/empty for
+   * any work with no clear, specific connection to a real service.
+   */
+  serviceTags?: string[];
   /** Confirmed from the repository or the client only — never inferred. */
   technologies: string[];
   /** Capability tags, rendered as `Pill`s on the card. */
@@ -75,10 +106,17 @@ export interface Project {
   url?: string;
   /**
    * Lower sorts first; omitted entries sort after every numbered one, in
-   * their original array order (the sort below is stable). Replaces the
-   * previous `featured?: boolean`, which the render path never actually
-   * read — this project needed a real ordering signal, not a second unused
-   * one next to it.
+   * their original array order (the sort below is stable). This is `/works`'
+   * own ordering signal — a deliberate mix of video and Baytix entries (see
+   * the top-of-file doc comment).
+   *
+   * `featured?: boolean` briefly lived here too, for the homepage's old
+   * "Featured Work" teaser to pick its 4 cards independently of this field.
+   * That teaser is gone — replaced by a services-based "Solutions" section,
+   * `sections/Solutions.tsx` — so nothing reads `featured` anymore; removed
+   * rather than left as unread dead weight, the same call made about it once
+   * before. If a future homepage section ever needs to curate Works entries
+   * again independently of `priority`, that's the precedent for how.
    */
   priority?: number;
 }
@@ -111,197 +149,92 @@ export interface Project {
 export const THUMB_WIDTH = 832;
 export const THUMB_HEIGHT = 1104;
 
-export const worksEyebrow = "Featured Work";
-export const worksTitle = "Things we have designed, built and shipped";
-export const worksCta = "Book an intro call";
-
 const allProjects: Project[] = [
   /* ---------------------------------------------------------------------- *
-   * Real video work, imported from `vedios/` (a sibling folder of this repo,
-   * supplied directly rather than found on a public site). `priority` 1-10
-   * puts these ahead of everything else on both card surfaces; kept first
-   * here too so array order and `priority` agree at a glance.
+   * Real featured-work videos, supplied directly by the client along with
+   * their real titles, descriptions and thumbnails (`AI_Video_Portfolio_Data
+   * _Sheet 3.docx`, relocated to `docs/` once ingested — see that file for
+   * the verbatim source text). This replaces an earlier, purely
+   * filename-derived import of a smaller local video set.
    *
-   * Only the title is confidently derived from each source filename —
-   * description/category/tags/technologies/services have no real signal
-   * beyond the filename to draw from, so they stay honestly minimal rather
-   * than invented. Every one of these is flagged in the import report for
-   * the business to fill in with the real story.
+   * These 14 entries are kept together here purely for authoring
+   * convenience — grouping the client's own data together on the page — but
+   * their `priority` values are NOT sequential and do NOT keep them grouped
+   * on either card surface: `/works` deliberately interleaves them with the
+   * Baytix entries below (see the top-of-file doc comment for why), so array
+   * position and `priority` intentionally disagree here.
    *
-   * `THE 90S.mp4` and `THE 90S (1).mp4` were byte-identical duplicates in the
-   * source folder (same size, duration, codec) — imported once.
+   * `description`/`fullDescription` are the client's own "Description" and
+   * "Creative POV" text verbatim (concatenated for `fullDescription`, not
+   * paraphrased). `technologies` carries only what the sheet's own
+   * "Tools / Credits" line named for that entry — most entries have none, so
+   * it stays empty rather than guessing. `services`/`tags` are left empty on
+   * all 14: nothing in the sheet names a specific commissioned service
+   * engagement (these are portfolio/demo pieces, not client deliverables),
+   * matching exactly how the prior video import handled the same question.
+   *
+   * Work 10 ("Baytix Forms: AI Creative Ad") names its own client in the
+   * sheet — coincidentally sharing the word "Baytix" with this file's
+   * unrelated baytix.net portfolio import below. Same word, two unrelated
+   * things: one is a client name, the other is a source site.
    * ---------------------------------------------------------------------- */
 
   {
-    slug: "throne-of-blood",
-    title: "Throne of Blood",
-    description: "A real video project. Full details to be added.",
+    slug: "classic-royal-fantasy",
+    title: "A Classic Royal Fantasy",
+    description:
+      "A mysterious prince arrives at the royal palace with gifts no one expects. This short fantasy-comedy blends epic palace visuals, dramatic entrances and absurd gift reveals (blue pottery, birds in golden cages, tiny ceremonial cups), with exaggerated reactions from the royal advisers.",
     fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Video",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 1,
-    thumbnail: { avif: "/works/video/throne-of-blood.avif", webp: "/works/video/throne-of-blood.webp", fallback: "/works/video/throne-of-blood.png" },
-    media: {
-      type: "video",
-      src: "/works/video/throne-of-blood.mp4",
-      poster: { avif: "/works/video/throne-of-blood.avif", webp: "/works/video/throne-of-blood.webp", fallback: "/works/video/throne-of-blood.png" },
-    },
-  },
-  {
-    slug: "the-bank-robbery-hq",
-    title: "The Bank Robbery HQ",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Video",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 2,
-    thumbnail: { avif: "/works/video/the-bank-robbery-hq.avif", webp: "/works/video/the-bank-robbery-hq.webp", fallback: "/works/video/the-bank-robbery-hq.png" },
-    media: {
-      type: "video",
-      src: "/works/video/the-bank-robbery-hq.mp4",
-      poster: { avif: "/works/video/the-bank-robbery-hq.avif", webp: "/works/video/the-bank-robbery-hq.webp", fallback: "/works/video/the-bank-robbery-hq.png" },
-    },
-  },
-  {
-    slug: "after-blinders",
-    title: "After Blinders",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Video",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 3,
-    thumbnail: { avif: "/works/video/after-blinders.avif", webp: "/works/video/after-blinders.webp", fallback: "/works/video/after-blinders.png" },
-    media: {
-      type: "video",
-      src: "/works/video/after-blinders.mp4",
-      poster: { avif: "/works/video/after-blinders.avif", webp: "/works/video/after-blinders.webp", fallback: "/works/video/after-blinders.png" },
-    },
-  },
-  {
-    slug: "blue-tick",
-    title: "Blue Tick: Acidic Studios Short Film",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
+      "A mysterious prince arrives at the royal palace with gifts no one expects. This short fantasy-comedy blends epic palace visuals, dramatic entrances and absurd gift reveals (blue pottery, birds in golden cages, tiny ceremonial cups), with exaggerated reactions from the royal advisers. A playful parody of classic Aladdin-style tales: grand scale played for laughs. Proves AI can deliver comedic timing and a strong visual identity without a traditional studio pipeline.",
     type: "Client Project",
     category: "Short Film",
     tags: [],
-    technologies: [],
+    technologies: ["Veo 3"],
     services: [],
-    priority: 4,
-    thumbnail: { avif: "/works/video/blue-tick.avif", webp: "/works/video/blue-tick.webp", fallback: "/works/video/blue-tick.png" },
+    priority: 1,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/classic-royal-fantasy.avif", webp: "/works/video/classic-royal-fantasy.webp", fallback: "/works/video/classic-royal-fantasy.png" },
     media: {
       type: "video",
-      src: "/works/video/blue-tick.mp4",
-      poster: { avif: "/works/video/blue-tick.avif", webp: "/works/video/blue-tick.webp", fallback: "/works/video/blue-tick.png" },
+      src: "/works/video/classic-royal-fantasy.mp4",
+      poster: { avif: "/works/video/classic-royal-fantasy.avif", webp: "/works/video/classic-royal-fantasy.webp", fallback: "/works/video/classic-royal-fantasy.png" },
     },
   },
   {
-    slug: "callixa-hero-demo",
-    title: "Callixa Hero Demo",
-    description: "A real video project. Full details to be added.",
+    slug: "future-minds",
+    title: "FUTURE MINDS",
+    description:
+      "A psychological sci-fi concept where war doesn't happen outside, but inside your own mind. Built over 7 days, from concept to visuals to execution.",
     fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Demo",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 5,
-    thumbnail: { avif: "/works/video/callixa-hero-demo.avif", webp: "/works/video/callixa-hero-demo.webp", fallback: "/works/video/callixa-hero-demo.png" },
-    media: {
-      type: "video",
-      src: "/works/video/callixa-hero-demo.mp4",
-      poster: { avif: "/works/video/callixa-hero-demo.avif", webp: "/works/video/callixa-hero-demo.webp", fallback: "/works/video/callixa-hero-demo.png" },
-    },
-  },
-  {
-    // Filename after stripping "Copy of" and the "0111(1)" version code was
-    // just "PATA NI" — short and possibly not the intended real title. Flagged
-    // in the import report; happy to be corrected.
-    slug: "pata-ni",
-    title: "Pata Ni",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
+      "A psychological sci-fi concept where war doesn't happen outside, but inside your own mind. Built over 7 days, from concept to visuals to execution. An experiment in blending AI, storytelling and cinematic design. Most people use AI to make more content; this piece aims to make better content, with series potential.",
     type: "Client Project",
     category: "Video",
     tags: [],
-    technologies: [],
+    technologies: ["Kling 2.6"],
     services: [],
-    priority: 6,
-    thumbnail: { avif: "/works/video/pata-ni.avif", webp: "/works/video/pata-ni.webp", fallback: "/works/video/pata-ni.png" },
+    priority: 2,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/future-minds.avif", webp: "/works/video/future-minds.webp", fallback: "/works/video/future-minds.png" },
     media: {
       type: "video",
-      src: "/works/video/pata-ni.mp4",
-      poster: { avif: "/works/video/pata-ni.avif", webp: "/works/video/pata-ni.webp", fallback: "/works/video/pata-ni.png" },
+      src: "/works/video/future-minds.mp4",
+      poster: { avif: "/works/video/future-minds.avif", webp: "/works/video/future-minds.webp", fallback: "/works/video/future-minds.png" },
     },
   },
   {
-    slug: "flower-robot",
-    title: "Flower Robot",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Video",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 7,
-    thumbnail: { avif: "/works/video/flower-robot.avif", webp: "/works/video/flower-robot.webp", fallback: "/works/video/flower-robot.png" },
-    media: {
-      type: "video",
-      src: "/works/video/flower-robot.mp4",
-      poster: { avif: "/works/video/flower-robot.avif", webp: "/works/video/flower-robot.webp", fallback: "/works/video/flower-robot.png" },
-    },
-  },
-  {
-    slug: "mind-tunnels",
-    title: "Mind Tunnels",
-    description: "A real video project. Full details to be added.",
-    fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
-    type: "Client Project",
-    category: "Video",
-    tags: [],
-    technologies: [],
-    services: [],
-    priority: 8,
-    thumbnail: { avif: "/works/video/mind-tunnels.avif", webp: "/works/video/mind-tunnels.webp", fallback: "/works/video/mind-tunnels.png" },
-    media: {
-      type: "video",
-      src: "/works/video/mind-tunnels.mp4",
-      poster: { avif: "/works/video/mind-tunnels.avif", webp: "/works/video/mind-tunnels.webp", fallback: "/works/video/mind-tunnels.png" },
-    },
-  },
-  {
-    // Source filename repeated "AI Short Film" / "AI video" and tool names
-    // (Higgsfield, Claude) many times over — export metadata, not title. The
-    // one real name in it is "RURU"; "AI Short Film" is kept once as category.
     slug: "ruru",
-    title: "RURU: AI Short Film",
-    description: "A real video project. Full details to be added.",
+    title: "RURU | An Original AI Short Film",
+    description:
+      "A small robotic traveler crash-lands on Earth long after the last humans are gone. He teleports between locations using pearls stored in his body and slowly realizes the world has moved on without people, confirmed by a single dead screen in Times Square.",
     fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
+      "A small robotic traveler crash-lands on Earth long after the last humans are gone. He teleports between locations using pearls stored in his body and slowly realizes the world has moved on without people, confirmed by a single dead screen in Times Square. Quiet, dialogue-free and emotional, with no doomsday tone. A test of studio-level craft: consistent character design, cinematic continuity and pacing. Made in about 4 hours by Acidic Studios.",
     type: "Client Project",
     category: "AI Short Film",
     tags: [],
-    technologies: [],
+    technologies: ["Seedance 2.5", "Higgsfield AI"],
     services: [],
-    priority: 9,
+    priority: 4,
+    serviceTags: ["ai-video-ugc"],
     thumbnail: { avif: "/works/video/ruru.avif", webp: "/works/video/ruru.webp", fallback: "/works/video/ruru.png" },
     media: {
       type: "video",
@@ -310,23 +243,231 @@ const allProjects: Project[] = [
     },
   },
   {
-    // "THE 90S.mp4" and "THE 90S (1).mp4" were byte-identical — see note above.
-    slug: "the-90s",
-    title: "The 90s",
-    description: "A real video project. Full details to be added.",
+    slug: "after-blinders",
+    title: "AFTER BLINDERS",
+    description:
+      "An AI reimagining of the dark, cinematic world of The Immortal Man, rebuilt as a trailer through AI workflows: mood, atmosphere, characters, storytelling and trailer-level visuals.",
     fullDescription:
-      "This project doesn't have a written case study yet. Ask us directly for the full story behind it.",
+      "An AI reimagining of the dark, cinematic world of The Immortal Man, rebuilt as a trailer through AI workflows: mood, atmosphere, characters, storytelling and trailer-level visuals. Not a copy, but an experiment in capturing tension: smoke, silence, streets, emotion and cinematic weight. Asks how far imagination can go when production limits disappear.",
+    type: "Client Project",
+    category: "Trailer",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 6,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/after-blinders.avif", webp: "/works/video/after-blinders.webp", fallback: "/works/video/after-blinders.png" },
+    media: {
+      type: "video",
+      src: "/works/video/after-blinders.mp4",
+      poster: { avif: "/works/video/after-blinders.avif", webp: "/works/video/after-blinders.webp", fallback: "/works/video/after-blinders.png" },
+    },
+  },
+  {
+    slug: "flower-robot",
+    title: "Flower Robot",
+    description: "A cinematic, Netflix-style video centred on a robot character and flower imagery.",
+    fullDescription:
+      "A cinematic, Netflix-style video centred on a robot character and flower imagery. Premium streaming-quality visuals: a delicate, organic subject treated with the polish of a high-end series.",
     type: "Client Project",
     category: "Video",
     tags: [],
     technologies: [],
     services: [],
-    priority: 10,
-    thumbnail: { avif: "/works/video/the-90s.avif", webp: "/works/video/the-90s.webp", fallback: "/works/video/the-90s.png" },
+    priority: 8,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/flower-robot.avif", webp: "/works/video/flower-robot.webp", fallback: "/works/video/flower-robot.png" },
     media: {
       type: "video",
-      src: "/works/video/the-90s.mp4",
-      poster: { avif: "/works/video/the-90s.avif", webp: "/works/video/the-90s.webp", fallback: "/works/video/the-90s.png" },
+      src: "/works/video/flower-robot.mp4",
+      poster: { avif: "/works/video/flower-robot.avif", webp: "/works/video/flower-robot.webp", fallback: "/works/video/flower-robot.png" },
+    },
+  },
+  {
+    slug: "90s-love-story-train",
+    title: "This Entire Short Film Was Created by AI: A 90s Love Story on a Train",
+    description:
+      "An emotional short about falling in love in the era of walkmans, payphones and no internet, brought to life entirely with AI.",
+    fullDescription:
+      "An emotional short about falling in love in the era of walkmans, payphones and no internet, brought to life entirely with AI. Technology meets nostalgia. Shows AI can carry warmth and human emotion, not just spectacle.",
+    type: "Client Project",
+    category: "Short Film",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 10,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/90s-love-story-train.avif", webp: "/works/video/90s-love-story-train.webp", fallback: "/works/video/90s-love-story-train.png" },
+    media: {
+      type: "video",
+      src: "/works/video/90s-love-story-train.mp4",
+      poster: { avif: "/works/video/90s-love-story-train.avif", webp: "/works/video/90s-love-story-train.webp", fallback: "/works/video/90s-love-story-train.png" },
+    },
+  },
+  {
+    slug: "rattlesnake-gospel",
+    title: "THE RATTLESNAKE GOSPEL: A Tale of Snake Oil & the Selling of Hope",
+    description:
+      "A cinematic Wild West prologue following a traveling salesman whose promises sound like salvation to farmers, miners, mothers and the sick. Set beneath a burning sunset, with wagon wheels and fiddle strings.",
+    fullDescription:
+      "A cinematic Wild West prologue following a traveling salesman whose promises sound like salvation to farmers, miners, mothers and the sick. Set beneath a burning sunset, with wagon wheels and fiddle strings. What if the West was built on belief rather than gold? Explores persuasion, myth-making and how stories shape decisions, asking whether we're still buying the same promises in new packaging.",
+    type: "Client Project",
+    category: "Video",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 13,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/rattlesnake-gospel.avif", webp: "/works/video/rattlesnake-gospel.webp", fallback: "/works/video/rattlesnake-gospel.png" },
+    media: {
+      type: "video",
+      src: "/works/video/rattlesnake-gospel.mp4",
+      poster: { avif: "/works/video/rattlesnake-gospel.avif", webp: "/works/video/rattlesnake-gospel.webp", fallback: "/works/video/rattlesnake-gospel.png" },
+    },
+  },
+  {
+    slug: "blue-tick",
+    title: "Blue Tick",
+    description: "An AI horror short made to test whether visuals alone can deliver real fear and real emotion.",
+    fullDescription:
+      "An AI horror short made to test whether visuals alone can deliver real fear and real emotion. AI video is at the stage VFX was when it first appeared: not yet trusted. The goal is videos so good people forget AI made them and focus on the story. Produced by Acidic Studios.",
+    type: "Client Project",
+    category: "Short Film",
+    tags: [],
+    technologies: ["Claude", "Higgsfield AI"],
+    services: [],
+    priority: 15,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/blue-tick.avif", webp: "/works/video/blue-tick.webp", fallback: "/works/video/blue-tick.png" },
+    media: {
+      type: "video",
+      src: "/works/video/blue-tick.mp4",
+      poster: { avif: "/works/video/blue-tick.avif", webp: "/works/video/blue-tick.webp", fallback: "/works/video/blue-tick.png" },
+    },
+  },
+  {
+    slug: "bar-attack",
+    title: "Bar Attack",
+    description: "A bar-set action scene.",
+    fullDescription:
+      "A bar-set action scene. High-energy, tension-driven staging that turns a confined location into a dynamic set piece.",
+    type: "Client Project",
+    category: "Video",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 17,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/bar-attack.avif", webp: "/works/video/bar-attack.webp", fallback: "/works/video/bar-attack.png" },
+    media: {
+      type: "video",
+      src: "/works/video/bar-attack.mp4",
+      poster: { avif: "/works/video/bar-attack.avif", webp: "/works/video/bar-attack.webp", fallback: "/works/video/bar-attack.png" },
+    },
+  },
+  {
+    slug: "baytix-forms",
+    title: "Baytix Forms: AI Creative Ad",
+    client: "Baytix Forms",
+    description: "An AI-generated creative advertisement for Baytix Forms",
+    fullDescription:
+      "An AI-generated creative advertisement for Baytix Forms. Shows AI-driven video works for brand and product messaging, with a clean, attention-grabbing look at a fraction of traditional ad production cost.",
+    type: "Client Project",
+    category: "Ad",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 19,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/baytix-forms.avif", webp: "/works/video/baytix-forms.webp", fallback: "/works/video/baytix-forms.png" },
+    media: {
+      type: "video",
+      src: "/works/video/baytix-forms.mp4",
+      poster: { avif: "/works/video/baytix-forms.avif", webp: "/works/video/baytix-forms.webp", fallback: "/works/video/baytix-forms.png" },
+    },
+  },
+  {
+    slug: "after-dunes",
+    title: "AFTER DUNES | AI Trailer",
+    description:
+      "A cinematic AI trailer imagining humanity's return to the sands after the events of Dune: a mysterious future buried beneath endless deserts, forgotten civilizations and the echoes of a lost empire.",
+    fullDescription:
+      "A cinematic AI trailer imagining humanity's return to the sands after the events of Dune: a mysterious future buried beneath endless deserts, forgotten civilizations and the echoes of a lost empire. Post-apocalyptic world-building: what comes after the fall. Created entirely with AI tools, combining storytelling, visual design and cinematic scale.",
+    type: "Client Project",
+    category: "Trailer",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 22,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/after-dunes.avif", webp: "/works/video/after-dunes.webp", fallback: "/works/video/after-dunes.png" },
+    media: {
+      type: "video",
+      src: "/works/video/after-dunes.mp4",
+      poster: { avif: "/works/video/after-dunes.avif", webp: "/works/video/after-dunes.webp", fallback: "/works/video/after-dunes.png" },
+    },
+  },
+  {
+    slug: "dont-come-back-sam",
+    title: "Don't Come Back, Sam",
+    description:
+      "An indie neo-western music video on a sun-bleached desert highway, inspired by 1970s–80s Americana. Sam cruises in a red Mercedes convertible, eats roadside donuts, jams with a cobweb-draped jazz band and waves at eccentric villagers, building to a moody tunnel climax.",
+    fullDescription:
+      "An indie neo-western music video on a sun-bleached desert highway, inspired by 1970s–80s Americana. Sam cruises in a red Mercedes convertible, eats roadside donuts, jams with a cobweb-draped jazz band and waves at eccentric villagers, building to a moody tunnel climax. A visual love letter to vintage Americana and the pull of the open road: happy on the surface, emotionally layered underneath. Themes of freedom, identity and escape.",
+    type: "Client Project",
+    category: "Music Video",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 24,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/dont-come-back-sam.avif", webp: "/works/video/dont-come-back-sam.webp", fallback: "/works/video/dont-come-back-sam.png" },
+    media: {
+      type: "video",
+      src: "/works/video/dont-come-back-sam.mp4",
+      poster: { avif: "/works/video/dont-come-back-sam.avif", webp: "/works/video/dont-come-back-sam.webp", fallback: "/works/video/dont-come-back-sam.png" },
+    },
+  },
+  {
+    slug: "the-bank-robbery",
+    title: "THE BANK ROBBERY | AI Trailer",
+    description:
+      "An RDR2-inspired short trailer set in London, 1890, where the grit of the Wild West collides with industrial shadows. A story of outlaws, fire and freedom.",
+    fullDescription:
+      "An RDR2-inspired short trailer set in London, 1890, where the grit of the Wild West collides with industrial shadows. A story of outlaws, fire and freedom. Dark, moody and raw: more than a heist, it's survival. A genre mash-up that gives a Western sensibility a Victorian city backdrop.",
+    type: "Client Project",
+    category: "Trailer",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 27,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/the-bank-robbery.avif", webp: "/works/video/the-bank-robbery.webp", fallback: "/works/video/the-bank-robbery.png" },
+    media: {
+      type: "video",
+      src: "/works/video/the-bank-robbery.mp4",
+      poster: { avif: "/works/video/the-bank-robbery.avif", webp: "/works/video/the-bank-robbery.webp", fallback: "/works/video/the-bank-robbery.png" },
+    },
+  },
+  {
+    slug: "throne-of-blood",
+    title: "THRONE OF BLOOD: A War Epic Reimagined by AI",
+    description:
+      "A trailer fully generated by AI, bringing an ancient war saga to life with brutal history and cinematic power.",
+    fullDescription:
+      "A trailer fully generated by AI, bringing an ancient war saga to life with brutal history and cinematic power. Asks what an ancient war epic looks like reborn through AI, and whether audiences would watch a full film like it.",
+    type: "Client Project",
+    category: "Trailer",
+    tags: [],
+    technologies: [],
+    services: [],
+    priority: 29,
+    serviceTags: ["ai-video-ugc"],
+    thumbnail: { avif: "/works/video/throne-of-blood.avif", webp: "/works/video/throne-of-blood.webp", fallback: "/works/video/throne-of-blood.png" },
+    media: {
+      type: "video",
+      src: "/works/video/throne-of-blood.mp4",
+      poster: { avif: "/works/video/throne-of-blood.avif", webp: "/works/video/throne-of-blood.webp", fallback: "/works/video/throne-of-blood.png" },
     },
   },
 
@@ -348,6 +489,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "Visual Design"],
     technologies: [],
     services: [],
+    priority: 3,
     thumbnail: {
       avif: "/works/eyewear-campaign-identity.avif",
       webp: "/works/eyewear-campaign-identity.webp",
@@ -366,6 +508,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "Product Marketing"],
     technologies: [],
     services: [],
+    priority: 5,
     thumbnail: {
       avif: "/works/fitness-product-branding.avif",
       webp: "/works/fitness-product-branding.webp",
@@ -384,6 +527,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Fintech UI"],
     technologies: [],
     services: [],
+    priority: 7,
     thumbnail: {
       avif: "/works/cryptocurrency-app.avif",
       webp: "/works/cryptocurrency-app.webp",
@@ -402,6 +546,8 @@ const allProjects: Project[] = [
     tags: ["Web Design", "Lead Generation"],
     technologies: [],
     services: [],
+    priority: 9,
+    serviceTags: ["web-development"],
     thumbnail: {
       avif: "/works/real-estate-website.avif",
       webp: "/works/real-estate-website.webp",
@@ -420,6 +566,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Live Sports"],
     technologies: [],
     services: [],
+    priority: 11,
     thumbnail: {
       avif: "/works/cricket-live-app.avif",
       webp: "/works/cricket-live-app.webp",
@@ -438,6 +585,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Financial Tools"],
     technologies: [],
     services: [],
+    priority: 12,
     thumbnail: {
       avif: "/works/accounting-desktop-app.avif",
       webp: "/works/accounting-desktop-app.webp",
@@ -456,6 +604,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "Packaging"],
     technologies: [],
     services: [],
+    priority: 14,
     thumbnail: {
       avif: "/works/playful-toy-branding.avif",
       webp: "/works/playful-toy-branding.webp",
@@ -474,6 +623,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "Packaging"],
     technologies: [],
     services: [],
+    priority: 16,
     thumbnail: {
       avif: "/works/skincare-identity-design.avif",
       webp: "/works/skincare-identity-design.webp",
@@ -492,6 +642,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "App Design"],
     technologies: [],
     services: [],
+    priority: 18,
     thumbnail: {
       avif: "/works/food-delivery-branding.avif",
       webp: "/works/food-delivery-branding.webp",
@@ -510,6 +661,7 @@ const allProjects: Project[] = [
     tags: ["Brand Identity", "App Design"],
     technologies: [],
     services: [],
+    priority: 20,
     thumbnail: {
       avif: "/works/streaming-service-identity.avif",
       webp: "/works/streaming-service-identity.webp",
@@ -528,6 +680,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Fintech UI"],
     technologies: [],
     services: [],
+    priority: 21,
     thumbnail: {
       avif: "/works/trading-platform.avif",
       webp: "/works/trading-platform.webp",
@@ -546,6 +699,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Booking & Scheduling"],
     technologies: [],
     services: [],
+    priority: 23,
     thumbnail: {
       avif: "/works/automotive-services.avif",
       webp: "/works/automotive-services.webp",
@@ -564,6 +718,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "Financial Tools"],
     technologies: [],
     services: [],
+    priority: 25,
     thumbnail: {
       avif: "/works/accounting-mobile-app.avif",
       webp: "/works/accounting-mobile-app.webp",
@@ -582,6 +737,7 @@ const allProjects: Project[] = [
     tags: ["App Design", "E-commerce"],
     technologies: [],
     services: [],
+    priority: 26,
     thumbnail: {
       avif: "/works/e-commerce-store.avif",
       webp: "/works/e-commerce-store.webp",
@@ -600,6 +756,8 @@ const allProjects: Project[] = [
     tags: ["Web Design", "Brand Identity"],
     technologies: [],
     services: [],
+    priority: 28,
+    serviceTags: ["web-development"],
     thumbnail: {
       avif: "/works/digital-design-agency.avif",
       webp: "/works/digital-design-agency.webp",

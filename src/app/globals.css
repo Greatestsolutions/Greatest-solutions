@@ -325,18 +325,40 @@
      it once, but a flip has TWO halves and each needs its own acceleration —
      into the edge, then out of it. A single curve reads mechanical at the turn.
      Duration comes from --flip-duration so the JS scheduler and the CSS cannot
-     disagree about how long a flip lasts. */
+     disagree about how long a flip lasts.
+
+     `opacity` rides along with `scaleX` for the same reason the card has no
+     back face at all: text does not scale the way geometry does. Squashing a
+     card of real words toward zero width does not shrink each letter in
+     proportion — it compresses them into each other, and for a stretch before
+     the card is actually thin enough to read as "edge-on," what's on screen is
+     legible-but-garbled overlapping text sitting on top of the "View details"
+     button, which reads as a broken layout, not a flip in progress (this was
+     confirmed by forcing a card to a low-but-nonzero `scaleX` directly — it
+     reproduces exactly that look). Fading to `opacity: 0` by the time `scaleX`
+     drops below roughly 0.3 removes the danger zone: the card silhouette still
+     visibly narrows, but nothing legible is on screen while it's too narrow to
+     read cleanly, so it turns rather than garbles. */
   @keyframes card-flip {
     0% {
       transform: scaleX(1);
+      opacity: 1;
       animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    35% {
+      opacity: 1;
     }
     50% {
       transform: scaleX(0);
+      opacity: 0;
       animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+    }
+    65% {
+      opacity: 1;
     }
     100% {
       transform: scaleX(1);
+      opacity: 1;
     }
   }
 

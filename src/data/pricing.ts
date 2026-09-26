@@ -12,11 +12,9 @@ export type PlanIconName = "launch" | "growth" | "scale";
 
 /**
  * Stands in for a real price wherever one hasn't been decided yet — currently
- * every tier in `servicePricing.ts`. `PricingCard` renders this value with a
- * visually distinct treatment (a dashed, muted pill) rather than in the same
- * slot styled the same as a real number, precisely so it cannot be mistaken
- * for one. See `servicePricing.ts` for why a placeholder rather than an
- * invented figure.
+ * every tier below. `PricingCard` renders this value with a visually distinct
+ * treatment (a dashed, muted pill) rather than in the same slot styled the
+ * same as a real number, precisely so it cannot be mistaken for one.
  */
 export const PRICE_PLACEHOLDER = "[Price TBD]";
 

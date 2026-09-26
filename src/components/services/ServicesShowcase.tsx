@@ -229,7 +229,7 @@ export function ServicesShowcase({ services }: { services: Service[] }) {
                 ].join(" ")}
               >
                 <Picture
-                  source={service.illustration}
+                  source={service.abstractIllustration}
                   alt=""
                   width={1024}
                   height={1024}

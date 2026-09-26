@@ -44,14 +44,14 @@ export function ServiceCard({ service }: { service: Service }) {
         className="relative order-1 -mt-8 w-full overflow-clip desktop:hidden tablet:-order-1 tablet:mt-0 tablet:h-[350px] max-tablet:aspect-[342/375]"
       >
         <Picture
-          source={service.illustration}
+          source={service.abstractIllustration}
           alt=""
           width={1024}
           height={1024}
           sizes="490px"
           className="absolute top-1/2 left-1/2 h-[490px] w-[490px] max-w-none -translate-x-1/2 -translate-y-1/2"
         />
-          
+
       </div>
 
       {/* Measured: 32px between title and description on phone, 16px from tablet up. */}

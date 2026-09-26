@@ -36,6 +36,19 @@ import type { ImageSource } from "@/types/media";
  * nothing more specific. The second reviewer gave neither a name nor a
  * project, so it is attributed as a verified client review — not a company,
  * not a role, because neither exists to attribute it to.
+ *
+ * ## The one deliberate departure from "verbatim"
+ *
+ * Both quotes originally named the individual who did the work ("He proved
+ * to be...", "...Thanks Muhammad") rather than the company — accurate to
+ * what the client wrote, but not how the site wants to present itself (an
+ * organization, not a person). The site owner approved swapping only that
+ * personal reference for a company-level one in both quotes — nothing else
+ * in either sentence changed, and the substance/sentiment of what the
+ * client actually said is untouched. `"Thanks, the team."` adds a comma the
+ * literal substitution didn't have, kept because `"Thanks the team."` reads
+ * as a typo rather than a considered edit — the only punctuation change
+ * made anywhere in either quote.
  */
 export interface Testimonial {
   /** A verbatim quote or excerpt — never paraphrased, never combined from
@@ -75,7 +88,7 @@ export const testimonials: Testimonial[] = [
        recommendation (also a strong standalone candidate — see the redo
        report) for reading as a complete, self-contained claim on its own. */
     quote:
-      "He proved to be a highly skilled AI content creator with a strong combination of technical expertise and creative storytelling ability.",
+      "The team proved to be a highly skilled AI content creator with a strong combination of technical expertise and creative storytelling ability.",
     attribution: "Client, AITube",
     rating: 5.0,
     illustration: illustration("web-development"),
@@ -83,7 +96,7 @@ export const testimonials: Testimonial[] = [
   {
     /* Used in full — the entire review is already the length of a pull-quote,
        so there was nothing to excerpt. */
-    quote: "Working with Muhammad was nice. Great communication, good ai work and matching deadlines. Thanks Muhammad.",
+    quote: "Working with the team was nice. Great communication, good ai work and matching deadlines. Thanks, the team.",
     attribution: "Verified client",
     rating: 5.0,
     illustration: illustration("digital-marketing"),

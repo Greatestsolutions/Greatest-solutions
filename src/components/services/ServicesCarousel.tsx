@@ -202,7 +202,18 @@ export function ServicesCarousel({ services }: { services: Service[] }) {
     >
       {/* The emerald ramp the illustrations are painted through —
           `<EmeraldFilter />` now renders once, globally, in `PageShell`. */}
-      <div className="relative h-[300px] tablet:h-[320px] desktop:h-[360px]">
+      {/*
+        Tablet/desktop are taller than the reference build's own numbers
+        (320/360) — the real photos are 16:9 landscape, and the art area
+        below is a fixed 60% slice of this height, so growing it narrows
+        that area's own aspect ratio toward 16:9 before `object-cover` ever
+        gets to crop: 2.5→2.14 at tablet, 2.6→2.17 at desktop. This is safe
+        to do purely because the drag/snap/autoplay math below keys off the
+        card's measured WIDTH (`card.current`'s `ResizeObserver`), never its
+        height. Mobile is untouched: at typical phone widths its art area
+        already sits close to 16:9 on its own.
+      */}
+      <div className="relative h-[300px] tablet:h-[374px] desktop:h-[430px]">
         {services.map((service, i) => {
           const d = offsetOf(i);
           const distance = Math.abs(d);
@@ -300,15 +311,29 @@ function CarouselCard({
       aria-hidden={hidden || undefined}
     >
       {/* ---- top 60%: artwork + overlaid actions -------------------------- */}
+      {/* `object-cover` so the box is fully filled with no blank margin —
+          `bg-background` stays as the fallback behind a slow-loading image,
+          not a letterbox (cover never leaves one). The crop this leaves is
+          vertical (this area is still flatter than 16:9 even after the
+          height increase above), so `objectPosition` here is a single fixed
+          vertical bias rather than `service.focalPoint` (a horizontal
+          value, for the sites that crop horizontally instead) — every one
+          of the 10 photos frames its subject the same way vertically: head
+          in the upper third, floor in the lower, so favouring the upper
+          portion keeps the subject in frame across all of them without
+          needing a per-service value. `scale-110` was a `cover`-only nicety
+          from before this task and would only add MORE crop on top of an
+          already-tight fit, so it stays out. */}
       <div className="relative h-[60%] shrink-0 overflow-hidden bg-background">
-        <div style={{ filter: "url(#gst-emerald)" }} className="absolute inset-0">
+        <div className="absolute inset-0">
           <Picture
             source={service.illustration}
-            alt=""
+            alt={`${service.title} service thumbnail`}
             width={1024}
             height={1024}
             sizes="560px"
-            className="size-full scale-110 object-cover"
+            objectPosition="50% 40%"
+            className="size-full object-cover"
           />
         </div>
 

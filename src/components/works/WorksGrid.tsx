@@ -262,7 +262,8 @@ export function WorksGrid({ projects }: { projects: Project[] }) {
  *
  * Because the buttons are siblings rather than children of the link, a click on
  * one is never in the link's event path: the card's navigation is not merely
- * suppressed, it cannot fire. Same structure the Featured Work card uses.
+ * suppressed, it cannot fire. Same structure `ServicesCarousel`'s own cards use
+ * for their two real buttons.
  *
  * The `<li>` is `display: contents` so the `<article>` is what the grid actually
  * places. Keeping the list semantics costs a wrapper element; letting that
