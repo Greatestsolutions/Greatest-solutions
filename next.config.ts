@@ -87,6 +87,24 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      // Observed in production logs: a stray `.html` suffix on an otherwise
+      // real page path (e.g. `/services/ai-video-ugc.html`) 404s, because
+      // every route on this site is extensionless. Rather than let that keep
+      // 404ing whenever an old link, bookmark, or bot request carries the
+      // suffix, permanently redirect it to the real, extensionless path.
+      // `:path*` captures everything before `.html`, including nested
+      // segments, so this also covers any future extensionless route, not
+      // just `/services/[slug]`.
+      {
+        source: "/:path*.html",
+        destination: "/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
