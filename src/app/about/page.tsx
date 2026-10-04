@@ -34,11 +34,10 @@ export const metadata: Metadata = {
  *
  * Deliberately absent: a founding year, team size, named founders, and a
  * client or project count — including anything resembling the homepage
- * testimonials section's own 54+/96%/12+ stats strip (`data/testimonials.ts`),
- * which a prior pass flagged as unconfirmed and deliberately left untouched
- * rather than assumed real; this page doesn't restate those figures either,
- * for the same reason. None of what's absent here is independently
- * confirmed, and a plausible-sounding number is still an invented one. Where a
+ * testimonials section's own stats strip (`data/testimonials.ts`, the site
+ * owner's own supplied figures as of the last update there); this page
+ * doesn't restate them, since repeating a number elsewhere isn't this page's
+ * job and only adds another place for it to drift out of sync later. Where a
  * conventional About page would put a "Story" or "Team" section, this one goes
  * deeper on the service model and the work instead — see the report for what
  * was deliberately left out rather than filled with placeholder content.

@@ -42,9 +42,8 @@ import { Showreel } from "@/components/sections/Showreel";
  *
  * Testimonials, unlike LogoStrip, stays on the page: `data/testimonials.ts`
  * no longer carries the template's three invented people — it holds two real,
- * attributed client reviews. The stats strip beneath the cards (54+/96%/12+)
- * is a separate question a prior pass flagged as unconfirmed and deliberately
- * left alone; see that file's own comment rather than this one for its status.
+ * attributed client reviews. The stats strip beneath the cards is a separate
+ * matter; see that file's own comment rather than this one for its status.
  *
  * `Blog` (the "Notes" section — eyebrow "Notes", "Notes from our work and
  * thinking") is also gone from here, same treatment: no articles exist yet, and

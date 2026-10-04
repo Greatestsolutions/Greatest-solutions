@@ -116,15 +116,12 @@ export const testimonials: Testimonial[] = [
 export const testimonialsSupportingLine = "Rated 5.0 across every completed project.";
 
 /**
- * The stats strip under the cards. Unrelated to the testimonial content above
- * and out of scope for this rewrite — values, labels and layout all untouched.
+ * The stats strip under the cards. Unrelated to the testimonial content above.
  *
  * The reference's own copy of this row reads "0+ / 0% / 0+" and never counts
- * up — unconfigured template placeholders. These three values were filled in
- * at some point after that was first documented; whether they are the
- * business's real, confirmed figures or still provisional is a separate
- * question from the testimonials task this file was touched for, so it is
- * left exactly as found.
+ * up — unconfigured template placeholders. A prior pass filled in a first set
+ * of values without a confirmed source and left that open; these three are
+ * the site owner's own supplied figures, given directly rather than inferred.
  */
 export interface Stat {
   value: number;
@@ -133,9 +130,9 @@ export interface Stat {
 }
 
 export const stats: Stat[] = [
-  { value: 54, suffix: "+", label: "Projects Delivered" },
-  { value: 96, suffix: "%", label: "Industries Impacted" },
-  { value: 12, suffix: "+", label: "Years of Experience" },
+  { value: 100, suffix: "+", label: "Projects Delivered" },
+  { value: 100, suffix: "%", label: "Industries Impacted" },
+  { value: 7, suffix: "+", label: "Years of Experience" },
 ];
 
 export const testimonialsEyebrow = "Client Voices";
